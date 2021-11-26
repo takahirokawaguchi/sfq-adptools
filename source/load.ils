@@ -1,7 +1,7 @@
 (let ()
   (defun mload (dirPath)
     (let (files)
-      (setq files (setof file (getDirFiles dirPath) (rexMatchp ".il$" file)))
+      ;(setq files (setof file (getDirFiles dirPath) (rexMatchp ".il$" file)))
       (setq files (append files
                           (setof file (getDirFiles dirPath) (rexMatchp ".ils$" file))))
       (foreach file files
@@ -11,7 +11,8 @@
   (let (
         (loadDirs
           (list
-            "dat"
+            "functions"
+            "timing"
             "route"
             ))
         (currentDir nil))

@@ -1,0 +1,9 @@
+;;; adp process
+(adp
+ 3
+ 1
+ ;; ここからレイヤーごとの宣言
+ (metal_lgc NONE)    ;レイヤー名　優先配線方向 0
+ (metal_ptl2 HORIZONTAL); 1
+ (metal_ptl1 VERTICAL);2
+ )

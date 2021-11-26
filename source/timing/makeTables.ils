@@ -1,0 +1,180 @@
+;(load "~/git/work/sta/source/makeTables.ils")
+;Example
+;(setq TDT (makeTimingDependencyTable cv)
+;TDT->inputTermsDependTiming(outputTerm)
+;TDT->outputTermsDependTiming(inputTerm)
+;(setq DT (makeDelayTable cv)
+;DT->getDelay(inputTerm outputTerm v b)
+;DT->getInterval(inputTerm1 inputTerm2 v b)
+
+;declaration
+(define makeTimingDependencyTable nil)
+(define makeDelayTable nil)
+;makeTimingDependencyTable
+(let ()
+  (defun letMakeTimingDependencyTable (cv)
+    (let (timingDependencyTable cellTable)
+      (setq timingDependencyTable (makeTable (gensym 'asocList) nil ))
+      (foreach m cv~>instanceMasters
+               (setq cellTable (getCellTimingDependency m))
+               (if cellTable
+                 timingDependencyTable[m] = cellTable
+                 (warn "can't read delays of %s %s. @makeTimingDependencyTable\n" m~>cellName m~>libName)))
+      ;function
+      (defun outputTermsDependTiming (inputTerm)
+        (letseq 
+          ((dependingList (refTable inputTerm)))
+          (if dependingList
+            (setof x (outputTerms inputTerm~>inst)
+                   (member x~>name
+                           dependingList))
+            nil)))
+      ;function
+      (defun inputTermsDependTiming (outputTermOrInputTerm)
+        (letseq 
+          ((dependingList (refTable outputTermOrInputTerm)))
+          (if dependingList
+            (setof x (inputTerms outputTermOrInputTerm~>inst)
+                   (member x~>name
+                           dependingList))
+            nil)))
+      (defun isNode (inputOrOutputTerm)
+        (if (isInputTerm inputOrOutputTerm)
+          then
+          (or
+            ;when it has two or more succeding nodes
+            (geqp (length outputTermsDependTiming(inputOrOutputTerm)) 2)
+            ;when it is a constriant node
+            inputTermsDependTiming(inputOrOutputTerm)
+            )
+          else;isOutputTerm
+          (geqp (length inputTermsDependTiming(inputOrOutputTerm)) 2)
+          ))
+      (defun refTable (instTerm)
+        timingDependencyTable[instTerm~>inst~>master][instTerm~>name])
+
+      (list nil
+            'inputTermsDependTiming inputTermsDependTiming
+            'outputTermsDependTiming outputTermsDependTiming
+            'isNode isNode
+            'refTable refTable
+            )))
+  ;local -> global
+  makeTimingDependencyTable = letMakeTimingDependencyTable
+
+  ;local functions
+  (defun getCellTimingDependency (master)
+    (let (in tmp in_out list_in_out inputTable outputTable cellTable)
+      (setq in (infile (strcat (ddGetObjReadPath master~>lib)
+                               "/verilog/"
+                               master~>cellName
+                               ".v")))
+      (setq list_in_out nil)
+      (when in
+        (while (gets tmp in)
+               (when (rexMatchp "^[ \\t]*parameter" tmp)
+                 (setq tmp (parseString tmp "=; "))
+                 (setq in_out (parseString (nth 1 tmp) "_="))
+                 (setq in_out (append1 in_out (nth 2 tmp)))
+                 (when (equal (length in_out) 6)
+                   (setq in_out
+                         (list 
+                           (strcat (nth 0 in_out) "_" (nth 1 in_out))
+                           (strcat (nth 2 in_out) "_" (nth 3 in_out))
+                           (nth 4 in_out)
+                           (nth 5 in_out)
+                           )) )
+                 (when (and (equal (length in_out) 4)
+                            (nequal (nth 3 in_out) "0.0"))
+                   (setq list_in_out (append1 
+                                       list_in_out
+                                       (list (car in_out) (cadr in_out))
+                                       )))))
+        (close in)
+        (setq in nil))
+      (setq list_in_out (setOfList list_in_out))
+      ;(when master~>cellName == "jand6"
+      ;  (printf "%L\n" list_in_out))
+      (setq list_in_out (mapcar (lambda (x) (list (lowerCase (car x))
+                                                  (lowerCase (cadr x))))
+                                list_in_out))
+      (setq list_in_out (setof x list_in_out (nequal (car x) (cadr x))))
+      ;(when master~>cellName == "jand6"
+      ;  (printf "%L\n" list_in_out))
+      (setq inputTable list_in_out)
+      (setq outputTable (mapcar (lambda (x) (list (cadr x) (car x))) inputTable))
+      (setq outputTable 
+            (setof x outputTable
+                   (orList 
+                     (mapcar (lambda (y) (equal (car x)
+                                                y))
+                             (masterOutputTerminals master)~>name))))
+      (setq cellTable (makeTable (gensym 'asocList) nil))
+      (foreach 
+        x (append inputTable outputTable)
+        (if cellTable[(car x)]
+          cellTable[(car x)] = (append1 cellTable[(car x)] (cadr x))
+          cellTable[(car x)] = (list (cadr x))))
+      cellTable
+      ))
+  (defun masterOutputTerminals (master)
+    (setof x master~>terminals (equal x~>direction "output")))
+  );let
+
+;makeDelayTable
+(let ()
+  (defun letMakeDelayTable (cv)
+    (let (delayTable tmp)
+      ;makeDelayTable
+      (setq delayTable (makeTable (gensym 'asocList)))
+      (foreach 
+        m (setof x cv~>instanceMasters
+                 (nequal x~>libName "basic"))
+        (setq tmp (readVFile m))
+        (if tmp
+          (delayTable[m] = tmp)
+          (warn "can't read delays of %s %s. @makeDelayTable\n" m~>cellName m~>libName)))
+      ;function
+      (defun getDelay
+        ( inputTerm
+          outputTerm
+          vb)
+        (let (hashkey)
+          (when (isPTLFamily inputTerm~>inst)
+            (setq vb 1))
+          (setq hashkey (getHashkey inputTerm outputTerm vb))
+          (if (equal 
+                delayTable[inputTerm~>inst~>master][hashkey]
+                'unbound)
+            (warn "can't read delay of %s" inputTerm~>inst~>cellName)
+            delayTable[inputTerm~>inst~>master][hashkey])))
+      ;(defun getInterval (inputTerm1 inputTerm2 vb)
+      ;  delayTable[inputTerm1~>inst~>master][(getHashkey inputTerm1 inputTerm2 vb)])
+      ;DT->hoge
+      (list nil
+            'getDelay getDelay
+            'getInterval getDelay)))
+  ;local -> global
+  makeDelayTable = letMakeDelayTable
+
+  (defun getHashkey (instTerm1 instTerm2 vb)
+    (sprintf nil "%s__%s__%d" 
+             (upperCase instTerm1~>name)
+             (upperCase instTerm2~>name)
+             vb))
+  (defun readVFile (master)
+    (let (in tmp delayTable)
+      (setq in (infile (strcat (ddGetObjReadPath master~>lib)
+                               "/verilog/"
+                               master~>cellName
+                               ".v")))
+      (when in
+        (setq delayTable (makeTable (gensym 'asocList))) 
+        (while (gets tmp in)
+               (when (rexMatchp "^[ \\t]*parameter" tmp)
+                 (setq tmp (parseString tmp "=; "))
+                 (delayTable[(nth 1 tmp)] = (evalstring (nth 2 tmp)))))
+        (close in)
+        (setq in nil))
+      delayTable))
+  )

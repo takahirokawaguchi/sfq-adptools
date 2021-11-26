@@ -1,0 +1,554 @@
+;(load "~/git/route/source/setOfListImpr.il")
+
+(defun scvCellNames (scv)
+  (let (cellNames ofp fileName)
+    (sprintf fileName "cellNames_%s.txt" scv~>cellName)
+    (setq ofp (outfile fileName))
+    (setq cellNames
+          scv~>instanceMasters~>cellName)
+          ;(setOfListImpr (geGetWindowCellView )~>instances~>cellName))
+    (setq cellNames (sort cellNames nil))
+    (fprintf ofp "cell:%d\n" (length scv~>instances))
+    (fprintf ofp "cell name:%d\n" (length cellNames))
+    (foreach
+      x cellNames
+      (let (y)
+        (setq y (setof z scv~>instances (equal z~>cellName x)))
+        (fprintf ofp "%s " x )
+                (fprintf ofp "%d %d "
+                         (length (inputTerms (car y)))
+                         (length (outputTerms (car y))))
+        (foreach
+          z (car y)~>instTerms
+          (fprintf ofp "%s " z~>name))
+        (fprintf ofp "%d " (length y))
+        (fprintf ofp "\n")))
+    (close ofp)))
+
+(defun setOfList (ls)
+  (cond ((null ls)
+         nil)
+        ((member (car ls) (cdr ls))
+         (setOfList (cdr ls)))
+        (t
+          (cons (car ls) (setOfList (cdr ls))))))
+
+(defun guiTranslateCell ()
+  (let (selSet nameSel comps cellList ok opForm)
+    (setq comps nil)
+    (setq selSet (geGetSelSet ))
+    (unless (setq nameSel (car selSet)~>cellName)
+      (setq nameSel "nil"))
+    (setq comps 
+          (append1 comps 
+                   (hiCreateRadioField
+                     ?name 'allOrSlectedField
+                     ?choices (list "all" "selected")
+                     ?prompt "all or selected"
+                     ?value (if (equal nameSel "nil")
+                              "all"
+                              "selected"
+                              ))))
+    (setq comps 
+          (append1 comps 
+                   (hiCreateStringField
+                     ?name 'fromCellNameField
+                     ?prompt "fromCell name"
+                     ?value nameSel)))
+    (setq comps 
+          (append1 comps 
+                   (hiCreateStringField
+                     ?name 'toCellNameField
+                     ?prompt "toCell name"
+                     ?value "nil")))
+    (setq comps 
+          (append1 comps 
+                   (hiCreateStringField
+                     ?name 'libraryNameField
+                     ?prompt "library name"
+                     ?value "nil")))
+    (hiCreateAppForm
+      ?name 'opForm ?fields comps)
+    (setq ok
+          (hiDisplayForm 
+            opForm))
+    (setq cellList (setof x 
+                          (if (equal opForm~>allOrSlectedField~>value "all")
+                            (geGetWindowCellView )~>instances
+                            selSet
+                            )
+                          (equal x~>purpose "cell")
+                          ))
+    (unless (equal opForm~>fromCellNameField~>value "nil")
+      (setq cellList (setof x cellList (equal x~>cellName opForm~>fromCellNameField~>value))))
+    (when ok
+      (if (equal opForm~>toCellNameField~>value "nil")
+        (if (equal opForm~>libraryNameField~>value "nil")
+          (warn "Both of toCell name and library name are nil" )
+          (translateCellList cellList nil opForm~>libraryNameField~>value)
+          )
+        (if (equal opForm~>libraryNameField~>value "nil")
+          (translateCellList cellList opForm~>toCellNameField~>value nil)
+          (warn "Either toCell name or library name should be nil" )
+          )))))
+
+(defun translateCellList (cellList cellName libName)
+  (if cellName
+    (if libName
+      (foreach cell cellList
+               (translateCell cell cellName libName))
+      (foreach cell cellList
+               (translateCell cell cellName cell~>libName))
+      )
+    (if libName
+      (foreach cell cellList
+               (translateCell cell cell~>cellName libName))
+      (foreach cell cellList
+               (translateCell cell cell~>cellName cell~>libName))
+      )))
+
+(defun translateCell (instance cellName libName)
+  (let (symbolId ret)
+    (if (or (isPTLDrv instance)
+            (isPTLRec instance))
+      then 
+      (translateDrvRec instance cellName libName)
+      else
+      (when
+        (setq symbolId 
+              (dbOpenCellViewByType
+                libName
+                cellName
+                "symbol_p"
+                ))
+        (setq ret 
+              (schCreateInst
+                instance~>cellView
+                symbolId
+                nil
+                instance~>xy
+                instance~>orient
+                ))
+        (dbDeleteObject instance)
+        )
+      ;ret
+      )))
+
+(defun translateDrvRec (instance cellName libName)
+  (let (symbolId ret listPinnameNetCoord destCoord origCoord p1 p2)
+    (setq listPinnameNetCoord nil)
+    (foreach 
+      it instance~>instTerms
+      (setq listPinnameNetCoord 
+            (cons (list it~>name it~>net (getInstTermCoord it)) 
+                  listPinnameNetCoord)))
+    (when
+      (setq symbolId 
+            (dbOpenCellViewByType
+              libName
+              cellName
+              "symbol_p"
+              ))
+      (setq ret 
+            (schCreateInst
+              instance~>cellView
+              symbolId
+              nil
+              instance~>xy
+              instance~>orient
+              ))
+      (dbDeleteObject instance)
+
+      ;for net
+      (foreach 
+        it ret~>instTerms
+        (setq destCoord (getInstTermCoord it))
+        (foreach 
+          pnc listPinnameNetCoord 
+          (setq origCoord (caddr pnc))
+          (when 
+            (and 
+              (equal it~>name (car pnc))
+              (nequal destCoord origCoord))
+            (let
+              (net)
+              (setq net (cadr pnc))
+              (foreach 
+                fig net~>figs
+                (setq p1 (car fig~>points))
+                (setq p2 (cadr fig~>points))
+                (when (equal origCoord p1)
+                  fig~>points = (list destCoord p2))
+                (when (equal origCoord p2)
+                  fig~>points = (list p1 destCoord)))
+              (unless net~>figs
+                (dbAddFigToNet
+                  (car (schCreateWire
+                         net~>cellView
+                         "route"
+                         "direct"
+                         (list (getInstTermCoord (car net~>instTerms))
+                               (getInstTermCoord it))
+                         0
+                         0
+                         RINER.PTL2_PATH_WIDTH
+                         RINER.PTL2_COLOR
+                         ))
+                  net)
+                ))))))))
+
+
+(defun allRevisePtlConnectedDrvRec ()
+  (let (scv)
+    (setq scv (geGetWindowCellView ))
+    (foreach 
+      x (setof y scv~>instances (or (isPTLDrv y) (isPspl y)))
+      (foreach
+        z (outputTerms x)
+        (translatePtlCell (car (inputTermsConnected z))~>inst x)
+        ))
+    (foreach 
+      x (setof y scv~>instances (isPTLRec y))
+      (foreach
+        z (inputTerms x)
+        (translatePtlCell (car (outputTermsConnected z))~>inst x)
+        ))
+    )
+  )
+
+(defun translatePtlCell (instPtl instDrvRec)
+  ;;drvPTL2
+  ;;  PTL1
+  ;;    pspl2, drvPTL2( , c) -> via
+  ;;    drvPTL2(cr , u) -> viao
+  ;;  PTL1(c,hc,ic,icr) -> via(c,hc,ic,ioc)
+  ;;  via(or, r) -> PTL2
+  ;;  via(cr,hcr,iocr,icr) -> PTL2(c,hc,ic,icr)
+
+  ;;recPTL2
+  ;;  PTL1
+  ;;    recPTL2( , c)   -> viar
+  ;;    recPTL2(cr , u) -> viaor
+  ;;  PTL1(c,hc,ic,icr) -> via(cr,hcr,iocr,icr)
+  ;;  via( , o) -> PTL2
+  ;;  via(c,hc,ic,ioc) -> PTL2(c,hc,ic,icr)
+
+  ;; via(or,ar) <-> PTL(1,2) side
+
+  ;; PTL1icr -> viaioc  symmetryPtl2
+  ;; viacr   -> PTL2c   symmetryPtl1
+  ;; viahcr  -> PTL2hc  symmetryPtl2
+  ;; viaiocr -> PTL2ic  symmetryPtl2
+
+  ;; PTL1c   -> viacr   symmetryPtl1
+  ;; PTL1hc  -> viahcr  symmetryPtl2
+  ;; PTL1ic  -> viaiocr symmetryPtl2
+  ;; viaioc  -> PTL2icr symmetryPtl2
+  (cond
+    ((or 
+       (isPTLDrv instDrvRec)
+       (isPspl instDrvRec))
+     ;ptlDrv
+     (cond
+       ((equal instPtl~>cellName "PTL1")
+        (cond
+          ((or (equal instDrvRec~>cellName "pspl2")
+               (equal instDrvRec~>cellName "drvPTL2")
+               (equal instDrvRec~>cellName "drvPTL2c"))
+           (translateCell instPtl "via" instPtl~>libName))
+          ((or (equal instDrvRec~>cellName "drvPTL2cr")
+               (equal instDrvRec~>cellName "drvPTL2u"))
+           (translateCell instPtl "viao" instPtl~>libName))
+          ));cond PTL1
+       ((equal instPtl~>cellName "PTL1c")
+        (translateCell instPtl "viac" instPtl~>libName))
+       ((equal instPtl~>cellName "PTL1hc")
+        (translateCell instPtl "viahc" instPtl~>libName))
+       ((equal instPtl~>cellName "PTL1ic")
+        (translateCell instPtl "viaic" instPtl~>libName))
+       ((equal instPtl~>cellName "PTL1icr")
+        (symmetryPtl2 instPtl)
+        (translateCell instPtl "viaioc" instPtl~>libName))
+       ((equal instPtl~>cellName "viaor")
+        (sidewayPtlCell instPtl)
+        (translateCell instPtl "PTL2" instPtl~>libName))
+       ((equal instPtl~>cellName "viar")
+        (sidewayPtlCell instPtl)
+        (translateCell instPtl "PTL2" instPtl~>libName))
+       ((equal instPtl~>cellName "viacr")
+        (symmetryPtl1 instPtl)
+        (translateCell instPtl "PTL2c" instPtl~>libName))
+       ((equal instPtl~>cellName "viahcr")
+        (symmetryPtl2 instPtl)
+        (translateCell instPtl "PTL2hc" instPtl~>libName))
+       ((equal instPtl~>cellName "viaiocr")
+        (symmetryPtl2 instPtl)
+        (translateCell instPtl "PTL2ic" instPtl~>libName))
+       ((equal instPtl~>cellName "viaicr")
+        (translateCell instPtl "PTL2icr" instPtl~>libName))
+       ));cond drv
+    ((isPTLRec instDrvRec)
+     ;ptlRec
+     (cond
+       ((equal instPtl~>cellName "PTL1")
+        (cond
+          ((or (equal instDrvRec~>cellName "recPTL2")
+               (equal instDrvRec~>cellName "recPTL2c"))
+           (sidewayPtlCell instPtl)
+           (translateCell instPtl "viar" instPtl~>libName))
+          ((or (equal instDrvRec~>cellName "recPTL2cr")
+               (equal instDrvRec~>cellName "recPTL2u"))
+           (sidewayPtlCell instPtl)
+           (translateCell instPtl "viaor" instPtl~>libName))
+          ));cond PTL1
+       ((equal instPtl~>cellName "PTL1c")
+        (symmetryPtl1 instPtl)
+        (translateCell instPtl "viacr" instPtl~>libName))
+       ((equal instPtl~>cellName "PTL1hc")
+        (symmetryPtl2 instPtl)
+        (translateCell instPtl "viahcr" instPtl~>libName))
+       ((equal instPtl~>cellName "PTL1ic")
+        (symmetryPtl2 instPtl)
+        (translateCell instPtl "viaiocr" instPtl~>libName))
+       ((equal instPtl~>cellName "PTL1icr")
+        (translateCell instPtl "viaicr" instPtl~>libName))
+       ((equal instPtl~>cellName "via")
+        (translateCell instPtl "PTL2" instPtl~>libName))
+       ((equal instPtl~>cellName "viao")
+        (translateCell instPtl "PTL2" instPtl~>libName))
+       ((equal instPtl~>cellName "viac")
+        (translateCell instPtl "PTL2c" instPtl~>libName))
+       ((equal instPtl~>cellName "viahc")
+        (translateCell instPtl "PTL2hc" instPtl~>libName))
+       ((equal instPtl~>cellName "viaic")
+        (translateCell instPtl "PTL2ic" instPtl~>libName))
+       ((equal instPtl~>cellName "viaioc")
+        (symmetryPtl2 instPtl)
+        (translateCell instPtl "PTL2icr" instPtl~>libName))
+       ));cond rec
+    );cond
+  )
+
+(defun sideOneRotOne (inst)
+  (sidewayPtlCell 
+    (rotatePtlCell 
+      inst))
+  )
+(defun sideOneRotThree (inst)
+  (sidewayPtlCell 
+    (rotatePtlCell 
+      (rotatePtlCell 
+        (rotatePtlCell 
+          inst))))
+  )
+
+(defun rotatePtlCell (instance)
+  ;;R0, R90, R180, R270
+  ;;R0    -> R90   (+1 0)
+  ;;R90   -> R180  (0 +1)
+  ;;R180  -> R270  (-1 0)
+  ;;R270  -> R0    (0 -1)
+  ;;MY, MYR90, MX, MXR90
+  ;;MY    -> MYR90 (0 +1)
+  ;;MYR90 -> MX    (-1 0)
+  ;;MX    -> MXR90 (0 -1)
+  ;;MXR90 -> MY    (+1 0)
+  (let (fRot tRot width coord)
+    (setq fRot (cadr instance~>transform))
+    (setq width RINER.SCHEM_GRID_LEN)
+    (cond
+      ((equal fRot "R0")
+       (setq tRot "R90")
+       (setq coord (plusCoord
+                     instance~>xy 
+                     (list width 0))))
+      ((equal fRot "R90")
+       (setq tRot "R180")
+       (setq coord (plusCoord
+                     instance~>xy 
+                     (list 0 width))))
+      ((equal fRot "R180")
+       (setq tRot "R270")
+       (setq coord (plusCoord
+                     instance~>xy 
+                     (list (minus width) 0))))
+      ((equal fRot "R270")
+       (setq tRot "R0")
+       (setq coord (plusCoord
+                     instance~>xy 
+                     (list 0 (minus width)))))
+      ((equal fRot "MY")
+       (setq tRot "MYR90")
+       (setq coord (plusCoord
+                     instance~>xy 
+                     (list 0 width))))
+      ((equal fRot "MYR90")
+       (setq tRot "MX")
+       (setq coord (plusCoord
+                     instance~>xy 
+                     (list (minus width) 0))))
+      ((equal fRot "MX")
+       (setq tRot "MXR90")
+       (setq coord (plusCoord
+                     instance~>xy 
+                     (list 0 (minus width)))))
+      ((equal fRot "MXR90")
+       (setq tRot "MY")
+       (setq coord (plusCoord
+                     instance~>xy 
+                     (list width 0))))
+      )
+    instance~>transform = (list coord tRot 1.0)
+    instance
+    ))
+
+(defun sidewayPtlCell (instance)
+  ;;R0    -> MY    (+1 0)
+  ;;R90   -> MYR90 (0 +1)
+  ;;R180  -> MX    (-1 0)
+  ;;R270  -> MXR90 (0 -1)
+  ;;MY    -> R0    (-1 0)
+  ;;MYR90 -> R90   (0 -1)
+  ;;MX    -> R180  (+1 0)
+  ;;MXR90 -> R270  (0 +1)
+  (let (fRot tRot width coord)
+    (setq fRot (cadr instance~>transform))
+    (setq width RINER.SCHEM_GRID_LEN)
+    (cond
+      ((equal fRot "R0")
+       (setq tRot "MY")
+       (setq coord (plusCoord
+                     instance~>xy 
+                     (list width 0))))
+      ((equal fRot "R90")
+       (setq tRot "MYR90")
+       (setq coord (plusCoord
+                     instance~>xy 
+                     (list 0 width))))
+      ((equal fRot "R180")
+       (setq tRot "MX")
+       (setq coord (plusCoord
+                     instance~>xy 
+                     (list (minus width) 0))))
+      ((equal fRot "R270")
+       (setq tRot "MXR90")
+       (setq coord (plusCoord
+                     instance~>xy 
+                     (list 0 (minus width)))))
+      ((equal fRot "MY")
+       (setq tRot "R0")
+       (setq coord (plusCoord
+                     instance~>xy 
+                     (list (minus width) 0))))
+      ((equal fRot "MYR90")
+       (setq tRot "R90")
+       (setq coord (plusCoord
+                     instance~>xy 
+                     (list 0 (minus width)))))
+      ((equal fRot "MX")
+       (setq tRot "R180")
+       (setq coord (plusCoord
+                     instance~>xy 
+                     (list width 0))))
+      ((equal fRot "MXR90")
+       (setq tRot "R270")
+       (setq coord (plusCoord
+                     instance~>xy 
+                     (list 0 width))))
+      )
+    instance~>transform = (list coord tRot 1.0)
+    instance
+    ))
+
+
+(defun symmetryPtl1 (instance)
+  (let (fRot tRot width coord)
+    (setq fRot (cadr instance~>transform))
+    (setq width RINER.SCHEM_GRID_LEN)
+    ;;R0    -> MYR90 (+1 +1)
+    ;;R90   -> MX    (-1 +1)
+    ;;R180  -> MXR90 (-1 -1)
+    ;;R270  -> MY    (+1 -1)
+    ;;MYR90 -> R0    (-1 -1)
+    ;;MX    -> R90   (+1 -1)
+    ;;MXR90 -> R180  (+1 +1)
+    ;;MY    -> R270  (-1 +1)
+    (cond
+      ((equal fRot "R0")
+       (setq tRot "MYR90")
+       (setq coord (plusCoord
+                     instance~>xy 
+                     (list width width))))
+      ((equal fRot "R90")
+       (setq tRot "MX")
+       (setq coord (plusCoord
+                     instance~>xy 
+                     (list (minus width) width))))
+      ((equal fRot "R180")
+       (setq tRot "MXR90")
+       (setq coord (plusCoord
+                     instance~>xy 
+                     (list (minus width) (minus width)))))
+      ((equal fRot "R270")
+       (setq tRot "MY")
+       (setq coord (plusCoord
+                     instance~>xy 
+                     (list width (minus width)))))
+      ((equal fRot "MYR90")
+       (setq tRot "R0")
+       (setq coord (plusCoord
+                     instance~>xy 
+                     (list (minus width) (minus width)))))
+      ((equal fRot "MX")
+       (setq tRot "R90")
+       (setq coord (plusCoord
+                     instance~>xy 
+                     (list width (minus width)))))
+      ((equal fRot "MXR90")
+       (setq tRot "R180")
+       (setq coord (plusCoord
+                     instance~>xy 
+                     (list width width))))
+      ((equal fRot "MY")
+       (setq tRot "R270")
+       (setq coord (plusCoord
+                     instance~>xy 
+                     (list (minus width) width))))
+      )
+    instance~>transform = (list coord tRot 1.0)
+    instance
+    ))
+
+(defun symmetryPtl2 (instance)
+  (let (fRot tRot width coord)
+    (setq fRot (cadr instance~>transform))
+    (setq width RINER.SCHEM_GRID_LEN)
+    ;;R0    -> MXR90
+    ;;R90   -> MY
+    ;;R180  -> MYR90
+    ;;R270  -> MX    
+    ;;MXR90 -> R0    
+    ;;MY    -> R90   
+    ;;MYR90 -> R180  
+    ;;MX    -> R270  
+    (cond
+      ((equal fRot "R0")
+       (setq tRot "MXR90"))
+      ((equal fRot "R90")
+       (setq tRot "MY"))
+      ((equal fRot "R180")
+       (setq tRot "MYR90"))
+      ((equal fRot "R270")
+       (setq tRot "MX"))
+      ((equal fRot "MXR90")
+       (setq tRot "R0"))
+      ((equal fRot "MY")
+       (setq tRot "R90"))
+      ((equal fRot "MYR90")
+       (setq tRot "R180"))
+      ((equal fRot "MX")
+       (setq tRot "R270"))
+      )
+    instance~>transform = (list instance~>xy tRot 1.0)
+    instance
+    ))

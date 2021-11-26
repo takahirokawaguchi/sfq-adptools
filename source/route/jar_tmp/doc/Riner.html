@@ -1,0 +1,83 @@
+<html xmlns:tomboy="http://beatniksoftware.com/tomboy" xmlns:link="http://beatniksoftware.com/tomboy/link" xmlns:size="http://beatniksoftware.com/tomboy/size"><head><META http-equiv="Content-Type" content="text/html; charset=utf-8"><title>Riner</title><style type="text/css">
+        
+	body {  }
+	h1 { font-size: xx-large;
+     	     font-weight: bold;
+     	     border-bottom: 1px solid black; }
+	div.note {
+		   position: relative;
+		   display: block;
+		   padding: 5pt;
+		   margin: 5pt; 
+		   white-space: -moz-pre-wrap; /* Mozilla */
+ 	      	   white-space: -pre-wrap;     /* Opera 4 - 6 */
+ 	      	   white-space: -o-pre-wrap;   /* Opera 7 */
+ 	      	   white-space: pre-wrap;      /* CSS3 */
+ 	      	   word-wrap: break-word;      /* IE 5.5+ */ }
+	</style></head><body><div class="note" id="Riner"><a name="riner"></a><h1>Riner</h1>Virtuoso Schematic Composer(R)上で動作するピンtoピンのルーティングツールのJAVA外部ルータで用いられるAPI群のjavadocです。
+Rinerは、大きくSchematic Composerとの入出力インターフェース部分と外部ルータの2つで構成されます。
+<ul><li style="list-style-type: none" dir="ltr"><a style="color:#204A87" href="#%E8%A8%AD%E5%AE%9A%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB%E3%83%BB%E5%85%A5%E5%8A%9B%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB">設定ファイル・入力ファイル</a>
+<ul><li style="list-style-type: none" dir="ltr"><i>*.prcs</i>
+<ul><li dir="ltr">配線に使用するレイヤー層を記述したファイル
+</li></ul></li><li dir="ltr">*.init
+<ul><li dir="ltr">ルータの設定用のファイル
+</li></ul></li><li dir="ltr">*.riner
+<ul><li dir="ltr">接続・セルレイアウト・配線領域が記述されたファイル
+</li><li dir="ltr">Schematic ComposerのEdit-&gt;riner-routeから範囲を選択した場合に出力される
+</li></ul></li></ul></li><li dir="ltr">Schematic Composerとのインターフェース
+<ul><li dir="ltr"><a style="color:#204A87" href="#riner_util.il">riner_util.il</a> out,in,hiで用いられるユーティリティ関数群
+</li><li dir="ltr"><a style="color:#204A87" href="#riner_out.il">riner_out.il</a> 外部ルータへの出力のための関数群
+</li><li dir="ltr"><a style="color:#204A87" href="#riner_in.il">riner_in.il</a>   外部ルータからの入力をレイアウトに反映させるための関数群
+</li><li dir="ltr"><a style="color:#204A87" href="#riner_hi.il">riner_hi.il</a>   ユーザとの入力と全体の制御を行うための関数群</li></ul></li></ul>
+
+</div>
+<div class="note" id="設定ファイル・入力ファイル"><a name="設定ファイル・入力ファイル"></a><h1>設定ファイル・入力ファイル</h1>
+<b>.prcs プロセス記述ファイル</b>
+プロセスの配線レイヤーの情報を記述するファイル。ルータ起動時に読み込まれる。
+
+	;; sample of *.<span style="color:#555753;text-decoration:underline">prcs</span> file
+	(adp					;; プロセス名
+	 3					;; 配線レイヤー数
+	 1					;; ピンレイヤー　このレイヤーを接続の始点と終点のレイヤーとして扱う
+	 (metal_lgc NONE)			;; (レイヤー名 優先配線方向)
+	 (metal_ptl2 HORIZONTAL)
+ 	(metal_ptl1 VERTICAL)
+	)
+
+<ul><li dir="ltr">';'以降はコメントとして処理される。
+</li><li dir="ltr">全角スペースに注意。</li></ul>
+
+<b>.init ルータ設定ファイル</b>
+
+<b>.<a style="color:#204A87" href="#riner">riner</a></b><b> レイアウト・接続情報ファイル</b>
+ネットの接続情報・バウンダリ・各グリッド座標(x,y)上に存在するセル名が記述されている。<strike>
+</strike>
+	;; sample of *.riner file
+	;; net: x1 y1 x2 y2 ネットの接続情報
+	net: 0 0 1 1
+	net: 1 2 4 5
+
+	;; boundary: llx lly urx ury 配線領域の左下と右上 
+	;; grid:よりも先に宣言
+	boundary: 0 0 100 100
+
+	;; grid: x y cell1 cell2 ... 
+	grid: 0 0 jand PTL1
+	grid:
+	grid:
+
+<ul><li dir="ltr">';'以降はコメントとして処理される。
+</li><li dir="ltr">netを記述する位置はファイルのどこでもよい。<span style="background:yellow">
+</span></li><li style="list-style-type: none" dir="ltr"><span style="background:yellow">girdよりもboundaryを先に宣言しておかなければならない。</span></li></ul>
+
+
+
+</div>
+<div class="note" id="riner_util.il"><a name="riner_util.il"></a><h1>riner_util.il</h1>
+新しいメモをここに記述して下さい。</div>
+<div class="note" id="riner_out.il"><a name="riner_out.il"></a><h1>riner_out.il</h1>
+新しいメモをここに記述して下さい。</div>
+<div class="note" id="riner_in.il"><a name="riner_in.il"></a><h1>riner_in.il</h1>
+新しいメモをここに記述して下さい。</div>
+<div class="note" id="riner_hi.il"><a name="riner_hi.il"></a><h1>riner_hi.il</h1>
+新しいメモをここに記述して下さい。</div></body></html>

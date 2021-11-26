@@ -1,0 +1,248 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+DISPLAY_ARRIVAL_TIME_CONST	../../dat/source/dat-front.il	/^(defvar DISPLAY_ARRIVAL_TIME_CONST)$/;"	f
+DISPLAY_ARRIVAL_TIME_CONST	../../old/dat.old/source/dat-front.il	/^(defvar DISPLAY_ARRIVAL_TIME_CONST)$/;"	f
+DISPLAY_ARRIVAL_TIME_OPTIONS_FORM	../../dat/source/dat-front.il	/^(defvar DISPLAY_ARRIVAL_TIME_OPTIONS_FORM)$/;"	f
+DISPLAY_ARRIVAL_TIME_OPTIONS_FORM	../../old/dat.old/source/dat-front.il	/^(defvar DISPLAY_ARRIVAL_TIME_OPTIONS_FORM)$/;"	f
+LOGIC_EXTRACTION_OPTIONS_FORM	../../dat/source/c2v.il	/^(defvar LOGIC_EXTRACTION_OPTIONS_FORM)$/;"	f
+NET2PTL_PTLLIB	../../old/route/source/net2ptl.il	/^(defvar NET2PTL_PTLLIB "adp619")$/;"	f
+NET2PTL_PTLLIB	../../route/source/net2ptl.il	/^(defvar NET2PTL_PTLLIB "adp619")$/;"	f
+RINER	../../old/route/source/rRouteAll.il	/^(defvar RINER)$/;"	f
+RINER	../../route/source/rRouteAll.il	/^(defvar RINER)$/;"	f
+andList	../../dat/source/dat-back.il	/^(defun andList (xs)$/;"	f
+andList	../../old/dat.old/source/dat-depend.il	/^(defun andList (xs) (apply 'and xs))$/;"	f
+assignAllCellInputLogics	../../dat/source/c2v.il	/^(defun assignAllCellInputLogics (scv)$/;"	f
+assqList	../../dat/source/overlapBiasCurrent.il	/^(defun assqList (ls value)$/;"	f
+backTrackPTLDrv	../../route/source/rRouteAll.il	/^(defun backTrackPTLDrv (outputTerm)$/;"	f
+c2v	../../dat/source/c2v.il	/^(defun c2v (scv @key (flagArvTime "max"))$/;"	f
+c2vFront	../../dat/source/c2v.il	/^(defun c2vFront ()$/;"	f
+calcArvTimeAll	../../dat/source/dat-back.il	/^(defun calcArvTimeAll$/;"	f
+calcArvTimeAll	../../old/dat.old/source/dat-back.il	/^(defun calcArvTimeAll$/;"	f
+calcArvTimeDiff	../../dat/source/dat-back.il	/^(defun calcArvTimeDiff (arvTime inputTerm outputTerm)$/;"	f
+calcArvTimeOutputTerm	../../dat/source/dat-back.il	/^(defun calcArvTimeOutputTerm (inputTerm netDelayCoeff)$/;"	f
+calcMinCP	../../dat/source/dat-sta.il	/^(defun calcMinCP (orderITs propArvTime1 propArvTime2)$/;"	f
+calcSlack	../../dat/source/dat-sta.il	/^(defun calcSlack (it next propArvTime1 propArvTime2)$/;"	f
+calculateOrientShield	../../route/source/insertShield.il	/^(defun calculateOrientShield (via wire)$/;"	f
+checkCalculability	../../dat/source/dat-back.il	/^(defun checkCalculability (outputTerm)$/;"	f
+checkCalculability	../../old/dat.old/source/dat-depend.il	/^(defun checkCalculability (outputTerm)$/;"	f
+combination	../../dat/source/overlapBiasCurrent.il	/^(defun combination (n list)$/;"	f
+compareArrivalTime	../../dat/source/overlapBiasCurrent.il	/^(defun compareArrivalTime (inst1 inst2)$/;"	f
+createOptionsForm	../../dat/source/dat-front.il	/^(defun createOptionsForm (scv)$/;"	f
+createOptionsForm2	../../dat/source/c2v.il	/^(defun createOptionsForm2 (scv)$/;"	f
+createOptionsFormMakePtlWire	../../route/source/rRouteUtil.il	/^(defun createOptionsFormMakePtlWire (scv)$/;"	f
+createOptionsFormPLA	../../route/source/rRouteUtil.il	/^(defun createOptionsFormPLA (scv)$/;"	f
+datGui	../../dat/source/dat-front.il	/^(defun datGui ()$/;"	f
+deleteAllArvTime	../../dat/source/dat-back.il	/^(defun deleteAllArvTime (scv)$/;"	f
+deleteAllArvTime	../../old/dat.old/source/dat-back.il	/^(defun deleteAllArvTime (scv)$/;"	f
+deleteAllProp	../../dat/test/dat-test.il	/^(defun deleteAllProp (i)$/;"	f
+deleteAllProp	../../old/dat.old/source/dat-test.il	/^(defun deleteAllProp (i)$/;"	f
+deleteAllPropsOfInstTerms	../../dat/test/dat-test.il	/^(defun deleteAllPropsOfInstTerms (scv)$/;"	f
+deleteAllPropsOfInstTerms	../../old/dat.old/source/dat-test.il	/^(defun deleteAllPropsOfInstTerms (scv)$/;"	f
+deleteInputLogics	../../dat/source/c2v.il	/^(defun deleteInputLogics (scv)$/;"	f
+deleteNetConnectedPin	../../old/route/source/rRouteAll.il	/^(defun deleteNetConnectedPin (scv)$/;"	f
+deleteNetConnectedPin	../../route/source/rRouteAll.il	/^(defun deleteNetConnectedPin (scv)$/;"	f
+deleteNormalLabel	../../route/source/rRouteUtil.il	/^(defun deleteNormalLabel ()$/;"	f
+diffCoord	../../dat/source/overlapBiasCurrent.il	/^(defun diffCoord (coord1 coord2)$/;"	f
+displayArrivalTime	../../dat/source/dat-front.il	/^(defun displayArrivalTime (scv @key (paramList nil))$/;"	f
+displayArrivalTime	../../old/dat.old/source/dat-front.il	/^(defun displayArrivalTime (scv)$/;"	f
+exchangeClkOut	../../dat/source/dat-back.il	/^(defun exchangeClkOut (string)$/;"	f
+exchangeClkOut	../../old/dat.old/source/dat-depend.il	/^(defun exchangeClkOut (string)$/;"	f
+exchangeDinDout	../../dat/source/dat-back.il	/^(defun exchangeDinDout (string)$/;"	f
+exchangeDinDout	../../old/dat.old/source/dat-depend.il	/^(defun exchangeDinDout (string)$/;"	f
+fillMoatADP	../../route/source/fillMoatPTL.il	/^(defun fillMoatADP (cellViewId libName)$/;"	f
+frontTrackPTLRec	../../route/source/rRouteAll.il	/^(defun frontTrackPTLRec (outputTerm)$/;"	f
+getAllNetCoords	../../old/route/source/rRouteAll.il	/^(defun getAllNetCoords (nets)$/;"	f
+getAllNetCoords	../../route/source/rRouteAll.il	/^(defun getAllNetCoords (nets)$/;"	f
+getCellSizeADP	../../route/source/fillMoatPTL.il	/^(defun getCellSizeADP (cellViewId SFQLayoutSymbolUnitLength)$/;"	f
+getCellTimingDependency	../../dat/source/dat-back.il	/^(defun getCellTimingDependency (master)$/;"	f
+getCellViewbBoxADP	../../route/source/fillMoatPTL.il	/^(defun getCellViewbBoxADP (cellViewId SFQLayoutSymbolUnitLength ignoreLibs ignoreCells)$/;"	f
+getCellbBoxADP	../../route/source/fillMoatPTL.il	/^(defun getCellbBoxADP ( inst SFQLayoutSymbolUnitLength )$/;"	f
+getDelay	../../dat/source/dat-back.il	/^(defun getDelay$/;"	f
+getGridCoordBiasLeads	../../dat/source/overlapBiasCurrent.il	/^(defun getGridCoordBiasLeads (instance)$/;"	f
+getGridCoordBlockage	../../route/source/rRouteUtil.il	/^(defun getGridCoordBlockage (gcoordLL inst)$/;"	f
+getGridCoordInstLL	../../dat/source/overlapBiasCurrent.il	/^(defun getGridCoordInstLL (instance)$/;"	f
+getGridCoordPTL	../../route/source/rRouteUtil.il	/^(defun getGridCoordPTL (instance)$/;"	f
+getInstTermCoord	../../dat/source/dat-front.il	/^(defun getInstTermCoord (instTerm)$/;"	f
+getInstTermGridCoord	../../old/route/source/rRouteUtil.il	/^(defun getInstTermGridCoord (instTerm)$/;"	f
+getInstTermGridCoord	../../route/source/rRouteUtil.il	/^(defun getInstTermGridCoord (instTerm)$/;"	f
+getInterval	../../dat/source/dat-sta.il	/^(defun getInterval$/;"	f
+getOverlapBiasLeads	../../dat/source/overlapBiasCurrent.il	/^(defun getOverlapBiasLeads ()$/;"	f
+getParamsFromOptionsForm	../../dat/source/dat-front.il	/^(defun getParamsFromOptionsForm ()$/;"	f
+getParamsFromOptionsForm2	../../dat/source/c2v.il	/^(defun getParamsFromOptionsForm2 ()$/;"	f
+getParamsFromOptionsFormMakePtlWire	../../route/source/rRouteUtil.il	/^(defun getParamsFromOptionsFormMakePtlWire ()$/;"	f
+getParamsFromOptionsFormPLA	../../route/source/rRouteUtil.il	/^(defun getParamsFromOptionsFormPLA ()$/;"	f
+glueLabelsToInst	../../dat/source/dat-front.il	/^(defun glueLabelsToInst (scv)$/;"	f
+glueLabelsToInst	../../old/dat.old/source/dat-front.il	/^(defun glueLabelsToInst (scv)$/;"	f
+glueLabelsToInstTerm	../../dat/source/dat-front.il	/^(defun glueLabelsToInstTerm (instTerm arvTime position)$/;"	f
+gs	../../dat/test/dat-test.il	/^(defun gs ()$/;"	f
+guiTranslateCell	../../route/source/setOfListImpr.il	/^(defun guiTranslateCell ()$/;"	f
+haveMaxTimingConstraint	../../dat/source/dat-back.il	/^(defun haveMaxTimingConstraint (inst)$/;"	f
+inputTerms	../../dat/source/dat-back.il	/^(defun inputTerms (inst) (setof x inst~>instTerms (isInputTerm x)))$/;"	f
+inputTerms	../../old/dat.old/source/dat-depend.il	/^(defun inputTerms (inst) (setof x inst~>instTerms (isInputTerm x)))$/;"	f
+inputTermsConnected	../../dat/source/dat-back.il	/^(defun inputTermsConnected (pinOrOutputTerm)$/;"	f
+inputTermsConnected	../../old/dat.old/source/dat-depend.il	/^(defun inputTermsConnected (pinOrOutputTerm)$/;"	f
+inputTermsDependLogic	../../dat/source/c2v.il	/^(defun inputTermsDependLogic (outputTerm)$/;"	f
+inputTermsDependTiming	../../dat/source/dat-back.il	/^(defun inputTermsDependTiming (outputTerm)$/;"	f
+inputTermsDependTiming	../../old/dat.old/source/dat-depend.il	/^(defun inputTermsDependTiming (outputTerm)$/;"	f
+insertShield	../../route/source/insertShield.il	/^(defun insertShield ()$/;"	f
+instIsConnectedOpin	../../dat/test/dat-test.il	/^(defun instIsConnectedOpin (inst)$/;"	f
+instIsConnectedOpin	../../old/dat.old/source/dat-test.il	/^(defun instIsConnectedOpin (inst)$/;"	f
+instanceType	../../old/dat.old/source/dat-depend.il	/^(defun instanceType (inst)$/;"	f
+isCB	../../dat/source/dat-back.il	/^(defun isCB (inst)$/;"	f
+isCBJTLX	../../dat/source/dat-back.il	/^(defun isCBJTLX (inst) (rexMatchp "^cb.jtl" inst~>cellName))$/;"	f
+isCalculated	../../dat/source/dat-back.il	/^(defun isCalculated (instTerm)$/;"	f
+isCalculated	../../old/dat.old/source/dat-depend.il	/^(defun isCalculated (instTerm)$/;"	f
+isClocked	../../dat/source/dat-back.il	/^(defun isClocked (inst) (setof x inst~>instTerms x~>name == "clk"))$/;"	f
+isConnectedPin	../../old/dat.old/source/dat-depend.il	/^(defun isConnectedPin (instTerm) instTerm~>net~>pins)$/;"	f
+isD2ff	../../dat/source/dat-back.il	/^(defun isD2ff (inst) (rexMatchp "^d2ff" inst~>cellName))$/;"	f
+isDff	../../dat/source/dat-back.il	/^(defun isDff (inst)$/;"	f
+isDffe	../../dat/source/dat-back.il	/^(defun isDffe (inst) (rexMatchp "^dffe" inst~>cellName))$/;"	f
+isInputTerm	../../dat/source/dat-back.il	/^(defun isInputTerm (instTerm) instTerm~>direction == "input")$/;"	f
+isInputTerm	../../old/dat.old/source/dat-depend.il	/^(defun isInputTerm (instTerm) instTerm~>direction == "input")$/;"	f
+isIpin	../../dat/source/dat-back.il	/^(defun isIpin (inst) inst~>cellName == "ipin")$/;"	f
+isJTL	../../dat/source/dat-back.il	/^(defun isJTL (inst)$/;"	f
+isJand	../../dat/source/dat-back.il	/^(defun isJand (inst)$/;"	f
+isJande	../../dat/source/dat-back.il	/^(defun isJande (inst) (rexMatchp "^jande" inst~>cellName))$/;"	f
+isJandf	../../dat/source/dat-back.il	/^(defun isJandf (inst) (rexMatchp "^jandf" inst~>cellName))$/;"	f
+isJnot	../../dat/source/dat-back.il	/^(defun isJnot (inst)$/;"	f
+isJnote	../../dat/source/dat-back.il	/^(defun isJnote (inst) (rexMatchp "^jnote" inst~>cellName))$/;"	f
+isJor	../../dat/source/dat-back.il	/^(defun isJor (inst) (rexMatchp "^jor" inst~>cellName))$/;"	f
+isJxor	../../dat/source/dat-back.il	/^(defun isJxor (inst)$/;"	f
+isJxore	../../dat/source/dat-back.il	/^(defun isJxore (inst) (rexMatchp "^jxore" inst~>cellName))$/;"	f
+isKand	../../dat/source/dat-back.il	/^(defun isKand (inst)$/;"	f
+isKnimply	../../dat/source/dat-back.il	/^(defun isKnimply (inst)$/;"	f
+isNdro	../../dat/source/dat-back.il	/^(defun isNdro (inst)$/;"	f
+isNdroc	../../dat/source/dat-back.il	/^(defun isNdroc (inst) (rexMatchp "^ndroc" inst~>cellName))$/;"	f
+isOpin	../../dat/source/dat-back.il	/^(defun isOpin (inst) inst~>cellName == "opin")$/;"	f
+isOutputTerm	../../dat/source/dat-back.il	/^(defun isOutputTerm (instTerm) instTerm~>direction == "output")$/;"	f
+isOutputTerm	../../old/dat.old/source/dat-depend.il	/^(defun isOutputTerm (instTerm) instTerm~>direction == "output")$/;"	f
+isPTL	../../dat/source/dat-back.il	/^(defun isPTL (inst)$/;"	f
+isPTLDrv	../../dat/source/dat-back.il	/^(defun isPTLDrv (inst) $/;"	f
+isPTLDrvRec	../../dat/source/dat-back.il	/^(defun isPTLDrvRec (inst) $/;"	f
+isPTLFamily	../../dat/source/dat-back.il	/^(defun isPTLFamily (inst) $/;"	f
+isPTLRec	../../dat/source/dat-back.il	/^(defun isPTLRec (inst) $/;"	f
+isPTLWire	../../old/route/source/rRouteAll.il	/^(defun isPTLWire (net)$/;"	f
+isPTLWire	../../route/source/rRouteAll.il	/^(defun isPTLWire (net)$/;"	f
+isPspl	../../dat/source/dat-back.il	/^(defun isPspl (inst) $/;"	f
+isPtlDrvRec	../../old/route/source/rRouteAll.il	/^(defun isPtlDrvRec (inst)$/;"	f
+isRdff	../../dat/source/dat-back.il	/^(defun isRdff (inst)$/;"	f
+isRjxor	../../dat/source/dat-back.il	/^(defun isRjxor (inst) (rexMatchp "^rjxor" inst~>cellName))$/;"	f
+isRoutingCell	../../dat/source/dat-back.il	/^(defun isRoutingCell (inst) $/;"	f
+isRtff	../../dat/source/dat-back.il	/^(defun isRtff (inst) (rexMatchp "^rtff" inst~>cellName))$/;"	f
+isSPL3JTLX	../../dat/source/dat-back.il	/^(defun isSPL3JTLX (inst) (rexMatchp "^spl3.jtl" inst~>cellName))$/;"	f
+isSPLJTLX	../../dat/source/dat-back.il	/^(defun isSPLJTLX (inst) $/;"	f
+isSource	../../dat/source/dat-back.il	/^(defun isSource (inst) (rexMatchp "^source" inst~>cellName))$/;"	f
+isT1	../../dat/source/dat-back.il	/^(defun isT1 (inst) (rexMatchp "^t1" inst~>cellName))$/;"	f
+isTff	../../dat/source/dat-back.il	/^(defun isTff (inst) (rexMatchp "^tff" inst~>cellName))$/;"	f
+l	../../dat/test/dat-test.il	/^(defun l ()$/;"	f
+logicCellType	../../dat/source/c2v.il	/^(defun logicCellType (inst)$/;"	f
+makeDelayTable	../../dat/source/dat-back.il	/^(defun makeDelayTable (scv)$/;"	f
+makeMoatArray	../../route/source/fillMoatPTL.il	/^(defun makeMoatArray (nX nY)$/;"	f
+makePtlWire	../../route/source/rRouteUtil.il	/^(defun makePtlWire ()$/;"	f
+makeTimingDependencyTable	../../dat/source/dat-back.il	/^(defun makeTimingDependencyTable (scv)$/;"	f
+masterOutputTerminals	../../dat/source/dat-back.il	/^(defun masterOutputTerminals (master)$/;"	f
+maxList	../../dat/source/dat-back.il	/^(defun maxList (xs)$/;"	f
+maxList	../../old/dat.old/source/dat-depend.il	/^(defun maxList (xs) (apply 'max xs))$/;"	f
+minList	../../dat/source/dat-back.il	/^(defun minList (xs)$/;"	f
+minList	../../old/dat.old/source/dat-depend.il	/^(defun minList (xs) (apply 'min xs))$/;"	f
+mload	../../global/sfq.il	/^(defun mload (dirPath)$/;"	f
+net2ptlSelected	../../old/route/source/rRouteAll.il	/^(defun net2ptlSelected (scv fig)$/;"	f
+netDistance	../../dat/source/dat-back.il	/^(defun netDistance (net)$/;"	f
+numStates	../../dat/source/c2v.il	/^(defun numStates (inst)$/;"	f
+orList	../../dat/source/dat-back.il	/^(defun orList (xs)$/;"	f
+orList	../../old/dat.old/source/dat-depend.il	/^(defun orList (xs) (apply 'or xs))$/;"	f
+orderInputs	../../dat/source/c2v.il	/^(defun orderInputs (inst flagArvTime)$/;"	f
+outputTerms	../../dat/source/dat-back.il	/^(defun outputTerms (inst) (setof x inst~>instTerms (isOutputTerm x)))$/;"	f
+outputTerms	../../old/dat.old/source/dat-depend.il	/^(defun outputTerms (inst) (setof x inst~>instTerms (isOutputTerm x)))$/;"	f
+outputTermsConnected	../../dat/source/dat-back.il	/^(defun outputTermsConnected (pinOrInputTerm)$/;"	f
+outputTermsDependTiming	../../dat/source/dat-back.il	/^(defun outputTermsDependTiming (inputTerm)$/;"	f
+outputTermsDependTiming	../../old/dat.old/source/dat-depend.il	/^(defun outputTermsDependTiming (inputTerm)$/;"	f
+pinsConnected	../../dat/source/dat-back.il	/^(defun pinsConnected (instTerm) (car instTerm~>net~>pins~>figs))$/;"	f
+plusCoord	../../dat/source/overlapBiasCurrent.il	/^(defun plusCoord (coord1 coord2)$/;"	f
+ptlType	../../dat/source/dat-back.il	/^(defun ptlType (inst)$/;"	f
+rCreateWireAll	../../old/route/source/rRouteUtil.il	/^(defun rCreateWireAll (scv fileName nets)$/;"	f
+rCreateWireAll	../../route/source/rRouteUtil.il	/^(defun rCreateWireAll (scv fileName nets)$/;"	f
+rNet2ptl	../../route/source/rRouteAll.il	/^(defun rNet2ptl (flag)$/;"	f
+rNet2ptlAll	../../old/route/source/rRouteAll.il	/^(defun rNet2ptlAll (scv @key (debugging nil))$/;"	f
+rRoute	../../route/source/rRouteAll.il	/^(defun rRoute (scv flagSelNet)$/;"	f
+rRouteAll	../../old/route/source/rRouteAll.il	/^(defun rRouteAll (scv)$/;"	f
+reRoute	../../old/route/source/rRouteAll.il	/^(defun reRoute (net)$/;"	f
+reRoute	../../route/source/rRouteAll.il	/^(defun reRoute (net)$/;"	f
+readVFile	../../dat/source/dat-back.il	/^(defun readVFile (master)$/;"	f
+removeAllLabels	../../dat/source/dat-front.il	/^(defun removeAllLabels (scv)$/;"	f
+removeAllLabels	../../old/dat.old/source/dat-front.il	/^(defun removeAllLabels (scv)$/;"	f
+rhGetPointsOfConnection	../../old/route/source/rRouteAll.il	/^(defun rhGetPointsOfConnection ()$/;"	f
+rhGetPointsOfConnection	../../route/source/rRouteAll.il	/^(defun rhGetPointsOfConnection ()$/;"	f
+rhPostInstallTrigger	../../old/route/source/rRouteAll.il	/^(defun rhPostInstallTrigger (arg)$/;"	f
+rhPostInstallTrigger	../../route/source/menu.il	/^(defun rhPostInstallTrigger (arg)$/;"	f
+riCenterGrid	../../old/route/source/rRouteUtil.il	/^(defun riCenterGrid (gcoord)$/;"	f
+riCenterGrid	../../route/source/rRouteUtil.il	/^(defun riCenterGrid (gcoord)$/;"	f
+riCompressPoints	../../old/route/source/rRouteUtil.il	/^(defun riCompressPoints (segp scv)$/;"	f
+riCompressPoints	../../route/source/rRouteUtil.il	/^(defun riCompressPoints (segp scv)$/;"	f
+riCreateWire	../../old/route/source/rRouteUtil.il	/^(defun riCreateWire (scv route endPoints)$/;"	f
+riCreateWire	../../route/source/rRouteUtil.il	/^(defun riCreateWire (scv route endPoints)$/;"	f
+riDivideRoute	../../old/route/source/rRouteUtil.il	/^(defun riDivideRoute (route)$/;"	f
+riDivideRoute	../../route/source/rRouteUtil.il	/^(defun riDivideRoute (route)$/;"	f
+riReadFile	../../old/route/source/rRouteUtil.il	/^(defun riReadFile (fileName)$/;"	f
+riReadFile	../../route/source/rRouteUtil.il	/^(defun riReadFile (fileName)$/;"	f
+riReadRouterOut	../../old/route/source/rRouteUtil.il	/^(defun riReadRouterOut ()$/;"	f
+riReadRouterOut	../../route/source/rRouteUtil.il	/^(defun riReadRouterOut ()$/;"	f
+roAdjustAllInsts	../../old/route/source/rRouteUtil.il	/^(defun roAdjustAllInsts (cv)$/;"	f
+roAdjustAllInsts	../../route/source/rRouteUtil.il	/^(defun roAdjustAllInsts (cv )$/;"	f
+roAdjustInst	../../old/route/source/rRouteUtil.il	/^(defun roAdjustInst (inst)$/;"	f
+roAdjustInst	../../route/source/rRouteUtil.il	/^(defun roAdjustInst (inst diffLower diffLeft paramList)$/;"	f
+roGetBoundary	../../old/route/source/rRouteAll.il	/^(defun roGetBoundary (points)$/;"	f
+roGetBoundary	../../route/source/rRouteAll.il	/^(defun roGetBoundary (points)$/;"	f
+roGetGridsAroundDRVsandRECs	../../old/route/source/rRouteUtil.il	/^(defun roGetGridsAroundDRVsandRECs (scv bb)$/;"	f
+roGetGridsAroundDRVsandRECs	../../route/source/rRouteUtil.il	/^(defun roGetGridsAroundDRVsandRECs (scv bb)$/;"	f
+roListToString	../../old/route/source/rRouteUtil.il	/^(defun roListToString (alist)$/;"	f
+roListToString	../../route/source/rRouteUtil.il	/^(defun roListToString (alist)$/;"	f
+roPlacedDRVsorRECs	../../old/route/source/rRouteUtil.il	/^(defun roPlacedDRVsorRECs (scv gcoord)$/;"	f
+roPlacedDRVsorRECs	../../route/source/rRouteUtil.il	/^(defun roPlacedDRVsorRECs (scv gcoord)$/;"	f
+roWriteFile	../../old/route/source/rRouteUtil.il	/^(defun roWriteFile (nets boundary blockage)$/;"	f
+roWriteFile	../../route/source/rRouteUtil.il	/^(defun roWriteFile (nets boundary blockage)$/;"	f
+rotateGridCoord	../../dat/source/overlapBiasCurrent.il	/^(defun rotateGridCoord (listGCS)$/;"	f
+ruApporopriateBBox	../../old/route/source/rRouteAll.il	/^(defun ruApporopriateBBox (region)$/;"	f
+ruApporopriateBBox	../../route/source/rRouteAll.il	/^(defun ruApporopriateBBox (region)$/;"	f
+ruExpandBBox	../../old/route/source/rRouteAll.il	/^(defun ruExpandBBox (rb)$/;"	f
+ruExpandBBox	../../route/source/rRouteAll.il	/^(defun ruExpandBBox (rb)$/;"	f
+ruFlatten	../../old/route/source/rRouteUtil.il	/^(defun ruFlatten (numberList)$/;"	f
+ruFlatten	../../route/source/rRouteUtil.il	/^(defun ruFlatten (numberList)$/;"	f
+ruGCtoSC	../../old/route/source/rRouteAll.il	/^(defun ruGCtoSC (gcoord)$/;"	f
+ruGCtoSC	../../route/source/rRouteAll.il	/^(defun ruGCtoSC (gcoord)$/;"	f
+ruGCtosSBB	../../old/route/source/rRouteAll.il	/^(defun ruGCtosSBB (gcoord)$/;"	f
+ruGCtosSBB	../../route/source/rRouteAll.il	/^(defun ruGCtosSBB (gcoord)$/;"	f
+ruSBBtoGBB	../../old/route/source/rRouteAll.il	/^(defun ruSBBtoGBB (sbb)$/;"	f
+ruSBBtoGBB	../../route/source/rRouteAll.il	/^(defun ruSBBtoGBB (sbb)$/;"	f
+ruSCtoGC	../../old/route/source/rRouteAll.il	/^(defun ruSCtoGC (scoord)$/;"	f
+ruSCtoGC	../../route/source/rRouteAll.il	/^(defun ruSCtoGC (scoord)$/;"	f
+ruType	../../old/route/source/rRouteUtil.il	/^(defun ruType (obj)$/;"	f
+ruType	../../route/source/rRouteUtil.il	/^(defun ruType (obj)$/;"	f
+scv	../../dat/test/dat-test.il	/^(defun scv ()$/;"	f
+scv	../../old/dat.old/source/dat-test.il	/^(defun scv ()$/;"	f
+scvCellNames	../../route/source/setOfListImpr.il	/^(defun scvCellNames (scv)$/;"	f
+selRoutingNets	../../old/route/source/rRouteAll.il	/^(defun selRoutingNets (scv)$/;"	f
+selRoutingNets	../../route/source/rRouteAll.il	/^(defun selRoutingNets (scv flagSelNet)$/;"	f
+setArvTime	../../dat/source/dat-back.il	/^(defun setArvTime (outputTerm netDelayCoeff)$/;"	f
+setOfList	../../route/source/setOfListImpr.il	/^(defun setOfList (ls)$/;"	f
+sideflipGridCoord	../../dat/source/overlapBiasCurrent.il	/^(defun sideflipGridCoord (listGCS)$/;"	f
+staticTimingAnalysis	../../dat/source/dat-sta.il	/^(defun staticTimingAnalysis (scv flagArvTime flagFiltering)$/;"	f
+testDat	../../dat/test/dat-test.il	/^(defun testDat (scv outport)$/;"	f
+testDat	../../old/dat.old/source/dat-test.il	/^(defun testDat (scv outport)$/;"	f
+testDatAllLargeScaleAdp	../../dat/test/dat-test.il	/^(defun testDatAllLargeScaleAdp ()$/;"	f
+testDatAllLargeScaleAdp	../../old/dat.old/source/dat-test.il	/^(defun testDatAllLargeScaleAdp ()$/;"	f
+transformGridCoord	../../dat/source/overlapBiasCurrent.il	/^(defun transformGridCoord (gridCoord size rotate)$/;"	f
+translateCell	../../route/source/setOfListImpr.il	/^(defun translateCell (instance cellName libName)$/;"	f
+translateCellList	../../route/source/setOfListImpr.il	/^(defun translateCellList (cellList cellName libName)$/;"	f
+undoPTLCell	../../route/source/rRouteAll.il	/^(defun undoPTLCell (cell)$/;"	f
+undoPTLCellAll	../../route/source/rRouteAll.il	/^(defun undoPTLCellAll ()$/;"	f
+undoPTLCellSelected	../../route/source/rRouteAll.il	/^(defun undoPTLCellSelected ()$/;"	f
+undoPTLWire	../../old/route/source/rRouteAll.il	/^(defun undoPTLWire (scv)$/;"	f
+undoPTLWire	../../route/source/rRouteAll.il	/^(defun undoPTLWire (scv)$/;"	f
+upperCenter	../../dat/source/dat-front.il	/^(defun upperCenter (bBox)$/;"	f
+wiresConnectedVia	../../route/source/insertShield.il	/^(defun wiresConnectedVia (via)$/;"	f
+zi	../../dat/test/dat-test.il	/^(defun zi (x y)$/;"	f

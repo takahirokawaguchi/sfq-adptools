@@ -1,0 +1,2060 @@
+;; ~/study_sfq/skill/Riner/outmes.riner
+;; Jun 25 15:29:19 2009
+
+net: -2 26 41 -1
+net: 3 3 4 5 ;; This is the comment line.
+
+boundary: -7 6 46 31
+
+grid: -7 -6 hoge hoge hoge hoge
+grid: -7 -5
+grid: -7 -4
+grid: -7 -3
+grid: -7 -2
+grid: -7 -1
+grid: -7 0
+grid: -7 1
+grid: -7 2
+grid: -7 3
+grid: -7 4
+grid: -7 5
+grid: -7 6
+grid: -7 7
+grid: -7 8
+grid: -7 9
+grid: -7 10
+grid: -7 11
+grid: -7 12
+grid: -7 13
+grid: -7 14
+grid: -7 15
+grid: -7 16
+grid: -7 17
+grid: -7 18
+grid: -7 19
+grid: -7 20
+grid: -7 21
+grid: -7 22
+grid: -7 23
+grid: -7 24
+grid: -7 25
+grid: -7 26
+grid: -7 27
+grid: -7 28
+grid: -7 29
+grid: -7 30
+grid: -7 31
+grid: -6 -6
+grid: -6 -5
+grid: -6 -4
+grid: -6 -3
+grid: -6 -2
+grid: -6 -1
+grid: -6 0
+grid: -6 1
+grid: -6 2
+grid: -6 3
+grid: -6 4
+grid: -6 5
+grid: -6 6
+grid: -6 7
+grid: -6 8
+grid: -6 9
+grid: -6 10
+grid: -6 11
+grid: -6 12
+grid: -6 13
+grid: -6 14
+grid: -6 15
+grid: -6 16
+grid: -6 17
+grid: -6 18
+grid: -6 19
+grid: -6 20
+grid: -6 21
+grid: -6 22
+grid: -6 23
+grid: -6 24
+grid: -6 25
+grid: -6 26
+grid: -6 27
+grid: -6 28
+grid: -6 29
+grid: -6 30
+grid: -6 31
+grid: -5 -6
+grid: -5 -5
+grid: -5 -4
+grid: -5 -3
+grid: -5 -2
+grid: -5 -1
+grid: -5 0
+grid: -5 1
+grid: -5 2
+grid: -5 3
+grid: -5 4
+grid: -5 5
+grid: -5 6
+grid: -5 7
+grid: -5 8
+grid: -5 9
+grid: -5 10
+grid: -5 11
+grid: -5 12
+grid: -5 13
+grid: -5 14
+grid: -5 15
+grid: -5 16
+grid: -5 17
+grid: -5 18
+grid: -5 19
+grid: -5 20
+grid: -5 21
+grid: -5 22
+grid: -5 23
+grid: -5 24
+grid: -5 25
+grid: -5 26
+grid: -5 27
+grid: -5 28
+grid: -5 29
+grid: -5 30
+grid: -5 31
+grid: -4 -6
+grid: -4 -5
+grid: -4 -4
+grid: -4 -3
+grid: -4 -2
+grid: -4 -1
+grid: -4 0
+grid: -4 1
+grid: -4 2
+grid: -4 3
+grid: -4 4
+grid: -4 5
+grid: -4 6
+grid: -4 7
+grid: -4 8
+grid: -4 9
+grid: -4 10
+grid: -4 11
+grid: -4 12
+grid: -4 13
+grid: -4 14
+grid: -4 15
+grid: -4 16
+grid: -4 17
+grid: -4 18
+grid: -4 19
+grid: -4 20
+grid: -4 21
+grid: -4 22
+grid: -4 23
+grid: -4 24
+grid: -4 25
+grid: -4 26
+grid: -4 27
+grid: -4 28
+grid: -4 29
+grid: -4 30
+grid: -4 31
+grid: -3 -6
+grid: -3 -5
+grid: -3 -4
+grid: -3 -3
+grid: -3 -2
+grid: -3 -1
+grid: -3 0
+grid: -3 1
+grid: -3 2
+grid: -3 3
+grid: -3 4
+grid: -3 5
+grid: -3 6
+grid: -3 7
+grid: -3 8
+grid: -3 9
+grid: -3 10
+grid: -3 11
+grid: -3 12
+grid: -3 13
+grid: -3 14
+grid: -3 15
+grid: -3 16
+grid: -3 17
+grid: -3 18
+grid: -3 19
+grid: -3 20
+grid: -3 21
+grid: -3 22
+grid: -3 23
+grid: -3 24
+grid: -3 25
+grid: -3 26
+grid: -3 27
+grid: -3 28
+grid: -3 29
+grid: -3 30
+grid: -3 31
+grid: -2 -6
+grid: -2 -5
+grid: -2 -4
+grid: -2 -3
+grid: -2 -2
+grid: -2 -1
+grid: -2 0
+grid: -2 1
+grid: -2 2
+grid: -2 3
+grid: -2 4
+grid: -2 5
+grid: -2 6
+grid: -2 7
+grid: -2 8
+grid: -2 9
+grid: -2 10
+grid: -2 11
+grid: -2 12
+grid: -2 13
+grid: -2 14
+grid: -2 15
+grid: -2 16
+grid: -2 17
+grid: -2 18
+grid: -2 19
+grid: -2 20
+grid: -2 21
+grid: -2 22
+grid: -2 23
+grid: -2 24
+grid: -2 25
+grid: -2 26
+grid: -2 27
+grid: -2 28
+grid: -2 29
+grid: -2 30
+grid: -2 31
+grid: -1 -6
+grid: -1 -5
+grid: -1 -4
+grid: -1 -3
+grid: -1 -2
+grid: -1 -1
+grid: -1 0
+grid: -1 1
+grid: -1 2 ipin
+grid: -1 3 ipin
+grid: -1 4 ipin
+grid: -1 5 ipin
+grid: -1 6 ipin
+grid: -1 7 ipin
+grid: -1 8 ipin
+grid: -1 9 ipin
+grid: -1 10
+grid: -1 11
+grid: -1 12
+grid: -1 13
+grid: -1 14
+grid: -1 15
+grid: -1 16
+grid: -1 17
+grid: -1 18
+grid: -1 19
+grid: -1 20
+grid: -1 21
+grid: -1 22
+grid: -1 23
+grid: -1 24
+grid: -1 25
+grid: -1 26
+grid: -1 27
+grid: -1 28
+grid: -1 29
+grid: -1 30
+grid: -1 31
+grid: 0 -6
+grid: 0 -5
+grid: 0 -4
+grid: 0 -3
+grid: 0 -2
+grid: 0 -1
+grid: 0 0
+grid: 0 1
+grid: 0 2 drvPTL2
+grid: 0 3 drvPTL2
+grid: 0 4 drvPTL2
+grid: 0 5 drvPTL2
+grid: 0 6 drvPTL2
+grid: 0 7 drvPTL2
+grid: 0 8 drvPTL2
+grid: 0 9 drvPTL2
+grid: 0 10
+grid: 0 11
+grid: 0 12
+grid: 0 13
+grid: 0 14
+grid: 0 15
+grid: 0 16
+grid: 0 17
+grid: 0 18
+grid: 0 19
+grid: 0 20
+grid: 0 21
+grid: 0 22
+grid: 0 23
+grid: 0 24
+grid: 0 25
+grid: 0 26
+grid: 0 27
+grid: 0 28
+grid: 0 29
+grid: 0 30
+grid: 0 31
+grid: 1 -6
+grid: 1 -5
+grid: 1 -4
+grid: 1 -3
+grid: 1 -2
+grid: 1 -1
+grid: 1 0
+grid: 1 1
+grid: 1 2 drvPTL2
+grid: 1 3 drvPTL2
+grid: 1 4 drvPTL2
+grid: 1 5 drvPTL2
+grid: 1 6 drvPTL2
+grid: 1 7 drvPTL2
+grid: 1 8 drvPTL2
+grid: 1 9 drvPTL2
+grid: 1 10
+grid: 1 11
+grid: 1 12
+grid: 1 13
+grid: 1 14
+grid: 1 15
+grid: 1 16
+grid: 1 17
+grid: 1 18
+grid: 1 19
+grid: 1 20
+grid: 1 21
+grid: 1 22
+grid: 1 23
+grid: 1 24
+grid: 1 25
+grid: 1 26
+grid: 1 27
+grid: 1 28
+grid: 1 29
+grid: 1 30
+grid: 1 31
+grid: 2 -6
+grid: 2 -5
+grid: 2 -4
+grid: 2 -3
+grid: 2 -2
+grid: 2 -1
+grid: 2 0
+grid: 2 1
+grid: 2 2
+grid: 2 3
+grid: 2 4
+grid: 2 5
+grid: 2 6
+grid: 2 7
+grid: 2 8
+grid: 2 9
+grid: 2 10
+grid: 2 11
+grid: 2 12
+grid: 2 13
+grid: 2 14
+grid: 2 15
+grid: 2 16
+grid: 2 17
+grid: 2 18
+grid: 2 19
+grid: 2 20
+grid: 2 21
+grid: 2 22
+grid: 2 23
+grid: 2 24
+grid: 2 25
+grid: 2 26
+grid: 2 27
+grid: 2 28
+grid: 2 29
+grid: 2 30
+grid: 2 31
+grid: 3 -6
+grid: 3 -5
+grid: 3 -4
+grid: 3 -3
+grid: 3 -2
+grid: 3 -1
+grid: 3 0
+grid: 3 1
+grid: 3 2
+grid: 3 3
+grid: 3 4
+grid: 3 5
+grid: 3 6
+grid: 3 7
+grid: 3 8
+grid: 3 9 PTL2
+grid: 3 10
+grid: 3 11
+grid: 3 12
+grid: 3 13
+grid: 3 14
+grid: 3 15
+grid: 3 16
+grid: 3 17
+grid: 3 18
+grid: 3 19
+grid: 3 20
+grid: 3 21
+grid: 3 22
+grid: 3 23
+grid: 3 24
+grid: 3 25
+grid: 3 26
+grid: 3 27
+grid: 3 28
+grid: 3 29
+grid: 3 30
+grid: 3 31
+grid: 4 -6
+grid: 4 -5
+grid: 4 -4
+grid: 4 -3
+grid: 4 -2
+grid: 4 -1
+grid: 4 0
+grid: 4 1
+grid: 4 2
+grid: 4 3
+grid: 4 4
+grid: 4 5
+grid: 4 6 recPTL2
+grid: 4 7 recPTL2
+grid: 4 8 recPTL2
+grid: 4 9 recPTL2
+grid: 4 10
+grid: 4 11
+grid: 4 12 recPTL2
+grid: 4 13 recPTL2
+grid: 4 14 recPTL2
+grid: 4 15 recPTL2
+grid: 4 16
+grid: 4 17
+grid: 4 18
+grid: 4 19
+grid: 4 20
+grid: 4 21
+grid: 4 22
+grid: 4 23
+grid: 4 24
+grid: 4 25
+grid: 4 26
+grid: 4 27
+grid: 4 28
+grid: 4 29
+grid: 4 30
+grid: 4 31
+grid: 5 -6
+grid: 5 -5
+grid: 5 -4
+grid: 5 -3
+grid: 5 -2
+grid: 5 -1
+grid: 5 0
+grid: 5 1
+grid: 5 2
+grid: 5 3
+grid: 5 4
+grid: 5 5
+grid: 5 6 recPTL2
+grid: 5 7 recPTL2
+grid: 5 8 recPTL2
+grid: 5 9 recPTL2
+grid: 5 10
+grid: 5 11
+grid: 5 12 recPTL2
+grid: 5 13 recPTL2
+grid: 5 14 recPTL2
+grid: 5 15 recPTL2
+grid: 5 16
+grid: 5 17
+grid: 5 18
+grid: 5 19
+grid: 5 20
+grid: 5 21
+grid: 5 22
+grid: 5 23
+grid: 5 24
+grid: 5 25
+grid: 5 26
+grid: 5 27
+grid: 5 28
+grid: 5 29
+grid: 5 30
+grid: 5 31
+grid: 6 -6
+grid: 6 -5
+grid: 6 -4
+grid: 6 -3
+grid: 6 -2
+grid: 6 -1
+grid: 6 0
+grid: 6 1
+grid: 6 2
+grid: 6 3
+grid: 6 4
+grid: 6 5
+grid: 6 6 jxor
+grid: 6 7 jxor
+grid: 6 8 jxor
+grid: 6 9 jxor
+grid: 6 10
+grid: 6 11
+grid: 6 12 jand6
+grid: 6 13 jand6
+grid: 6 14 jand6
+grid: 6 15 jand6
+grid: 6 16
+grid: 6 17
+grid: 6 18
+grid: 6 19
+grid: 6 20
+grid: 6 21
+grid: 6 22
+grid: 6 23
+grid: 6 24
+grid: 6 25
+grid: 6 26
+grid: 6 27
+grid: 6 28
+grid: 6 29
+grid: 6 30
+grid: 6 31
+grid: 7 -6
+grid: 7 -5
+grid: 7 -4
+grid: 7 -3
+grid: 7 -2
+grid: 7 -1
+grid: 7 0
+grid: 7 1
+grid: 7 2
+grid: 7 3
+grid: 7 4
+grid: 7 5
+grid: 7 6 jxor
+grid: 7 7 jxor
+grid: 7 8 jxor
+grid: 7 9 jxor
+grid: 7 10
+grid: 7 11
+grid: 7 12 jand6
+grid: 7 13 jand6
+grid: 7 14 jand6
+grid: 7 15 jand6
+grid: 7 16
+grid: 7 17
+grid: 7 18
+grid: 7 19
+grid: 7 20
+grid: 7 21
+grid: 7 22
+grid: 7 23
+grid: 7 24
+grid: 7 25
+grid: 7 26
+grid: 7 27
+grid: 7 28
+grid: 7 29
+grid: 7 30
+grid: 7 31
+grid: 8 -6
+grid: 8 -5
+grid: 8 -4
+grid: 8 -3
+grid: 8 -2
+grid: 8 -1
+grid: 8 0
+grid: 8 1
+grid: 8 2
+grid: 8 3
+grid: 8 4
+grid: 8 5
+grid: 8 6 jxor
+grid: 8 7 jxor
+grid: 8 8 jxor
+grid: 8 9 jxor
+grid: 8 10 recPTL2c
+grid: 8 11 recPTL2c
+grid: 8 12 jand6
+grid: 8 13 jand6
+grid: 8 14 jand6
+grid: 8 15 jand6
+grid: 8 16 recPTL2c
+grid: 8 17 recPTL2c
+grid: 8 18
+grid: 8 19
+grid: 8 20
+grid: 8 21
+grid: 8 22
+grid: 8 23
+grid: 8 24
+grid: 8 25
+grid: 8 26
+grid: 8 27
+grid: 8 28
+grid: 8 29
+grid: 8 30
+grid: 8 31
+grid: 9 -6
+grid: 9 -5
+grid: 9 -4
+grid: 9 -3
+grid: 9 -2
+grid: 9 -1
+grid: 9 0
+grid: 9 1
+grid: 9 2
+grid: 9 3
+grid: 9 4
+grid: 9 5
+grid: 9 6 jxor
+grid: 9 7 jxor
+grid: 9 8 jxor
+grid: 9 9 jxor
+grid: 9 10 recPTL2c
+grid: 9 11 recPTL2c
+grid: 9 12 jand6
+grid: 9 13 jand6
+grid: 9 14 jand6
+grid: 9 15 jand6
+grid: 9 16 recPTL2c
+grid: 9 17 recPTL2c
+grid: 9 18
+grid: 9 19
+grid: 9 20
+grid: 9 21
+grid: 9 22
+grid: 9 23
+grid: 9 24
+grid: 9 25
+grid: 9 26
+grid: 9 27
+grid: 9 28
+grid: 9 29
+grid: 9 30
+grid: 9 31
+grid: 10 -6
+grid: 10 -5
+grid: 10 -4
+grid: 10 -3
+grid: 10 -2
+grid: 10 -1
+grid: 10 0
+grid: 10 1
+grid: 10 2
+grid: 10 3
+grid: 10 4
+grid: 10 5
+grid: 10 6 drvPTL2
+grid: 10 7 drvPTL2
+grid: 10 8
+grid: 10 9
+grid: 10 10
+grid: 10 11
+grid: 10 12 drvPTL2
+grid: 10 13 drvPTL2
+grid: 10 14
+grid: 10 15
+grid: 10 16
+grid: 10 17
+grid: 10 18
+grid: 10 19
+grid: 10 20
+grid: 10 21
+grid: 10 22
+grid: 10 23
+grid: 10 24
+grid: 10 25
+grid: 10 26
+grid: 10 27
+grid: 10 28
+grid: 10 29
+grid: 10 30
+grid: 10 31
+grid: 11 -6
+grid: 11 -5
+grid: 11 -4
+grid: 11 -3
+grid: 11 -2
+grid: 11 -1
+grid: 11 0
+grid: 11 1
+grid: 11 2
+grid: 11 3
+grid: 11 4
+grid: 11 5
+grid: 11 6 drvPTL2
+grid: 11 7 drvPTL2
+grid: 11 8
+grid: 11 9
+grid: 11 10
+grid: 11 11
+grid: 11 12 drvPTL2
+grid: 11 13 drvPTL2
+grid: 11 14
+grid: 11 15
+grid: 11 16
+grid: 11 17
+grid: 11 18
+grid: 11 19
+grid: 11 20
+grid: 11 21
+grid: 11 22
+grid: 11 23
+grid: 11 24
+grid: 11 25
+grid: 11 26
+grid: 11 27
+grid: 11 28
+grid: 11 29
+grid: 11 30
+grid: 11 31
+grid: 12 -6
+grid: 12 -5
+grid: 12 -4
+grid: 12 -3
+grid: 12 -2
+grid: 12 -1
+grid: 12 0
+grid: 12 1
+grid: 12 2
+grid: 12 3
+grid: 12 4
+grid: 12 5
+grid: 12 6 recPTL2
+grid: 12 7 recPTL2
+grid: 12 8 recPTL2
+grid: 12 9 recPTL2
+grid: 12 10
+grid: 12 11
+grid: 12 12
+grid: 12 13
+grid: 12 14
+grid: 12 15
+grid: 12 16
+grid: 12 17
+grid: 12 18
+grid: 12 19
+grid: 12 20
+grid: 12 21
+grid: 12 22
+grid: 12 23
+grid: 12 24
+grid: 12 25
+grid: 12 26
+grid: 12 27
+grid: 12 28
+grid: 12 29
+grid: 12 30
+grid: 12 31
+grid: 13 -6
+grid: 13 -5
+grid: 13 -4
+grid: 13 -3
+grid: 13 -2
+grid: 13 -1
+grid: 13 0
+grid: 13 1
+grid: 13 2
+grid: 13 3
+grid: 13 4
+grid: 13 5
+grid: 13 6 recPTL2
+grid: 13 7 recPTL2
+grid: 13 8 recPTL2
+grid: 13 9 recPTL2
+grid: 13 10
+grid: 13 11
+grid: 13 12
+grid: 13 13
+grid: 13 14
+grid: 13 15
+grid: 13 16
+grid: 13 17
+grid: 13 18
+grid: 13 19
+grid: 13 20
+grid: 13 21
+grid: 13 22
+grid: 13 23
+grid: 13 24
+grid: 13 25
+grid: 13 26
+grid: 13 27
+grid: 13 28
+grid: 13 29
+grid: 13 30
+grid: 13 31
+grid: 14 -6
+grid: 14 -5
+grid: 14 -4
+grid: 14 -3
+grid: 14 -2
+grid: 14 -1
+grid: 14 0
+grid: 14 1
+grid: 14 2
+grid: 14 3
+grid: 14 4
+grid: 14 5
+grid: 14 6 jor
+grid: 14 7 jor
+grid: 14 8 jor
+grid: 14 9 jor
+grid: 14 10
+grid: 14 11
+grid: 14 12
+grid: 14 13
+grid: 14 14
+grid: 14 15
+grid: 14 16
+grid: 14 17
+grid: 14 18
+grid: 14 19
+grid: 14 20
+grid: 14 21
+grid: 14 22
+grid: 14 23
+grid: 14 24
+grid: 14 25
+grid: 14 26
+grid: 14 27
+grid: 14 28
+grid: 14 29
+grid: 14 30
+grid: 14 31
+grid: 15 -6
+grid: 15 -5
+grid: 15 -4
+grid: 15 -3
+grid: 15 -2
+grid: 15 -1
+grid: 15 0
+grid: 15 1
+grid: 15 2
+grid: 15 3
+grid: 15 4
+grid: 15 5
+grid: 15 6 jor
+grid: 15 7 jor
+grid: 15 8 jor
+grid: 15 9 jor
+grid: 15 10
+grid: 15 11
+grid: 15 12
+grid: 15 13
+grid: 15 14
+grid: 15 15
+grid: 15 16
+grid: 15 17
+grid: 15 18
+grid: 15 19
+grid: 15 20
+grid: 15 21
+grid: 15 22
+grid: 15 23
+grid: 15 24
+grid: 15 25
+grid: 15 26
+grid: 15 27
+grid: 15 28
+grid: 15 29
+grid: 15 30
+grid: 15 31
+grid: 16 -6
+grid: 16 -5
+grid: 16 -4
+grid: 16 -3
+grid: 16 -2
+grid: 16 -1
+grid: 16 0 recPTL2
+grid: 16 1 recPTL2
+grid: 16 2 recPTL2
+grid: 16 3 recPTL2
+grid: 16 4
+grid: 16 5
+grid: 16 6 jor
+grid: 16 7 jor
+grid: 16 8 jor
+grid: 16 9 jor
+grid: 16 10 recPTL2c
+grid: 16 11 recPTL2c
+grid: 16 12
+grid: 16 13
+grid: 16 14
+grid: 16 15
+grid: 16 16
+grid: 16 17
+grid: 16 18
+grid: 16 19
+grid: 16 20
+grid: 16 21
+grid: 16 22
+grid: 16 23
+grid: 16 24 recPTL2c recPTL2c recPTL2c
+grid: 16 25 recPTL2c recPTL2c recPTL2c
+grid: 16 26
+grid: 16 27
+grid: 16 28
+grid: 16 29
+grid: 16 30
+grid: 16 31
+grid: 17 -6
+grid: 17 -5
+grid: 17 -4
+grid: 17 -3
+grid: 17 -2
+grid: 17 -1
+grid: 17 0 recPTL2
+grid: 17 1 recPTL2
+grid: 17 2 recPTL2
+grid: 17 3 recPTL2
+grid: 17 4
+grid: 17 5
+grid: 17 6 jor
+grid: 17 7 jor
+grid: 17 8 jor
+grid: 17 9 jor
+grid: 17 10 recPTL2c
+grid: 17 11 recPTL2c
+grid: 17 12
+grid: 17 13
+grid: 17 14
+grid: 17 15
+grid: 17 16
+grid: 17 17
+grid: 17 18
+grid: 17 19
+grid: 17 20
+grid: 17 21
+grid: 17 22
+grid: 17 23
+grid: 17 24 recPTL2c recPTL2c recPTL2c
+grid: 17 25 recPTL2c recPTL2c recPTL2c
+grid: 17 26
+grid: 17 27
+grid: 17 28
+grid: 17 29
+grid: 17 30
+grid: 17 31
+grid: 18 -6
+grid: 18 -5
+grid: 18 -4
+grid: 18 -3
+grid: 18 -2
+grid: 18 -1
+grid: 18 0 jxor
+grid: 18 1 jxor
+grid: 18 2 jxor
+grid: 18 3 jxor
+grid: 18 4
+grid: 18 5
+grid: 18 6 drvPTL2
+grid: 18 7 drvPTL2
+grid: 18 8
+grid: 18 9
+grid: 18 10
+grid: 18 11
+grid: 18 12
+grid: 18 13
+grid: 18 14
+grid: 18 15
+grid: 18 16
+grid: 18 17
+grid: 18 18
+grid: 18 19
+grid: 18 20
+grid: 18 21
+grid: 18 22
+grid: 18 23
+grid: 18 24 recPTL2c recPTL2c recPTL2c
+grid: 18 25 recPTL2c recPTL2c recPTL2c
+grid: 18 26
+grid: 18 27
+grid: 18 28
+grid: 18 29
+grid: 18 30
+grid: 18 31
+grid: 19 -6
+grid: 19 -5
+grid: 19 -4
+grid: 19 -3
+grid: 19 -2
+grid: 19 -1
+grid: 19 0 jxor
+grid: 19 1 jxor
+grid: 19 2 jxor
+grid: 19 3 jxor
+grid: 19 4
+grid: 19 5
+grid: 19 6 drvPTL2
+grid: 19 7 drvPTL2
+grid: 19 8
+grid: 19 9
+grid: 19 10
+grid: 19 11
+grid: 19 12
+grid: 19 13
+grid: 19 14
+grid: 19 15
+grid: 19 16
+grid: 19 17
+grid: 19 18
+grid: 19 19
+grid: 19 20
+grid: 19 21
+grid: 19 22
+grid: 19 23
+grid: 19 24
+grid: 19 25
+grid: 19 26
+grid: 19 27
+grid: 19 28
+grid: 19 29
+grid: 19 30
+grid: 19 31
+grid: 20 -6
+grid: 20 -5
+grid: 20 -4
+grid: 20 -3
+grid: 20 -2
+grid: 20 -1
+grid: 20 0 jxor
+grid: 20 1 jxor
+grid: 20 2 jxor
+grid: 20 3 jxor
+grid: 20 4 recPTL2c
+grid: 20 5 recPTL2c
+grid: 20 6
+grid: 20 7
+grid: 20 8
+grid: 20 9
+grid: 20 10
+grid: 20 11
+grid: 20 12
+grid: 20 13
+grid: 20 14
+grid: 20 15
+grid: 20 16
+grid: 20 17
+grid: 20 18
+grid: 20 19
+grid: 20 20
+grid: 20 21
+grid: 20 22
+grid: 20 23
+grid: 20 24
+grid: 20 25
+grid: 20 26
+grid: 20 27
+grid: 20 28
+grid: 20 29
+grid: 20 30
+grid: 20 31
+grid: 21 -6
+grid: 21 -5
+grid: 21 -4
+grid: 21 -3
+grid: 21 -2
+grid: 21 -1
+grid: 21 0 jxor
+grid: 21 1 jxor
+grid: 21 2 jxor
+grid: 21 3 jxor
+grid: 21 4 recPTL2c
+grid: 21 5 recPTL2c
+grid: 21 6
+grid: 21 7
+grid: 21 8
+grid: 21 9
+grid: 21 10
+grid: 21 11
+grid: 21 12
+grid: 21 13
+grid: 21 14
+grid: 21 15
+grid: 21 16
+grid: 21 17
+grid: 21 18
+grid: 21 19
+grid: 21 20
+grid: 21 21
+grid: 21 22
+grid: 21 23
+grid: 21 24
+grid: 21 25
+grid: 21 26
+grid: 21 27
+grid: 21 28
+grid: 21 29
+grid: 21 30
+grid: 21 31
+grid: 22 -6
+grid: 22 -5
+grid: 22 -4
+grid: 22 -3
+grid: 22 -2
+grid: 22 -1
+grid: 22 0 drvPTL2
+grid: 22 1 drvPTL2
+grid: 22 2
+grid: 22 3
+grid: 22 4
+grid: 22 5
+grid: 22 6
+grid: 22 7
+grid: 22 8
+grid: 22 9
+grid: 22 10 recPTL2
+grid: 22 11 recPTL2
+grid: 22 12 recPTL2
+grid: 22 13 recPTL2
+grid: 22 14
+grid: 22 15
+grid: 22 16
+grid: 22 17
+grid: 22 18
+grid: 22 19
+grid: 22 20
+grid: 22 21
+grid: 22 22
+grid: 22 23
+grid: 22 24
+grid: 22 25
+grid: 22 26
+grid: 22 27
+grid: 22 28
+grid: 22 29
+grid: 22 30
+grid: 22 31
+grid: 23 -6
+grid: 23 -5
+grid: 23 -4
+grid: 23 -3
+grid: 23 -2
+grid: 23 -1
+grid: 23 0 drvPTL2
+grid: 23 1 drvPTL2
+grid: 23 2
+grid: 23 3
+grid: 23 4
+grid: 23 5
+grid: 23 6
+grid: 23 7
+grid: 23 8
+grid: 23 9
+grid: 23 10 recPTL2
+grid: 23 11 recPTL2
+grid: 23 12 recPTL2
+grid: 23 13 recPTL2
+grid: 23 14
+grid: 23 15
+grid: 23 16
+grid: 23 17
+grid: 23 18
+grid: 23 19
+grid: 23 20
+grid: 23 21
+grid: 23 22
+grid: 23 23
+grid: 23 24
+grid: 23 25
+grid: 23 26
+grid: 23 27
+grid: 23 28
+grid: 23 29
+grid: 23 30
+grid: 23 31
+grid: 24 -6
+grid: 24 -5
+grid: 24 -4
+grid: 24 -3
+grid: 24 -2
+grid: 24 -1
+grid: 24 0
+grid: 24 1
+grid: 24 2
+grid: 24 3
+grid: 24 4
+grid: 24 5
+grid: 24 6
+grid: 24 7
+grid: 24 8
+grid: 24 9
+grid: 24 10 jor
+grid: 24 11 jor
+grid: 24 12 jor
+grid: 24 13 jor
+grid: 24 14
+grid: 24 15
+grid: 24 16
+grid: 24 17
+grid: 24 18
+grid: 24 19
+grid: 24 20
+grid: 24 21
+grid: 24 22
+grid: 24 23
+grid: 24 24
+grid: 24 25
+grid: 24 26
+grid: 24 27
+grid: 24 28
+grid: 24 29
+grid: 24 30
+grid: 24 31
+grid: 25 -6
+grid: 25 -5
+grid: 25 -4
+grid: 25 -3
+grid: 25 -2
+grid: 25 -1
+grid: 25 0
+grid: 25 1
+grid: 25 2
+grid: 25 3
+grid: 25 4
+grid: 25 5
+grid: 25 6
+grid: 25 7
+grid: 25 8
+grid: 25 9
+grid: 25 10 jor
+grid: 25 11 jor
+grid: 25 12 jor
+grid: 25 13 jor
+grid: 25 14
+grid: 25 15
+grid: 25 16
+grid: 25 17
+grid: 25 18
+grid: 25 19
+grid: 25 20
+grid: 25 21
+grid: 25 22
+grid: 25 23
+grid: 25 24
+grid: 25 25
+grid: 25 26
+grid: 25 27
+grid: 25 28
+grid: 25 29
+grid: 25 30
+grid: 25 31
+grid: 26 -6
+grid: 26 -5
+grid: 26 -4
+grid: 26 -3
+grid: 26 -2
+grid: 26 -1
+grid: 26 0
+grid: 26 1
+grid: 26 2
+grid: 26 3
+grid: 26 4
+grid: 26 5
+grid: 26 6
+grid: 26 7
+grid: 26 8
+grid: 26 9
+grid: 26 10 jor
+grid: 26 11 jor
+grid: 26 12 jor
+grid: 26 13 jor
+grid: 26 14 recPTL2c
+grid: 26 15 recPTL2c
+grid: 26 16
+grid: 26 17
+grid: 26 18
+grid: 26 19
+grid: 26 20
+grid: 26 21
+grid: 26 22
+grid: 26 23
+grid: 26 24
+grid: 26 25
+grid: 26 26
+grid: 26 27
+grid: 26 28
+grid: 26 29
+grid: 26 30
+grid: 26 31
+grid: 27 -6
+grid: 27 -5
+grid: 27 -4
+grid: 27 -3
+grid: 27 -2
+grid: 27 -1
+grid: 27 0
+grid: 27 1
+grid: 27 2
+grid: 27 3
+grid: 27 4
+grid: 27 5
+grid: 27 6
+grid: 27 7
+grid: 27 8
+grid: 27 9
+grid: 27 10 jor
+grid: 27 11 jor
+grid: 27 12 jor
+grid: 27 13 jor
+grid: 27 14 recPTL2c
+grid: 27 15 recPTL2c
+grid: 27 16
+grid: 27 17
+grid: 27 18
+grid: 27 19
+grid: 27 20
+grid: 27 21
+grid: 27 22
+grid: 27 23
+grid: 27 24
+grid: 27 25
+grid: 27 26
+grid: 27 27
+grid: 27 28
+grid: 27 29
+grid: 27 30
+grid: 27 31
+grid: 28 -6
+grid: 28 -5
+grid: 28 -4
+grid: 28 -3
+grid: 28 -2
+grid: 28 -1
+grid: 28 0
+grid: 28 1
+grid: 28 2
+grid: 28 3
+grid: 28 4
+grid: 28 5
+grid: 28 6
+grid: 28 7
+grid: 28 8
+grid: 28 9
+grid: 28 10 drvPTL2
+grid: 28 11 drvPTL2
+grid: 28 12
+grid: 28 13
+grid: 28 14
+grid: 28 15
+grid: 28 16
+grid: 28 17
+grid: 28 18
+grid: 28 19
+grid: 28 20
+grid: 28 21
+grid: 28 22
+grid: 28 23
+grid: 28 24
+grid: 28 25
+grid: 28 26
+grid: 28 27
+grid: 28 28
+grid: 28 29
+grid: 28 30
+grid: 28 31
+grid: 29 -6
+grid: 29 -5
+grid: 29 -4
+grid: 29 -3
+grid: 29 -2
+grid: 29 -1
+grid: 29 0
+grid: 29 1
+grid: 29 2
+grid: 29 3
+grid: 29 4
+grid: 29 5
+grid: 29 6
+grid: 29 7
+grid: 29 8
+grid: 29 9
+grid: 29 10 drvPTL2
+grid: 29 11 drvPTL2
+grid: 29 12
+grid: 29 13
+grid: 29 14
+grid: 29 15
+grid: 29 16
+grid: 29 17
+grid: 29 18
+grid: 29 19
+grid: 29 20
+grid: 29 21
+grid: 29 22
+grid: 29 23
+grid: 29 24
+grid: 29 25
+grid: 29 26
+grid: 29 27
+grid: 29 28
+grid: 29 29
+grid: 29 30
+grid: 29 31
+grid: 30 -6
+grid: 30 -5
+grid: 30 -4
+grid: 30 -3
+grid: 30 -2
+grid: 30 -1
+grid: 30 0
+grid: 30 1
+grid: 30 2
+grid: 30 3
+grid: 30 4
+grid: 30 5
+grid: 30 6
+grid: 30 7
+grid: 30 8
+grid: 30 9
+grid: 30 10
+grid: 30 11
+grid: 30 12
+grid: 30 13
+grid: 30 14
+grid: 30 15
+grid: 30 16
+grid: 30 17
+grid: 30 18 PTL1icr
+grid: 30 19
+grid: 30 20
+grid: 30 21
+grid: 30 22
+grid: 30 23
+grid: 30 24
+grid: 30 25
+grid: 30 26
+grid: 30 27
+grid: 30 28
+grid: 30 29
+grid: 30 30
+grid: 30 31
+grid: 31 -6
+grid: 31 -5
+grid: 31 -4
+grid: 31 -3
+grid: 31 -2
+grid: 31 -1
+grid: 31 0
+grid: 31 1
+grid: 31 2
+grid: 31 3
+grid: 31 4
+grid: 31 5
+grid: 31 6
+grid: 31 7
+grid: 31 8
+grid: 31 9
+grid: 31 10
+grid: 31 11
+grid: 31 12
+grid: 31 13
+grid: 31 14
+grid: 31 15
+grid: 31 16
+grid: 31 17
+grid: 31 18
+grid: 31 19
+grid: 31 20
+grid: 31 21
+grid: 31 22
+grid: 31 23
+grid: 31 24
+grid: 31 25
+grid: 31 26
+grid: 31 27
+grid: 31 28
+grid: 31 29
+grid: 31 30
+grid: 31 31
+grid: 32 -6
+grid: 32 -5
+grid: 32 -4
+grid: 32 -3
+grid: 32 -2
+grid: 32 -1
+grid: 32 0
+grid: 32 1
+grid: 32 2
+grid: 32 3
+grid: 32 4
+grid: 32 5
+grid: 32 6
+grid: 32 7
+grid: 32 8
+grid: 32 9
+grid: 32 10
+grid: 32 11
+grid: 32 12
+grid: 32 13
+grid: 32 14
+grid: 32 15
+grid: 32 16
+grid: 32 17
+grid: 32 18
+grid: 32 19
+grid: 32 20
+grid: 32 21
+grid: 32 22
+grid: 32 23
+grid: 32 24
+grid: 32 25
+grid: 32 26
+grid: 32 27
+grid: 32 28
+grid: 32 29
+grid: 32 30
+grid: 32 31
+grid: 33 -6
+grid: 33 -5
+grid: 33 -4
+grid: 33 -3
+grid: 33 -2
+grid: 33 -1
+grid: 33 0
+grid: 33 1
+grid: 33 2
+grid: 33 3
+grid: 33 4
+grid: 33 5
+grid: 33 6
+grid: 33 7
+grid: 33 8
+grid: 33 9
+grid: 33 10
+grid: 33 11
+grid: 33 12
+grid: 33 13
+grid: 33 14
+grid: 33 15
+grid: 33 16
+grid: 33 17
+grid: 33 18 via
+grid: 33 19
+grid: 33 20
+grid: 33 21
+grid: 33 22
+grid: 33 23
+grid: 33 24
+grid: 33 25
+grid: 33 26
+grid: 33 27
+grid: 33 28
+grid: 33 29
+grid: 33 30
+grid: 33 31
+grid: 34 -6
+grid: 34 -5
+grid: 34 -4
+grid: 34 -3
+grid: 34 -2
+grid: 34 -1
+grid: 34 0
+grid: 34 1
+grid: 34 2
+grid: 34 3
+grid: 34 4
+grid: 34 5
+grid: 34 6
+grid: 34 7
+grid: 34 8
+grid: 34 9
+grid: 34 10
+grid: 34 11
+grid: 34 12
+grid: 34 13
+grid: 34 14
+grid: 34 15
+grid: 34 16
+grid: 34 17
+grid: 34 18
+grid: 34 19
+grid: 34 20
+grid: 34 21
+grid: 34 22
+grid: 34 23
+grid: 34 24
+grid: 34 25
+grid: 34 26
+grid: 34 27
+grid: 34 28
+grid: 34 29
+grid: 34 30
+grid: 34 31
+grid: 35 -6
+grid: 35 -5
+grid: 35 -4
+grid: 35 -3
+grid: 35 -2
+grid: 35 -1
+grid: 35 0
+grid: 35 1
+grid: 35 2
+grid: 35 3
+grid: 35 4
+grid: 35 5
+grid: 35 6
+grid: 35 7
+grid: 35 8
+grid: 35 9
+grid: 35 10 recPTL2c
+grid: 35 11 recPTL2c
+grid: 35 12
+grid: 35 13
+grid: 35 14
+grid: 35 15
+grid: 35 16
+grid: 35 17
+grid: 35 18
+grid: 35 19
+grid: 35 20
+grid: 35 21
+grid: 35 22
+grid: 35 23
+grid: 35 24
+grid: 35 25
+grid: 35 26
+grid: 35 27
+grid: 35 28
+grid: 35 29
+grid: 35 30
+grid: 35 31
+grid: 36 -6
+grid: 36 -5
+grid: 36 -4
+grid: 36 -3
+grid: 36 -2
+grid: 36 -1
+grid: 36 0
+grid: 36 1
+grid: 36 2
+grid: 36 3
+grid: 36 4
+grid: 36 5
+grid: 36 6
+grid: 36 7
+grid: 36 8
+grid: 36 9
+grid: 36 10 recPTL2c
+grid: 36 11 recPTL2c
+grid: 36 12
+grid: 36 13
+grid: 36 14
+grid: 36 15
+grid: 36 16
+grid: 36 17
+grid: 36 18
+grid: 36 19
+grid: 36 20
+grid: 36 21
+grid: 36 22
+grid: 36 23
+grid: 36 24
+grid: 36 25
+grid: 36 26
+grid: 36 27
+grid: 36 28
+grid: 36 29
+grid: 36 30
+grid: 36 31
+grid: 37 -6
+grid: 37 -5
+grid: 37 -4
+grid: 37 -3
+grid: 37 -2
+grid: 37 -1
+grid: 37 0
+grid: 37 1
+grid: 37 2
+grid: 37 3 recPTL2c
+grid: 37 4 recPTL2c
+grid: 37 5 recPTL2c
+grid: 37 6
+grid: 37 7
+grid: 37 8
+grid: 37 9
+grid: 37 10 opin recPTL2c
+grid: 37 11 opin recPTL2c
+grid: 37 12
+grid: 37 13
+grid: 37 14
+grid: 37 15
+grid: 37 16
+grid: 37 17
+grid: 37 18
+grid: 37 19
+grid: 37 20
+grid: 37 21
+grid: 37 22
+grid: 37 23
+grid: 37 24
+grid: 37 25
+grid: 37 26
+grid: 37 27
+grid: 37 28
+grid: 37 29
+grid: 37 30
+grid: 37 31
+grid: 38 -6
+grid: 38 -5
+grid: 38 -4
+grid: 38 -3
+grid: 38 -2
+grid: 38 -1
+grid: 38 0
+grid: 38 1
+grid: 38 2
+grid: 38 3 recPTL2c
+grid: 38 4 recPTL2c
+grid: 38 5 recPTL2c
+grid: 38 6
+grid: 38 7
+grid: 38 8
+grid: 38 9
+grid: 38 10
+grid: 38 11
+grid: 38 12
+grid: 38 13
+grid: 38 14
+grid: 38 15
+grid: 38 16
+grid: 38 17
+grid: 38 18
+grid: 38 19
+grid: 38 20
+grid: 38 21
+grid: 38 22
+grid: 38 23
+grid: 38 24
+grid: 38 25
+grid: 38 26
+grid: 38 27
+grid: 38 28
+grid: 38 29
+grid: 38 30
+grid: 38 31
+grid: 39 -6
+grid: 39 -5
+grid: 39 -4
+grid: 39 -3
+grid: 39 -2
+grid: 39 -1
+grid: 39 0
+grid: 39 1
+grid: 39 2
+grid: 39 3
+grid: 39 4 opin
+grid: 39 5
+grid: 39 6
+grid: 39 7
+grid: 39 8
+grid: 39 9
+grid: 39 10
+grid: 39 11
+grid: 39 12
+grid: 39 13
+grid: 39 14
+grid: 39 15
+grid: 39 16
+grid: 39 17
+grid: 39 18
+grid: 39 19
+grid: 39 20
+grid: 39 21
+grid: 39 22
+grid: 39 23
+grid: 39 24
+grid: 39 25
+grid: 39 26
+grid: 39 27
+grid: 39 28
+grid: 39 29
+grid: 39 30
+grid: 39 31
+grid: 40 -6
+grid: 40 -5
+grid: 40 -4
+grid: 40 -3
+grid: 40 -2
+grid: 40 -1
+grid: 40 0
+grid: 40 1
+grid: 40 2
+grid: 40 3
+grid: 40 4
+grid: 40 5
+grid: 40 6
+grid: 40 7
+grid: 40 8
+grid: 40 9
+grid: 40 10
+grid: 40 11
+grid: 40 12
+grid: 40 13
+grid: 40 14
+grid: 40 15
+grid: 40 16
+grid: 40 17
+grid: 40 18
+grid: 40 19
+grid: 40 20
+grid: 40 21
+grid: 40 22
+grid: 40 23
+grid: 40 24
+grid: 40 25
+grid: 40 26
+grid: 40 27
+grid: 40 28
+grid: 40 29
+grid: 40 30
+grid: 40 31
+grid: 41 -6
+grid: 41 -5
+grid: 41 -4
+grid: 41 -3
+grid: 41 -2
+grid: 41 -1
+grid: 41 0
+grid: 41 1
+grid: 41 2
+grid: 41 3
+grid: 41 4
+grid: 41 5
+grid: 41 6
+grid: 41 7
+grid: 41 8
+grid: 41 9
+grid: 41 10
+grid: 41 11
+grid: 41 12
+grid: 41 13
+grid: 41 14
+grid: 41 15
+grid: 41 16
+grid: 41 17
+grid: 41 18
+grid: 41 19
+grid: 41 20
+grid: 41 21
+grid: 41 22
+grid: 41 23
+grid: 41 24
+grid: 41 25
+grid: 41 26
+grid: 41 27
+grid: 41 28
+grid: 41 29
+grid: 41 30
+grid: 41 31
+grid: 42 -6
+grid: 42 -5
+grid: 42 -4
+grid: 42 -3
+grid: 42 -2
+grid: 42 -1
+grid: 42 0
+grid: 42 1
+grid: 42 2
+grid: 42 3
+grid: 42 4
+grid: 42 5
+grid: 42 6
+grid: 42 7
+grid: 42 8
+grid: 42 9
+grid: 42 10
+grid: 42 11
+grid: 42 12
+grid: 42 13
+grid: 42 14
+grid: 42 15
+grid: 42 16
+grid: 42 17
+grid: 42 18
+grid: 42 19
+grid: 42 20
+grid: 42 21
+grid: 42 22
+grid: 42 23
+grid: 42 24
+grid: 42 25
+grid: 42 26
+grid: 42 27
+grid: 42 28
+grid: 42 29
+grid: 42 30
+grid: 42 31
+grid: 43 -6
+grid: 43 -5
+grid: 43 -4
+grid: 43 -3
+grid: 43 -2
+grid: 43 -1
+grid: 43 0
+grid: 43 1
+grid: 43 2
+grid: 43 3
+grid: 43 4
+grid: 43 5
+grid: 43 6
+grid: 43 7
+grid: 43 8
+grid: 43 9
+grid: 43 10
+grid: 43 11
+grid: 43 12
+grid: 43 13
+grid: 43 14
+grid: 43 15
+grid: 43 16
+grid: 43 17
+grid: 43 18
+grid: 43 19
+grid: 43 20
+grid: 43 21
+grid: 43 22
+grid: 43 23
+grid: 43 24
+grid: 43 25
+grid: 43 26
+grid: 43 27
+grid: 43 28
+grid: 43 29
+grid: 43 30
+grid: 43 31
+grid: 44 -6
+grid: 44 -5
+grid: 44 -4
+grid: 44 -3
+grid: 44 -2
+grid: 44 -1
+grid: 44 0
+grid: 44 1
+grid: 44 2
+grid: 44 3
+grid: 44 4
+grid: 44 5
+grid: 44 6
+grid: 44 7
+grid: 44 8
+grid: 44 9
+grid: 44 10
+grid: 44 11
+grid: 44 12
+grid: 44 13
+grid: 44 14
+grid: 44 15
+grid: 44 16
+grid: 44 17
+grid: 44 18
+grid: 44 19
+grid: 44 20
+grid: 44 21
+grid: 44 22
+grid: 44 23
+grid: 44 24
+grid: 44 25
+grid: 44 26
+grid: 44 27
+grid: 44 28
+grid: 44 29
+grid: 44 30
+grid: 44 31
+grid: 45 -6
+grid: 45 -5
+grid: 45 -4
+grid: 45 -3
+grid: 45 -2
+grid: 45 -1
+grid: 45 0
+grid: 45 1
+grid: 45 2
+grid: 45 3
+grid: 45 4
+grid: 45 5
+grid: 45 6
+grid: 45 7
+grid: 45 8
+grid: 45 9
+grid: 45 10
+grid: 45 11
+grid: 45 12
+grid: 45 13
+grid: 45 14
+grid: 45 15
+grid: 45 16
+grid: 45 17
+grid: 45 18
+grid: 45 19
+grid: 45 20
+grid: 45 21
+grid: 45 22
+grid: 45 23
+grid: 45 24
+grid: 45 25
+grid: 45 26
+grid: 45 27
+grid: 45 28
+grid: 45 29
+grid: 45 30
+grid: 45 31
+grid: 46 -6
+grid: 46 -5
+grid: 46 -4
+grid: 46 -3
+grid: 46 -2
+grid: 46 -1
+grid: 46 0
+grid: 46 1
+grid: 46 2
+grid: 46 3
+grid: 46 4
+grid: 46 5
+grid: 46 6
+grid: 46 7
+grid: 46 8
+grid: 46 9
+grid: 46 10
+grid: 46 11
+grid: 46 12
+grid: 46 13
+grid: 46 14
+grid: 46 15
+grid: 46 16
+grid: 46 17
+grid: 46 18
+grid: 46 19
+grid: 46 20
+grid: 46 21
+grid: 46 22
+grid: 46 23
+grid: 46 24
+grid: 46 25
+grid: 46 26
+grid: 46 27
+grid: 46 28
+grid: 46 29
+grid: 46 30
+grid: 46 31

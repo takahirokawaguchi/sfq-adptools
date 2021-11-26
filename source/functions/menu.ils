@@ -1,0 +1,124 @@
+;(load "~/git/sfqcad/source/functions/menu.ils")
+;(let ()
+  (defun gensymSFQADPMenu ()
+    (gensym 'SFQADPMenu))
+
+  (defun simpleCreateMenuItem (itemText callback)
+    (hiCreateMenuItem
+      ?name (gensymSFQADPMenu )
+      ?itemText itemText
+      ?callback callback))
+
+  (defun makeSlider1 ()
+    (hiCreateSliderMenuItem
+      ?name (gensymSFQADPMenu )
+      ?itemText "router"
+      ?subMenu	
+      (hiCreatePulldownMenu
+        (gensymSFQADPMenu )
+        ""
+        (list
+          (simpleCreateMenuItem
+            "placeOnGrid"
+            "(roAdjustAllInsts (geGetWindowCellView ))")
+          (simpleCreateMenuItem
+            "routeAll"
+            "(rRoute (geGetWindowCellView ) \"all\")")
+          (simpleCreateMenuItem
+            "routeSelected"
+            "(rRoute (geGetWindowCellView ) \"selected\")")
+          (simpleCreateMenuItem
+            "selected nets -> ptl nets"
+            "(makePtlWire )")
+          (simpleCreateMenuItem
+            "all ptl nets -> nets"
+            "(undoPTLWire (geGetWindowCellView ))")
+          (simpleCreateMenuItem
+            "all ptl cells -> ptl nets"
+            "(undoPTLCellAll ) ")
+          (simpleCreateMenuItem
+            "selected ptl cells -> ptl nets"
+            "(undoPTLCellSelected ) ")
+          (simpleCreateMenuItem
+            "all ptl nets -> ptl cells"
+            "(rNet2ptl \"all\") ")
+          (simpleCreateMenuItem
+            "selected ptl nets -> ptl cells"
+            "(rNet2ptl \"selected\" )"))
+        )))
+
+  (defun makeSlider2 ()
+    (hiCreateSliderMenuItem
+      ?name (gensymSFQADPMenu )
+      ?itemText "debug"
+      ?subMenu
+      (hiCreatePulldownMenu
+        (gensymSFQADPMenu )
+        ""
+        (list
+          (simpleCreateMenuItem
+            "mloadMySkill"
+            (strcat "(mload \"~/git/route/source\") "
+                    "(mload \"~/git/dat/source\") "
+                    "(mload \"~/git/placement/source\") "
+                    "(mload \"~/git/skill\")"))
+          (simpleCreateMenuItem
+            "setqScvGeGetWindowCellView"
+            "(setq scv (geGetWindowCellView ))")
+          (simpleCreateMenuItem
+            "scvCellNames"
+            "(scvCellNames (geGetWindowCellView ))")
+          (simpleCreateMenuItem
+            "setqSelGeGetSelSet"
+            "(setq sel (geGetSelSet ))")
+          (simpleCreateMenuItem
+            "deleteNormalLabel"
+            "(deleteNormalLabel )"))
+        )))
+
+  (defun createSFQADPMenu ()
+    ;main menu
+    (hiCreatePulldownMenu
+      (gensymSFQADPMenu )
+      "SFQ-ADP"
+      (list
+        (makeSlider1 )
+        (hiCreateSeparatorMenuItem ?name (gensymSFQADPMenu ))
+        (simpleCreateMenuItem
+          "fillMoatADP"
+          "(fillMoatADP (geGetWindowCellView ) nil)")
+        (simpleCreateMenuItem
+          "displayArrivalTime"
+          "(datGui )")
+        (simpleCreateMenuItem
+          "logicExtraction"
+          "(c2vFront )")
+        (simpleCreateMenuItem
+          "cell(s) translater"
+          "(guiTranslateCell )")
+        (hiCreateSeparatorMenuItem ?name (gensymSFQADPMenu ))
+        (makeSlider2 )
+        )))
+
+
+;(setq cw (hiGetCurrentWindow )) (hiInsertBannerMenu cw (createSFQADPMenu ) (length (hiGetBannerMenus cw)))
+  (defun insertSFQADPMenu (args)
+    (hiInsertBannerMenu
+      args->window
+      (createSFQADPMenu )
+      (length (hiGetBannerMenus args->window))))
+
+  (when (deViewTypeIsRegistered "maskLayout")
+    (deRegUserTriggers 
+      "maskLayout" 
+      nil
+      nil 
+      'insertSFQADPMenu))
+
+  (when (deViewTypeIsRegistered "maskLayoutXL")
+    (deRegUserTriggers 
+      "maskLayoutXL"
+      nil
+      nil 
+      'insertSFQADPMenu))
+;  );let

@@ -1,0 +1,34 @@
+(let ()
+  (defun mload (dirPath)
+    (let (files)
+      (setq files (setof file (getDirFiles dirPath) (rexMatchp ".il$" file)))
+      (setq files (append files
+                          (setof file (getDirFiles dirPath) (rexMatchp ".ils$" file))))
+      (foreach file files
+               (printf "[INFO] loading %s\n" file)
+               (loadi (buildString (list dirPath file) "/"))
+               )))
+  (let (
+        (loadDirs
+          (list
+            "dat"
+            "route"
+            ))
+        (currentDir nil))
+    (foreach
+      dir loadDirs
+      (foreach
+        path getSkillPath()
+        (when (isReadable (setq currentDir (buildString list( path dir ) "/" )))
+          (mload currentDir)
+          ))))
+  )
+
+; fix for system installation
+RINER.ROUTER_COMMAND = 
+buildString(list("java -server -jar"
+                 searchDataPath("route/source/sfqcad.riner114v2.jar")
+                 "-p"
+                 searchDataPath("route/source/adp.prcs")
+                 "-r ./out.riner --num_RRR_loop 50"))
+

@@ -1,0 +1,16 @@
+(defun exchangeDinDout (string)
+  (cond
+    ((equal (strncmp string "din" 3) 0)
+     (setq x (strcat "dout" (substring string 4))))
+    ((equal (strncmp string "dout" 4) 0)
+     (strcat "din" (substring string 5)))
+    ))
+
+(defun exchangeClkOut (string)
+  (cond
+    ((equal (strncmp string "clk" 3) 0)
+     (setq x (strcat "out" (substring string 4))))
+    ((equal (strncmp string "out" 3) 0)
+     (strcat "clk" (substring string 4)))
+    ))
+

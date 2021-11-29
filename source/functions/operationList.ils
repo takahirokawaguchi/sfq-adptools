@@ -1,0 +1,32 @@
+(defun andList (xs)
+  (if (cdr xs)
+    (and (car xs)
+         (andList (cdr xs)))
+    (car xs)))
+
+(defun orList (xs)
+  (if (cdr xs)
+    (or (car xs)
+        (orList (cdr xs)))
+    (car xs)))
+
+(defun minList (xs)
+  (if (cdr xs)
+    (min  (car xs) (minList (cdr xs)))
+    (car xs)))
+
+(defun maxList (xs)
+  (if (cdr xs)
+    (max  (car xs) (maxList (cdr xs)))
+    (car xs)))
+
+(defun appendList (xs)
+  (if (cdr xs)
+    (append (car xs) (appendList (cdr xs)))
+    (car xs)))
+
+(defun plusList (xs)
+  (if (cdr xs)
+    (plus (car xs) (plusList (cdr xs)))
+    (car xs)))
+

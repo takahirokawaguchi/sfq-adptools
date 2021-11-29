@@ -1,0 +1,29 @@
+(defun inputTermsConnected (pinOrOutputTerm)
+  (if (geqp (length (setof x pinOrOutputTerm~>net~>instTerms (isInputTerm x))) 2)
+    (cond 
+      ((member (ptlType pinOrOutputTerm~>inst)
+               (list "PTL2" "viar"))
+       (setof x pinOrOutputTerm~>net~>instTerms
+              (and
+                (isInputTerm x)
+                (member (ptlType x~>inst)
+                        (list "PTL2" "via")))))
+      ((member (ptlType pinOrOutputTerm~>inst)
+               (list "PTL1" "via"))
+       (setof x pinOrOutputTerm~>net~>instTerms
+              (and
+                (isInputTerm x)
+                (member (ptlType x~>inst)
+                        (list "PTL1" "viar")))))
+      (t
+        (progn
+          (warn "%s_%s is connected to more than one inputTerms"
+                pinOrOutputTerm~>inst~>name pinOrOutputTerm~>name)
+          (setof x pinOrOutputTerm~>net~>instTerms (isInputTerm x))
+          ))));cond if
+  (setof x pinOrOutputTerm~>net~>instTerms (isInputTerm x)))
+
+(defun outputTermsConnected (pinOrInputTerm)
+  (setof x pinOrInputTerm~>net~>instTerms (isOutputTerm x))) 
+
+

@@ -1,14 +1,14 @@
 ;(load "~/git/sfqcadadp/source/load.ils")
 (let ()
-  (defun loadIlsSFQADP (dirPath)
+  (defun mload (dirPath)
     (let (files)
+      ;(setq files (setof file (getDirFiles dirPath) (rexMatchp ".il$" file)))
       (setq files (append files
                           (setof file (getDirFiles dirPath) (rexMatchp ".ils$" file))))
       (foreach file files
                (printf "[INFO] loading %s\n" file)
                (loadi (buildString (list dirPath file) "/"))
                )))
-
   (define loadDirs
     (list
       "functions"
@@ -16,13 +16,12 @@
       "route"
       ))
   (define currentDir nil)
-  (define path #.get_filename(piport))
-  (setq path (parseString path "/"))
-  (remd (car (last path)) path)
-  (setq path (buildString path "/")) 
+  (define path (getSkillPath ))
+printf( "The file is:%s\n" #.get_filename(piport) )
   (foreach
     dir loadDirs
     (when (isReadable (setq currentDir (buildString list( path dir ) "/" )))
-      (loadIlsSFQADP currentDir)
+      (println currentDir)
+      ;(mload currentDir)
       ))
   )

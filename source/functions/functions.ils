@@ -1,0 +1,12 @@
+(defun intersection (list1 list2 )
+  (setof element list1
+         (member element list2 ))) 
+
+(defun replaceAssoc (assocList key value)
+  (rplaca (cdr (assoc key assocList)) value))
+
+(defun replaceListNth (aList number newValue)
+  (when (geqp (length aList)
+              number)
+    (rplaca (nthcdr number aList) newValue)))
+

@@ -1,5 +1,6 @@
 ;(load "~/git/work/sta/source/dat-sta.ils")
 ;(mload "~/git/work/sta/source")
+;(mload "~/git/sfqcadadp/source/timing")
 (defun isLogicCell (inst)
   (and
     (geqp (length (inputTerms inst)) 2)
@@ -106,7 +107,7 @@
         x timingConstraints
         (let ()
           (define instName (car x))
-          (define instName nil)
+          ;(define instName nil)
           (define pairs nil)
           (define calcSlackResult nil)
           (define temp nil)
@@ -172,6 +173,13 @@
       (if commonPoint
         (setq credit commonPoint~>arvTimeMax - commonPoint~>arvTimeMin)
         (setq credit .0))
+      (unless inputTerm1~>inst~>name
+        (println "debug")
+        (println instName)
+        (println pairName)
+        (println inputTerm1~>name)
+        (println inputTerm1~>inst)
+        )
       (define slacks;name,slackMinAI,slackMaxAI,slackMinAICP
         (list
           (sprintf nil "%s_%s_%s" inputTerm1~>inst~>name inputTerm1~>name inputTerm2~>name)

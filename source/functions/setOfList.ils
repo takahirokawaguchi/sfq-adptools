@@ -1,12 +1,9 @@
-;(load "~/git/route/source/setOfListImpr.il")
-
 (defun scvCellNames (scv)
   (let (cellNames ofp fileName)
     (sprintf fileName "cellNames_%s.txt" scv~>cellName)
     (setq ofp (outfile fileName))
     (setq cellNames
           scv~>instanceMasters~>cellName)
-          ;(setOfListImpr (geGetWindowCellView )~>instances~>cellName))
     (setq cellNames (sort cellNames nil))
     (fprintf ofp "cell:%d\n" (length scv~>instances))
     (fprintf ofp "cell name:%d\n" (length cellNames))

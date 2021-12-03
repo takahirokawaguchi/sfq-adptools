@@ -7,18 +7,38 @@
 
 ;defun
 (defun findInstTermByName (cv nameInstAndInstTerm)
-  (let (inst)
-    (if (car nameInstAndInstTerm)
-      then
-      (setq inst
-            (dbFindAnyInstByName
-              cv (car nameInstAndInstTerm)))
-      (car (exists x
-                   inst~>instTerms (equal x~>name (cadr nameInstAndInstTerm))))
-      else
-      nil)))
+  (define inst nil)
+  (if (car nameInstAndInstTerm)
+    then
+    (setq inst
+          (dbFindAnyInstByName
+            cv (car nameInstAndInstTerm)))
+    (car (exists x
+                 inst~>instTerms (equal x~>name (cadr nameInstAndInstTerm))))
+    else
+    nil))
+
 (defun getNameInstAndInstTerm (instTerm)
   (list instTerm~>inst~>name instTerm~>name))
+
+(defun getBiasVoltage (maxOrMin)
+  (case 
+    (if (equal maxOrMin "max")
+      OPTION_TIMING_ANALYSIS~>maxBiasVoltage~>value
+      OPTION_TIMING_ANALYSIS~>minBiasVoltage~>value)
+    ("-30%" 1)
+    ("-25%" 2)
+    ("-20%" 3)
+    ("-15%" 4)
+    ("-10%" 5)
+    ("-5%"  6)	 
+    ("0%"   7)
+    ("+5%"  8)
+    ("+10%" 9)
+    ("+15%" 10)
+    ("+20%" 11)
+    ("+25%" 12)
+    ("+30%" 13)))
 
 (defun deleteAllArvTime (cv)
   (foreach
@@ -35,6 +55,7 @@
       (dbDeletePropByName y "numPtlCellMin") 
       (dbDeletePropByName y "numPtlCellMax") 
       ))) 
+
 (defun deleteAllProp (cv)
   (foreach
     x cv~>instances
@@ -43,299 +64,222 @@
     (foreach 
       y x~>instTerms
       (foreach prop y~>prop
-               (dbDeletePropByName y prop~>name))))) 
+               (dbDeletePropByName y prop~>name)))))
 
 ;local functions
 ;file scope
-(let (;static variables
-      (DT nil);DelayTable
-      (cv nil);cellView
-      (TDT nil);timingDependencyTable
-      (netDelayCoeff .0)
-      (vbMax 8)
-      (vbMin 6)
-      );let 1st argument
-  (defun letMainTimingPropagation
-    ;;inputs
-    ( argueCv )
-    (let 
-      (inputTermsCalcNext 
-       time
-       );let 1st arguement
-      ;; initialization
-      (setq cv argueCv)
-      ;(setq netDelayCoeff arguNetDelayCoeff)
-      (deleteAllArvTime cv)
-      ;make tables
-      (setq DT (makeDelayTable cv))
-      (setq TDT (makeTimingDependencyTable cv))
-      ;start temrs
-      (setq time cputime())
-      (setq inputTermsCalcNext (append (setIpins ) (setSources )))
-      ;;procedure
-      (setArvTimeInputTermsCalcNext inputTermsCalcNext)
-      (setq time cputime() - time)
-      (printf "runtime of timing propagation is %.3f seconds\n" time / 60.0)
-      ));letCalcArvTimeAll
+(let ()
+  ;static variables
+  (define DT nil);DelayTable
+  (define cv nil);cellView
+  (define TDT nil);timingDependencyTable
+  (define netDelay "zero")
+  (define netDelayCoeff 0.1597 / 0.1875)
+  (define vbMax 8)
+  (define vbMin 6)
+
+  (defun letMainTimingPropagation (argueCv)
+    ;; initialization
+    (setq cv argueCv)
+    (when (boundp 'OPTION_TIMING_ANALYSIS)
+      (setq netDelay OPTION_TIMING_ANALYSIS~>netDelay~>value)
+      (setq vbMax (getBiasVoltage "max"))
+      (setq vbMin (getBiasVoltage "min"))
+      )
+    (deleteAllArvTime cv)
+    (setq DT (makeDelayTable cv))
+    (setq TDT (makeTimingDependencyTable cv))
+    ;start temrs
+    (define time cputime())
+    (define inputTermsCalcNext (append (setIpins ) (setSources )))
+    ;;procedure
+    (setArvTimeInputTermsCalcNext inputTermsCalcNext)
+    (printf "runtime of timing propagation is %.3f seconds\n"
+            (modf (difference (cputime ) time)
+                  60.0)))
   mainTimingPropagation = letMainTimingPropagation
 
   ;local functions
-  ;
-  ;setArvTimeInputTermsCalcNext (inputTermsCalcNext)
-  ;setIpins ()
-  ;setSources ()
-  ;constructGraph (inputTerm netDelayCoeff)
-  ;checkCalculability (inputTermsTDT)
-  ;setNode (precedingTerm succedingTerm)
-  ;setArvTime (outputTerm connectedInputTerms netDelayCoeff)
-  ;netDistance (outputTerm inputTerm netDelayFlag)
-  ;calcArvTimeDiffMax (arvTime inputTerm outputTerm)
-  ;calcArvTimeDiffMin (arvTime inputTerm outputTerm)
-  ;calcArvTimeDiff_zero (arvTime inputTerm outputTerm)
-  ;
   (defun setArvTimeInputTermsCalcNext (inputTermsCalcNext)
-    (let 
-      ((inputTerm nil)
-       );let 1st arguement
-      (while (setq inputTerm (car inputTermsCalcNext))
-             (setq inputTermsCalcNext
-                   (append
-                     (cdr inputTermsCalcNext)
-                     (constructGraph inputTerm netDelayCoeff))))))
+    (define inputTerm nil)
+    (while (setq inputTerm (car inputTermsCalcNext))
+           (setq inputTermsCalcNext
+                 (append
+                   (cdr inputTermsCalcNext)
+                   (constructGraph inputTerm)))))
+
   (defun setIpins ()
-    (letseq
-      ((ret nil);inputTermsCalcNext
-       (ipins (setof y cv~>instances (or (isIpin y) (isOpin y) (isIopin y))))
-       (y nil)
-       (inputTermConnectedX nil)
-       (inputTimeMap (getAndMakeInputTimeMap ))
-       )
-      (foreach
-        x ipins
-        (when (and (setq y (assoc x~>net~>name inputTimeMap))
-                   (setq inputTermConnectedX (car (inputTermsConnected x))))
-          inputTermConnectedX~>arvTimeMin    = (cadr y)
-          inputTermConnectedX~>arvTimeMax    = (caddr y)
-          inputTermConnectedX~>numNodes      = 0
-          inputTermConnectedX~>namesPrecedingNodes 
-          = (list (getNameInstAndInstTerm inputTermConnectedX))
-          inputTermConnectedX~>numPtlCellMin = 0
-          inputTermConnectedX~>numPtlCellMax = 0
-          (setq ret (append1 ret inputTermConnectedX)))
-        )
-      ret))
+    (define ret nil)
+    (define ipins (setof y cv~>instances (or (isIpin y) (isOpin y) (isIopin y))))
+    (define y nil)
+    (define inputTermConnectedX nil)
+    (define inputTimeMap (getAndMakeInputTimeMap ))
+    (foreach
+      x ipins
+      (when (and (setq y (assoc x~>net~>name inputTimeMap))
+                 (setq inputTermConnectedX (car (inputTermsConnected x))))
+        inputTermConnectedX~>arvTimeMin    = (cadr y)
+        inputTermConnectedX~>arvTimeMax    = (caddr y)
+        inputTermConnectedX~>numNodes      = 0
+        inputTermConnectedX~>namesPrecedingNodes 
+        = (list (getNameInstAndInstTerm inputTermConnectedX))
+        inputTermConnectedX~>numPtlCellMin = 0
+        inputTermConnectedX~>numPtlCellMax = 0
+        (setq ret (append1 ret inputTermConnectedX))))
+    ret)
+
   (defun getAndMakeInputTimeMap ()
-    (let (fileName ifp ofp result imap temp)
-      (sprintf fileName "inputTimeMap_%s.txt" cv~>cellName)
-      (setq ifp (infile fileName))
-      (if ifp
-        (progn;then
-          (setq imap nil)
-          (while (setq temp (lineread ifp))
-                 (setq temp
-                       (cons
-                         (sprintf str "%s" (car temp))
-                         (cdr temp)))
-                 (setq imap (cons temp imap)))
-          (setq result (list imap)))
-        (progn;else
-          (setq ofp (outfile fileName "w"))
-          (setq imap nil)
-          (foreach x (setof y cv~>instances (or (isOpin y) (isIpin y) (isIopin y)))
-                   (fprintf ofp "%s %.1f %.1f\n" x~>net~>name 0.0 0.0)
-                   (setq imap (append1 imap (list x~>net~>name 0.0 0.0))) 
-                   )
-          (close ofp)
-          ))
-      (close ifp)
-      imap
-      ))
+    (define fileName (sprintf nil "inputTimeMap_%s.txt" cv~>cellName))
+    (define ifp (infile fileName))
+    (define ofp nil)
+    (define imap nil)
+    (define temp nil)
+    (if ifp
+      then
+      (setq imap nil)
+      (while (setq temp (lineread ifp))
+             (setq temp
+                   (cons
+                     (sprintf str "%s" (car temp))
+                     (cdr temp)))
+             (setq imap (cons temp imap)))
+      ;else
+      (setq ofp (outfile fileName "w"))
+      (setq imap nil)
+      (foreach x (setof y cv~>instances (or (isOpin y) (isIpin y) (isIopin y)))
+               (fprintf ofp "%s %.1f %.1f\n" x~>net~>name 0.0 0.0)
+               (setq imap (append1 imap (list x~>net~>name 0.0 0.0))) 
+               )
+      (close ofp)
+      )
+    (close ifp)
+    imap)
+
   (defun setSources ()
-    (letseq
-      ((ret;inputTermsCalcNext
-         (mapcar (lambda (x) (car (inputTermsConnected x)))
-                 (mapcar (lambda (x) (car (outputTerms x)))
-                         (setof y cv~>instances (isSource y))))))
-      (foreach 
-        x ret
-        x~>arvTimeMin    = 10000.0
-        x~>arvTimeMax    = -10000.0
-        x~>numNodes      = 0
-        x~>precedingNode = nil
-        x~>numPtlCellMin = 0
-        x~>numPtlCellMax = 0)
-      ret))
-  (defun constructGraph (inputTerm netDelayCoeff)
-    (let (itcs inputTermsTDT ret)
-      (setq ret nil)
-      (foreach 
-        outputTerm TDT->outputTermsDependTiming(inputTerm)
-        (setq inputTermsTDT TDT->inputTermsDependTiming(outputTerm))
-        (when (and (checkCalculability inputTermsTDT)
-                   (null outputTerm~>arvTimeMin))
-          (foreach 
-            it inputTermsTDT
-            (setNode it outputTerm))
-          ;ptl cell
-          outputTerm~>numPtlCellMin = (minList inputTermsTDT~>numPtlCellMin)
-          outputTerm~>numPtlCellMax = (maxList inputTermsTDT~>numPtlCellMax)
-          (when (isPTL outputTerm~>inst)
-            outputTerm~>numPtlCellMin = (plus 1 outputTerm~>numPtlCellMin)
-            outputTerm~>numPtlCellMax = (plus 1 outputTerm~>numPtlCellMax))
-          (setq itcs (inputTermsConnected outputTerm))
-          (foreach itc itcs
-                   (setNode outputTerm itc)
-                   itc~>numPtlCellMin = outputTerm~>numPtlCellMin
-                   itc~>numPtlCellMax = outputTerm~>numPtlCellMax)
-          (setArvTime outputTerm itcs netDelayCoeff)
-          (setq ret (append ret itcs))
-          ))
-      ;return
-      ret))
+    (define ret
+      (mapcar (lambda (x) (car (inputTermsConnected x)))
+              (mapcar (lambda (x) (car (outputTerms x)))
+                      (setof y cv~>instances (isSource y)))))
+    (foreach 
+      x ret
+      x~>arvTimeMin    = 10000.0
+      x~>arvTimeMax    = -10000.0
+      x~>numNodes      = 0
+      x~>precedingNode = nil
+      x~>numPtlCellMin = 0
+      x~>numPtlCellMax = 0)
+    ret)
+
+  (defun constructGraph (inputTerm)
+    (define ret nil)
+    (define itcs nil)
+    (define inputTermsTDT nil)
+    (foreach 
+      outputTerm TDT->outputTermsDependTiming(inputTerm)
+      (setq inputTermsTDT TDT->inputTermsDependTiming(outputTerm))
+      (when (and (checkCalculability inputTermsTDT)
+                 (null outputTerm~>arvTimeMin))
+        (foreach 
+          it inputTermsTDT
+          (setNode it outputTerm))
+        ;ptl cell
+        outputTerm~>numPtlCellMin = (minList inputTermsTDT~>numPtlCellMin)
+        outputTerm~>numPtlCellMax = (maxList inputTermsTDT~>numPtlCellMax)
+        (when (isPTL outputTerm~>inst)
+          outputTerm~>numPtlCellMin = (plus 1 outputTerm~>numPtlCellMin)
+          outputTerm~>numPtlCellMax = (plus 1 outputTerm~>numPtlCellMax))
+        (setq itcs (inputTermsConnected outputTerm))
+        (foreach itc itcs
+                 (setNode outputTerm itc)
+                 itc~>numPtlCellMin = outputTerm~>numPtlCellMin
+                 itc~>numPtlCellMax = outputTerm~>numPtlCellMax)
+        (setArvTime outputTerm itcs)
+        (setq ret (append ret itcs))
+        ))
+    ret)
 
   (defun isCalculated (instTerm)
     (and instTerm~>arvTimeMin instTerm~>arvTimeMax))
-  (defun checkCalculability (inputTermsTDT)
-    (andList
-      (mapcar 'isCalculated inputTermsTDT)))
-  (defun setNode (precedingTerm succedingTerm)
-    (let (namePrecedingNode precedingNode numNodes)
-      (if (TDT->isNode precedingTerm)
-        (setq namePrecedingNode (getNameInstAndInstTerm precedingTerm))
-        (setq namePrecedingNode (car precedingTerm~>namesPrecedingNodes)))
-      (if TDT->isNode(succedingTerm)
-        then; succedingTerm is a node
-        (setq precedingNode (findInstTermByName cv namePrecedingNode))
-        succedingTerm~>namesPrecedingNodes
-        = (append1 succedingTerm~>namesPrecedingNodes namePrecedingNode) 
-        (setq numNodes (plus 1 precedingNode~>numNodes))
-        (if succedingTerm~>numNodes
-          succedingTerm~>numNodes = (max succedingTerm~>numNodes numNodes)
-          succedingTerm~>numNodes = numNodes)
-        precedingNode~>namesSuccedingNodes
-        = (append1 precedingNode~>namesSuccedingNodes 
-                   (getNameInstAndInstTerm succedingTerm))
-        else; succedingTerm is not a node
-        succedingTerm~>namesPrecedingNodes = (list namePrecedingNode)
-        )))
-  (defun setArvTime (outputTerm connectedInputTerms netDelayCoeff)
-    (let (inputTerms)
-      (setq inputTerms TDT->inputTermsDependTiming(outputTerm))
-      (foreach connectedInputTerm connectedInputTerms
-               ;calculating arvTimeMin
-               if(
-                  equal(netDelayCoeff "PTLdelay_only")||equal(netDelayCoeff "PTLdelay_only_ideal")
-                  then
-                  outputTerm~>arvTimeMin =
-                  (minList (mapcar (lambda (x) (calcArvTimeDiff_zero x~>arvTimeMin x outputTerm))
-                                   inputTerms))
-                  else
-                  outputTerm~>arvTimeMin =
-                  (minList (mapcar (lambda (x) (calcArvTimeDiffMin x~>arvTimeMin x outputTerm))
-                                   inputTerms))
-                  )
-               (when connectedInputTerm
-                 cond(
-                      (equal(netDelayCoeff "PTLdelay")||equal(netDelayCoeff "PTLdelay_only")
-                        connectedInputTerm~>arvTimeMin =
-                        (plus
-                          outputTerm~>arvTimeMin
-                          (times 1.0 (netDistance outputTerm connectedInputTerm "PTL_delay"))))
-                      (equal(netDelayCoeff "PTLdelay_only_ideal")||equal(netDelayCoeff "PTLdelay_ideal")
-                        connectedInputTerm~>arvTimeMin =
-                        (plus
-                          outputTerm~>arvTimeMin
-                          (plus (times 1.0 (netDistance outputTerm connectedInputTerm "PTL_delay"))
-                                (times 1.0 (netDistance outputTerm connectedInputTerm "additional_PTL_delay")))))
-                      (t
-                        connectedInputTerm~>arvTimeMin =
-                        (plus
-                          outputTerm~>arvTimeMin
-                          (times netDelayCoeff (netDistance outputTerm connectedInputTerm "manhattan"))))
-                      ));when cond
-               ;calculating arvTimeMax
-               if(
-                  equal(netDelayCoeff "PTLdelay_only")||equal(netDelayCoeff "PTLdelay_only_ideal")
-                  then
-                  outputTerm~>arvTimeMax = 
-                  (maxList (mapcar (lambda (x) (calcArvTimeDiff_zero x~>arvTimeMax x outputTerm))
-                                   inputTerms))
-                  else
-                  outputTerm~>arvTimeMax = 
-                  (maxList (mapcar (lambda (x) (calcArvTimeDiffMax x~>arvTimeMax x outputTerm))
-                                   inputTerms))
-                  )
-               (when connectedInputTerm
-                 cond(
-                      (equal(netDelayCoeff "PTLdelay")||equal(netDelayCoeff "PTLdelay_only")
-                        connectedInputTerm~>arvTimeMax =
-                        (plus
-                          outputTerm~>arvTimeMax
-                          (times 1.0 (netDistance outputTerm connectedInputTerm "PTL_delay"))))
-                      (equal(netDelayCoeff "PTLdelay_only_ideal")||equal(netDelayCoeff "PTLdelay_ideal")
-                        connectedInputTerm~>arvTimeMax =
-                        (plus
-                          outputTerm~>arvTimeMax
-                          (plus (times 1.0 (netDistance outputTerm connectedInputTerm "PTL_delay"))
-                                (times 1.0 (netDistance outputTerm connectedInputTerm "additional_PTL_delay")))))
-                      (t
-                        connectedInputTerm~>arvTimeMax =
-                        (plus
-                          outputTerm~>arvTimeMax
-                          (times netDelayCoeff (netDistance outputTerm connectedInputTerm "manhattan"))))
-                      )))))
 
-  (defun netDistance (outputTerm inputTerm netDelayFlag)
-    (let (net distance)
-      (setq distance 0.0)
-      (setq net inputTerm~>net)
-      (when net~>figs
-        (if (equal netDelayFlag "manhattan")
-          then
-          (setq distance 
-                (plus (abs (difference (xCoord (getInstTermCoord outputTerm))
-                                       (xCoord (getInstTermCoord inputTerm))))
-                      (abs (difference (yCoord (getInstTermCoord outputTerm))
-                                       (yCoord (getInstTermCoord inputTerm))))))
-          else
-          cond(
-               (equal(netDelayFlag "PTL_delay")
-                 if(
-                    dbFindProp(net netDelayFlag)==nil
-                    then
-                    warn(strcat("cannot find net delay specification the net prop of : "
-                                net~>name " : so use manhattan distance"))
-                    distance = (plus (abs (difference (xCoord (getInstTermCoord outputTerm))
-                                                      (xCoord (getInstTermCoord inputTerm))))
-                                     (abs (difference (yCoord (getInstTermCoord outputTerm))
-                                                      (yCoord (getInstTermCoord inputTerm)))))
-                    else
-                    distance = dbFindProp(net netDelayFlag)~>value
-                    ))
-               (equal(netDelayFlag "additional_PTL_delay")
-                 if(
-                    dbFindProp(net netDelayFlag)==nil
-                    then
-                    distance = 0.0
-                    else
-                    distance = dbFindProp(net netDelayFlag)~>value
-                    ))
-               (t
-                 (foreach x net~>figs
-                          (setq distance 
-                                distance
-                                + (abs (difference (caar x~>points) (caadr x~>points)))
-                                + (abs (difference (cadar x~>points) (cadadr x~>points)))
-                                )))
-               )));cond if when
-      distance))
+  (defun checkCalculability (inputTermsTDT)
+    (forall x inputTermsTDT (isCalculated x)))
+
+  (defun setNode (precedingTerm succedingTerm)
+    (define namePrecedingNode nil)
+    (define precedingNode nil)
+    (define numNodes nil)
+    (if (TDT->isNode precedingTerm)
+      (setq namePrecedingNode (getNameInstAndInstTerm precedingTerm))
+      (setq namePrecedingNode (car precedingTerm~>namesPrecedingNodes)))
+    (if TDT->isNode(succedingTerm)
+      then; succedingTerm is a node
+      (setq precedingNode (findInstTermByName cv namePrecedingNode))
+      succedingTerm~>namesPrecedingNodes
+      = (append1 succedingTerm~>namesPrecedingNodes namePrecedingNode) 
+      (setq numNodes (plus 1 precedingNode~>numNodes))
+      (if succedingTerm~>numNodes
+        succedingTerm~>numNodes = (max succedingTerm~>numNodes numNodes)
+        succedingTerm~>numNodes = numNodes)
+      precedingNode~>namesSuccedingNodes
+      = (append1 precedingNode~>namesSuccedingNodes 
+                 (getNameInstAndInstTerm succedingTerm))
+      else; succedingTerm is not a node
+      succedingTerm~>namesPrecedingNodes = (list namePrecedingNode)
+      ))
+
+  (defun setArvTime (outputTerm connectedInputTerms)
+    (define inputTerms TDT->inputTermsDependTiming(outputTerm))
+    outputTerm~>arvTimeMin
+    = (minList (mapcar (lambda (x) (calcArvTimeDiffMin x~>arvTimeMin x outputTerm))
+                       inputTerms))
+    outputTerm~>arvTimeMax
+    = (maxList (mapcar (lambda (x) (calcArvTimeDiff_zero x~>arvTimeMax x outputTerm))
+                       inputTerms))
+    (foreach 
+      connectedInputTerm connectedInputTerms
+      connectedInputTerm~>arvTimeMin =
+      (plus
+        outputTerm~>arvTimeMin
+        (getNetDelay outputTerm connectedInputTerm))
+      connectedInputTerm~>arvTimeMax =
+      (plus
+        outputTerm~>arvTimeMax
+        (getNetDelay outputTerm connectedInputTerm))
+      ))
+
+  (defun getNetDelay (outputTerm inputTerm)
+    (define ret 0.0)
+    (define net inputTerm~>net)
+    (cond
+      ((equal netDelay "manhattan")
+       (setq ret 
+             (plus (abs (difference (xCoord (getInstTermCoord outputTerm))
+                                    (xCoord (getInstTermCoord inputTerm))))
+                   (abs (difference (yCoord (getInstTermCoord outputTerm))
+                                    (yCoord (getInstTermCoord inputTerm))))))
+       (setq ret 
+             (times netDelayCoeff ret)))
+      ((and
+         (equal netDelay "net_length")
+         net~>figs)
+       (foreach 
+         x net~>figs
+         (setq ret 
+               ret
+               + (abs (difference (caar x~>points) (caadr x~>points)))
+               + (abs (difference (cadar x~>points) (cadadr x~>points)))))
+       (setq ret
+             (times netDelayCoeff ret))
+       ))
+    ret)
+
   (defun calcArvTimeDiffMax (arvTime inputTerm outputTerm)
     (plus arvTime 
           DT->getDelay(inputTerm outputTerm vbMin)))
+
   (defun calcArvTimeDiffMin (arvTime inputTerm outputTerm)
     (plus arvTime 
           DT->getDelay(inputTerm outputTerm vbMax)))
-  (defun calcArvTimeDiff_zero (arvTime inputTerm outputTerm)
-    (plus arvTime 0.0))
+
   );let
 

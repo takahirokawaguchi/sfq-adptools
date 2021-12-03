@@ -2,8 +2,7 @@
 (let ()
   (defun loadIlsSFQADP (dirPath)
     (let (files)
-      (setq files (append files
-                          (setof file (getDirFiles dirPath) (rexMatchp ".ils$" file))))
+      (setq files (setof file (getDirFiles dirPath) (rexMatchp ".ils$" file)))
       (foreach file files
                (printf "[INFO] loading %s\n" file)
                (loadi (buildString (list dirPath file) "/"))
@@ -15,14 +14,14 @@
       "timing"
       "route"
       ))
-  (define currentDir nil)
+  (define pathAndDir nil)
   (define path #.get_filename(piport))
   (setq path (parseString path "/"))
   (remd (car (last path)) path)
   (setq path (buildString path "/")) 
   (foreach
     dir loadDirs
-    (when (isReadable (setq currentDir (buildString list( path dir ) "/" )))
-      (loadIlsSFQADP currentDir)
+    (when (isReadable (setq pathAndDir (buildString (list path dir) "/" )))
+      (loadIlsSFQADP pathAndDir)
       ))
   )

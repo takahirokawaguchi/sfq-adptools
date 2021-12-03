@@ -1,6 +1,3 @@
-; (load "../../git/dat/source/overlapBiasCurrent.il")
-; (dbOpenCellViewByType (car varDebug)~>master~>libName (car varDebug)~>cellName "layout")
-
 (defun getOverlapBiasLeads ()
   (let (scv fileName out gcs)
     (setq scv (geGetWindowCellView ))

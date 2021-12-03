@@ -1,0 +1,93 @@
+;(defvar DISPLAY_ARRIVAL_TIME_CONST)
+;(setplist 
+;  'DISPLAY_ARRIVAL_TIME_CONST
+;  '(
+;    INIT_ARV_TIME -1.0
+;    ;LABEL_LAYER ("y3" "drawing")
+;    LABEL_LAYER ("y4" "drawing")
+;    LABEL_LAYER_STA_HOLDNG ("y4" "drawing")
+;    LABEL_LAYER_STA_SETUPNG ("y6" "drawing")
+;    DEFAULT_VB_LEVEL 7
+;    DEFAULT_VB_LEVEL_PTL 1
+;    PTL_FAMILY_REX ("^PTL*" "^via*" "^rec*")
+;    ))
+
+(defun createOptionTimingAnalysis (scv)
+  (hiCreateAppForm
+    ?name 'OPTION_TIMING_ANALYSIS
+    ?fields 
+    (list 
+      (hiCreateCyclicField
+        ?name 'netDelay
+        ?prompt 
+        "net delay"
+        ?choices
+        (list
+          "zero"
+          "manhattan"
+          "net_length")
+        ?value "zero")
+      (hiCreateCyclicField 
+        ?name 'maxBiasVoltage
+        ?choices 
+        (list "-30%"
+              "-25%"
+              "-20%"
+              "-15%"
+              "-10%"
+              "-5%"
+              "0%"
+              "+5%"
+              "+10%"
+              "+15%"
+              "+20%"
+              "+25%"
+              "+30%")
+        ?prompt "max bias voltage"
+        ?value "0%")
+      (hiCreateCyclicField 
+        ?name 'minBiasVoltage
+        ?choices 
+        (list "-30%"
+              "-25%"
+              "-20%"
+              "-15%"
+              "-10%"
+              "-5%"
+              "0%"
+              "+5%"
+              "+10%"
+              "+15%"
+              "+20%"
+              "+25%"
+              "+30%")
+        ?prompt "min bias voltage"
+        ?value "0%")
+      (hiCreateSeparatorField 
+        ?name 'separator1)
+      (hiCreateRadioField 
+        ?name 'offOnFiltering
+        ?choices (list "off" "on" "filtering")
+        ?prompt "static timing analysis"
+        ?value "off")
+      (hiCreateRadioField 
+        ?name 'designIntent
+        ?choices (list "create_if_not" "recreate")
+        ?value "create_if_not"
+        ?prompt "design intent for static timing analysis")
+      (hiCreateFloatField 
+        ?name 'clockPeriod
+        ?value 100.0
+        ?prompt "clock period (ps)")
+      (hiCreateFloatField 
+        ?name 'filteringValue
+        ?value 0.0
+        ?prompt "filtering timing slack")
+      (hiCreateRadioField 
+        ?name 'removeLabels
+        ?choices (list "off" "on")
+        ?value "off"
+        ?prompt "remove all labels")
+      )))
+
+

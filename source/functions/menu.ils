@@ -1,21 +1,22 @@
-;(load "~/git/sfqcad/source/functions/menu.ils")
-;(let ()
-  (defun gensymSFQADPMenu ()
-    (gensym 'SFQADPMenu))
+;(load "~/git/adptools/source/functions/menu.ils")
+(define createSFQADPMenu nil)
+(let ()
+  (defun gensymSFQADPMenuItem ()
+    (gensym 'SFQADPMenuItem))
 
   (defun simpleCreateMenuItem (itemText callback)
     (hiCreateMenuItem
-      ?name (gensymSFQADPMenu )
+      ?name (gensymSFQADPMenuItem )
       ?itemText itemText
       ?callback callback))
 
   (defun makeSlider1 ()
     (hiCreateSliderMenuItem
-      ?name (gensymSFQADPMenu )
+      ?name (gensymSFQADPMenuItem )
       ?itemText "router"
       ?subMenu	
       (hiCreatePulldownMenu
-        (gensymSFQADPMenu )
+        (gensymSFQADPMenuItem )
         ""
         (list
           (simpleCreateMenuItem
@@ -49,11 +50,11 @@
 
   (defun makeSlider2 ()
     (hiCreateSliderMenuItem
-      ?name (gensymSFQADPMenu )
+      ?name (gensymSFQADPMenuItem )
       ?itemText "debug"
       ?subMenu
       (hiCreatePulldownMenu
-        (gensymSFQADPMenu )
+        (gensymSFQADPMenuItem )
         ""
         (list
           (simpleCreateMenuItem
@@ -76,49 +77,36 @@
             "(deleteNormalLabel )"))
         )))
 
-  (defun createSFQADPMenu ()
+  (defun letCreateSFQADPMenu (args)
     ;main menu
-    (hiCreatePulldownMenu
-      (gensymSFQADPMenu )
-      "SFQ-ADP"
-      (list
-        (makeSlider1 )
-        (hiCreateSeparatorMenuItem ?name (gensymSFQADPMenu ))
-        (simpleCreateMenuItem
-          "fillMoatADP"
-          "(fillMoatADP (geGetWindowCellView ) nil)")
-        (simpleCreateMenuItem
-          "displayArrivalTime"
-          "(datGui )")
-        (simpleCreateMenuItem
-          "logicExtraction"
-          "(c2vFront )")
-        (simpleCreateMenuItem
-          "cell(s) translater"
-          "(guiTranslateCell )")
-        (hiCreateSeparatorMenuItem ?name (gensymSFQADPMenu ))
-        (makeSlider2 )
-        )))
+    (unless (boundp 'SFQADPMenu)
+      (hiCreatePulldownMenu
+        'SFQADPMenu
+        "SFQ-ADP"
+        (list
+          (makeSlider1 )
+          (hiCreateSeparatorMenuItem ?name (gensymSFQADPMenuItem ))
+          (simpleCreateMenuItem
+            "fillMoatADP"
+            "(fillMoatADP (geGetWindowCellView ) nil)")
+          (simpleCreateMenuItem
+            "displayArrivalTime"
+            "(datGui )")
+          (simpleCreateMenuItem
+            "logicExtraction"
+            "(c2vFront )")
+          (simpleCreateMenuItem
+            "cell(s) translater"
+            "(guiTranslateCell )")
+          (hiCreateSeparatorMenuItem ?name (gensymSFQADPMenuItem ))
+          (makeSlider2 )
+          )))
+    (list 'SFQADPMenu))
+  createSFQADPMenu = letCreateSFQADPMenu
+  );let
 
+(deRegUserTriggers 
+  "schematic" 
+  nil 
+  'createSFQADPMenu)
 
-;(setq cw (hiGetCurrentWindow )) (hiInsertBannerMenu cw (createSFQADPMenu ) (length (hiGetBannerMenus cw)))
-  (defun insertSFQADPMenu (args)
-    (hiInsertBannerMenu
-      args->window
-      (createSFQADPMenu )
-      (length (hiGetBannerMenus args->window))))
-
-  (when (deViewTypeIsRegistered "maskLayout")
-    (deRegUserTriggers 
-      "maskLayout" 
-      nil
-      nil 
-      'insertSFQADPMenu))
-
-  (when (deViewTypeIsRegistered "maskLayoutXL")
-    (deRegUserTriggers 
-      "maskLayoutXL"
-      nil
-      nil 
-      'insertSFQADPMenu))
-;  );let

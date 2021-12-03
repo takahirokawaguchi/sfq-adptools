@@ -1,8 +1,7 @@
 (defun postInstallTriggerSFQLayout (arg)
   (let 
     (mloadLayoutItem
-      items
-      )
+      items)
     (setq items nil)
     ;(setq mloadLayoutItem
     (setq 

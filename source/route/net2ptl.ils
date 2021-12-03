@@ -46,7 +46,7 @@
 ;;;  NetSegmentLineList：(((1 3) (1 5)) ((0 3) (1 3)) ((1 5) (4 5)))
 ;;;  StartPoint：(0 3)
 ;;;  →返り値：(((0 3) (1 3) (1 5) (4 5)) (db:0x02 db:0x01 db:0x03))
-(defun GetStartToGoal( NetSegmentDataList NetSegmentLineList StartPoint )
+(defun GetStartToGoal (NetSegmentDataList NetSegmentLineList StartPoint )
   (define NewNetLineList nil)
   (define NetSegment nil)
   (define RemoveSegment nil)
@@ -86,7 +86,7 @@
 ;;; 動作例：
 ;;;  StartToGoalList：((0 3) (1 3) (1 5) (4 5))
 ;;;  →返り値：((1 3) (1 5))
-(defun GetCornerPointList( StartToGoalList )
+(defun GetCornerPointList (StartToGoalList )
   (define CornerPointList nil)
   (for i 1 length(StartToGoalList)-2
        CornerPointList = (append CornerPointList (list (nth i StartToGoalList))))
@@ -102,7 +102,7 @@
 ;;; 動作例：
 ;;;  StartToGoalList：((0 3) (1 3) (1 5) (4 5))
 ;;;  →返り値：(0 1 0)
-(defun GetPathTrace( StartToGoalList )
+(defun GetPathTrace (StartToGoalList )
   (define NetVectorList nil)
   (define BeforePoint nil)
   (define AfterPoint nil)
@@ -134,7 +134,7 @@
 ;;; 動作例：
 ;;;  StartToGoalList：((0 0.375) (0.1875 0.375) (0.1875 0.75))
 ;;;  →返り値：((0 2) (1 2) (1 3) (1 4))
-(defun ConvertGridCoordTrace( StartToGoalList )
+(defun ConvertGridCoordTrace (StartToGoalList )
   (define Point nil)
   (define GridPoint nil)
   (define TmpGridCoordList nil)
@@ -188,7 +188,7 @@
 ;;; 動作例：
 ;;;  CornerPointList：((0.1875 0.375) (0.1875 0.75))
 ;;;  →返り値：((1 2) (1 4))
-(defun ConvertGridCornerCoord( CornerPointList )
+(defun ConvertGridCornerCoord (CornerPointList )
   (define Point nil)
   (define GridPoint nil)
   (define GridCoordPointList nil)
@@ -214,7 +214,7 @@
 ;;;  schCreateInstのみでは，回転や反転が生じたときに，
 ;;;  セルの基準となる座標が変わってしまうことがある．
 ;;;  その問題の対策のために本関数を作成した．
-(defun PutCell( scv master Coord Orient )
+(defun PutCell (scv master Coord Orient )
   (define NewCoord nil)
   (case Orient
     ( "R0"
@@ -250,7 +250,7 @@
 ;;;  Point：配置するセルのグリッド座標
 ;;; 機能：
 ;;;  入力の3情報から適切な直線配線セルを配置する．
-(defun SetStraightCell( Width Vec Point)
+(defun SetStraightCell (Width Vec Point)
   (define NewPoint (list xCoord(Point)*0.1875 yCoord(Point)*0.1875))
   (case Width
     ( 0.0875;PTL1_width
@@ -305,7 +305,7 @@
 ;;; 機能：
 ;;;  入力の5情報から適切な曲がる配線のセルを配置する．
 ;;;  バグが潜んでいる可能性がかなりある．
-(defun SetCornerCell( CWidth NWidth CVec NVec Point)
+(defun SetCornerCell (CWidth NWidth CVec NVec Point)
   (define NewPoint (list xCoord(Point)*0.1875 yCoord(Point)*0.1875))
   (case CWidth
     ( 0.0875
@@ -923,7 +923,7 @@
 ;;; 機能：
 ;;;  レイアウト上に引かれたラインに沿って適切なセルを配置する．
 ;;;  仮にdeleteflagがnilではないとき，配線セル配置と同時にラインを消去．
-(defun SetNetCells( scv NetTmp deleteflag)
+(defun SetNetCells (scv NetTmp deleteflag)
   (define GridTmp nil)
   (define CurrentNetPart nil)
   (define CurrentVec nil)

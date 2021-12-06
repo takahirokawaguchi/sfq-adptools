@@ -9,7 +9,7 @@
     (setq time cputime);cputime is a system function
     (displayArrivalTime scv)
     (printf "runtime is %.3f seconds\n" 
-            (modf
+            (quotient
               (difference cputime time)
               60.0))
     ))

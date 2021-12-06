@@ -158,7 +158,7 @@
     (fprintf ofp "#constraint-pair of max is %d\n"
              (plusList (mapcar (lambda (x) (length (cadr (cadr x)))) timingConstraints)))
     (fprintf ofp "runtime of finding common path and calculating slacks is %.3f seconds\n"
-             (modf (difference cputime time) 60.0))
+             (quotient (difference cputime time) 60.0))
     (fprintf ofp "#branching-nodes is %d\n"
              (length (setof x nodes (geqp (length x~>namesSuccedingNodes) 2))))
     (fprintf ofp "#converging-nodes is %d\n"

@@ -197,7 +197,7 @@
        Point = nth(i CornerPointList)
        GridPoint = list(floor(xCoord(Point)/0.1875) floor(yCoord(Point)/0.1875))
        GridCornerPointList = append(GridCornerPointList list(GridPoint)))
-  GridCornerPointList))
+  GridCornerPointList)
 
 
 ;;; ä÷êîñºÅFPutCell

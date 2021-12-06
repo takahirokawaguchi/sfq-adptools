@@ -1,22 +1,22 @@
 ;(load "~/git/adptools/source/functions/menu.ils")
-(define createSFQADPMenu nil)
+(define createADPSchematicMenu nil)
 (let ()
-  (defun gensymSFQADPMenuItem ()
-    (gensym 'SFQADPMenuItem))
+  (defun gensymADPSchematicMenuItem ()
+    (gensym 'ADPSchematicMenuItem))
 
   (defun simpleCreateMenuItem (itemText callback)
     (hiCreateMenuItem
-      ?name (gensymSFQADPMenuItem )
+      ?name (gensymADPSchematicMenuItem )
       ?itemText itemText
       ?callback callback))
 
   (defun makeSlider1 ()
     (hiCreateSliderMenuItem
-      ?name (gensymSFQADPMenuItem )
+      ?name (gensymADPSchematicMenuItem )
       ?itemText "router"
       ?subMenu	
       (hiCreatePulldownMenu
-        (gensymSFQADPMenuItem )
+        (gensymADPSchematicMenuItem )
         ""
         (list
           (simpleCreateMenuItem
@@ -50,42 +50,39 @@
 
   (defun makeSlider2 ()
     (hiCreateSliderMenuItem
-      ?name (gensymSFQADPMenuItem )
+      ?name (gensymADPSchematicMenuItem )
       ?itemText "debug"
       ?subMenu
       (hiCreatePulldownMenu
-        (gensymSFQADPMenuItem )
+        (gensymADPSchematicMenuItem )
         ""
         (list
           (simpleCreateMenuItem
-            "mloadMySkill"
-            (strcat "(mload \"~/git/route/source\") "
-                    "(mload \"~/git/dat/source\") "
-                    "(mload \"~/git/placement/source\") "
-                    "(mload \"~/git/skill\")"))
+            "(load \"~/git/adptools/source/debug/reload.ils\")"
+            "(load \"~/git/adptools/source/debug/reload.ils\")")
           (simpleCreateMenuItem
-            "setqScvGeGetWindowCellView"
+            "(setq scv (geGetWindowCellView ))"
             "(setq scv (geGetWindowCellView ))")
           (simpleCreateMenuItem
             "scvCellNames"
             "(scvCellNames (geGetWindowCellView ))")
           (simpleCreateMenuItem
-            "setqSelGeGetSelSet"
+            "(setq sel (geGetSelSet ))"
             "(setq sel (geGetSelSet ))")
           (simpleCreateMenuItem
             "deleteNormalLabel"
             "(deleteNormalLabel )"))
         )))
 
-  (defun letCreateSFQADPMenu (args)
+  (defun letCreateADPSchematicMenu (args)
     ;main menu
-    (unless (boundp 'SFQADPMenu)
+    (unless (boundp 'ADPSchematicMenu)
       (hiCreatePulldownMenu
-        'SFQADPMenu
+        'ADPSchematicMenu
         "SFQ-ADP"
         (list
           (makeSlider1 )
-          (hiCreateSeparatorMenuItem ?name (gensymSFQADPMenuItem ))
+          (hiCreateSeparatorMenuItem ?name (gensymADPSchematicMenuItem ))
           (simpleCreateMenuItem
             "fillMoatADP"
             "(fillMoatADP (geGetWindowCellView ) nil)")
@@ -98,15 +95,15 @@
           (simpleCreateMenuItem
             "cell(s) translater"
             "(guiTranslateCell )")
-          (hiCreateSeparatorMenuItem ?name (gensymSFQADPMenuItem ))
+          (hiCreateSeparatorMenuItem ?name (gensymADPSchematicMenuItem ))
           (makeSlider2 )
           )))
-    (list 'SFQADPMenu))
-  createSFQADPMenu = letCreateSFQADPMenu
+    (list 'ADPSchematicMenu))
+  createADPSchematicMenu = letCreateADPSchematicMenu
   );let
 
 (deRegUserTriggers 
   "schematic" 
   nil 
-  'createSFQADPMenu)
+  'createADPSchematicMenu)
 

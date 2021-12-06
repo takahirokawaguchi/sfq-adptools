@@ -95,7 +95,7 @@
     ;;procedure
     (setArvTimeInputTermsCalcNext inputTermsCalcNext)
     (printf "runtime of timing propagation is %.3f seconds\n"
-            (modf (difference (cputime ) time)
+            (quotient (difference (cputime ) time)
                   60.0)))
   mainTimingPropagation = letMainTimingPropagation
 

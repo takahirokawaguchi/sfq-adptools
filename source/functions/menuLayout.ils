@@ -1,0 +1,51 @@
+(define createADPLayoutMenu nil)
+(let ()
+  (defun gensymADPLayoutMenuItem ()
+    (gensym 'ADPLayoutMenuItem))
+
+  (defun simpleCreateMenuItem (itemText callback)
+    (hiCreateMenuItem
+      ?name (gensymADPLayoutMenuItem )
+      ?itemText itemText
+      ?callback callback))
+
+  (defun letCreateADPLayoutMenu (arg)
+    (unless (boundp 'ADPLayoutMenu)
+      (hiCreatePulldownMenu
+        'ADPLayoutMenu
+        "SFQ-ADP"
+        (list
+          (simpleCreateMenuItem
+            "(load \"~/git/adptools/source/debug/reload.ils\")"
+            "(load \"~/git/adptools/source/debug/reload.ils\")")
+          (simpleCreateMenuItem
+            "placeVia"
+            "(placeVia )")
+          (simpleCreateMenuItem
+            "setq_sel_geGetSelSet"
+            "(setq sel (geGetSelSet ))")
+          (simpleCreateMenuItem
+            "setq_cv_geGetWindowCellView"
+            "(setq cv (geGetWindowCellView ))")
+          (simpleCreateMenuItem
+            "deleteAllPathSegs"
+            "(deleteAllPathSegs )")
+          (simpleCreateMenuItem
+            "deleteAllTrls"
+            "(deleteAllTrls )")
+          (simpleCreateMenuItem
+            "deleteAllVias"
+            "(deleteAllVias )")
+          (simpleCreateMenuItem
+            "routeFromSToL"
+            "(routeFromSToL )")
+          )))
+    (list 'ADPLayoutMenu))
+  createADPLayoutMenu = letCreateADPLayoutMenu
+  )
+
+(deRegUserTriggers 
+  "maskLayout" 
+  nil 
+  'createADPLayoutMenu)
+

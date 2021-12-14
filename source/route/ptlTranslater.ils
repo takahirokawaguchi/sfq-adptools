@@ -1,0 +1,483 @@
+;(load "~/git/adptools/source/route/ptlTranslater.ils")
+(define guiPTLTranslater nil)
+
+(let ()
+  (define scv nil)
+  (define OPTION_PTL_TRANSLATER nil)
+
+  guiPTLTranslater =
+  (lambda ()
+    (setq scv (geGetWindowCellView ))
+    (unless OPTION_PTL_TRANSLATER
+      (setq OPTION_PTL_TRANSLATER
+            (createOptionPTLTranslater )))
+    (define 
+      ok (hiDisplayForm OPTION_PTL_TRANSLATER))
+    (when ok
+      (PTLTranslater )))
+
+  (defun createOptionPTLTranslater ()
+    (hiCreateAppForm
+      ?name 'OPTION_PTL_TRANSLATER
+      ?fields 
+      (list 
+        (hiCreateCyclicField 
+          ?name 'allOrSelected
+          ?choices 
+          (list "all"
+                "selected")
+          ?prompt "all or selected"
+          ?value "all")
+        (hiCreateCyclicField 
+          ?name 'from
+          ?choices 
+          (list "net"
+                "ptlNet"
+                "ptlCell")
+          ?prompt "from"
+          ?value "ptlNet")
+        (hiCreateCyclicField 
+          ?name 'to
+          ?choices 
+          (list "net"
+                "ptlNet"
+                "ptlCell")
+          ?prompt "to"
+          ?value "ptlCell")
+        (hiCreateCyclicField 
+          ?name 'ptlType
+          ?choices 
+          (list "ptl1"
+                "ptl2"
+                "flight")
+          ?prompt "ptl type only for \"from net to ptlNet\""
+          ?value "ptl1")
+        )))
+
+  (defun PTLTranslater ()
+    (define from OPTION_PTL_TRANSLATER->from->value)
+    (define to OPTION_PTL_TRANSLATER->to->value)
+    (define allOrSelected OPTION_PTL_TRANSLATER->allOrSelected->value)
+    (cond ((and 
+             (equal from "ptlNet")
+             (equal to "ptlCell"))
+           (rNet2ptl allOrSelected))
+          ((and 
+             (equal from "ptlNet")
+             (equal to "net"))
+           (undoPTLWire ))
+          ((and 
+             (equal allOrSelected "all")
+             (equal from "ptlCell")
+             (equal to "ptlNet"))
+           (undoPTLCellAll ))
+          ((and 
+             (equal allOrSelected "selected")
+             (equal from "ptlCell")
+             (equal to "ptlNet"))
+           (undoPTLCellSelected ))
+          ((and 
+             (equal from "net")
+             (equal to "ptlNet"))
+           (makePtlWire ))
+          ))
+
+
+  (defun undoPTLWire ()
+    (define allOrSelected OPTION_PTL_TRANSLATER->allOrSelected->value)
+    (define nets nil)
+    (define figs nil)
+    (if (equal allOrSelected "all") 
+      then
+      (setq nets
+            (setof x scv~>nets 
+                   (equal (length x~>instTerms) 2)))
+      else
+      (setq figs (setof x (geGetSelSet ) 
+                        (or (equal x~>objType "line")
+                            (equal x~>objType "path"))))
+      (setq nets 
+            (setOfList figs~>net)))
+    (foreach 
+      x nets
+      (reRoute x)))
+
+  (defun reRoute (net)
+    (let (ep scv)
+      (setq ep (mapcar 'getInstTermCoord net~>instTerms))
+      (printf "%L\n" ep)
+      (setq scv net~>cellView)
+      (foreach figs net~>figs
+               (dbDeleteObject figs))
+      (schCreateWire
+        scv
+        "route"
+        "flight"
+        ep
+        0
+        0
+        0
+        "cadetBlue")))
+
+  (defun translatePTLCell2PTLNet (cell)
+    (let (ep listLayer tmp bBox)
+      (print "debug")
+      (println scv)
+      (when (and (equal cell~>objType "inst")
+                 (isPTL cell))
+        (cond 
+          ((equal (ptlType cell) "PTL1")
+           (setq listLayer
+                 (list
+                   (list RINER.PTL1_COLOR RINER.PTL1_PATH_WIDTH)
+                   (list RINER.PTL1_COLOR RINER.PTL1_PATH_WIDTH))))
+          ((equal (ptlType cell) "PTL2")
+           (setq listLayer
+                 (list
+                   (list RINER.PTL2_COLOR RINER.PTL2_PATH_WIDTH)
+                   (list RINER.PTL2_COLOR RINER.PTL2_PATH_WIDTH))))
+          ((equal (ptlType cell) "via")
+           (setq listLayer
+                 (list
+                   (list RINER.PTL2_COLOR RINER.PTL2_PATH_WIDTH)
+                   (list RINER.PTL1_COLOR RINER.PTL1_PATH_WIDTH))))
+          ((equal (ptlType cell) "viar")
+           (setq listLayer
+                 (list
+                   (list RINER.PTL1_COLOR RINER.PTL1_PATH_WIDTH)
+                   (list RINER.PTL2_COLOR RINER.PTL2_PATH_WIDTH)))))
+        (setq ep (mapcar 'getInstTermCoord
+                         (list
+                           (car (inputTerms cell))
+                           (car (outputTerms cell))) ))
+        (printf "cell name:%L\n" cell~>name)
+        (printf "ep:%L\n" (yCoord (car ep)))
+        (printf "cell name:%L\n" cell~>master~>viewName)
+        (printf "viewName:%L\n" cell~>master~>viewName)
+        (setq bBox (getCellbBoxADP cell 0.375))
+        (if (or 
+              (equal (yCoord (car ep))
+                     (yCoord (lowerLeft bBox)))
+              (equal (yCoord (car ep))
+                     (yCoord (upperRight bBox))))
+          then
+          (progn
+            (printf "debug then\n")
+            (if (or (equal "via" cell~>cellName)
+                    (equal "viar" cell~>cellName))
+              (setq tmp (min (yCoord (car ep)) (yCoord (cadr ep)))
+                    + RINER.SCHEM_GRID_LEN/2.0)
+              (setq tmp (yCoord (cadr ep))))
+            (schCreateWire
+              scv
+              "route"
+              "direct"
+              (list (car ep)
+                    (list (xCoord (car ep)) tmp))
+              0
+              0
+              (cadr (car listLayer))
+              (car (car listLayer)))
+            (schCreateWire
+              scv
+              "route"
+              "direct"
+              (list (list (xCoord (car ep)) tmp)
+                    (cadr ep))
+              0
+              0
+              (cadr (cadr listLayer))
+              (car (cadr listLayer))))
+          else
+          (progn
+            (printf "debug else\n")
+            (if (or (equal "via" cell~>cellName)
+                    (equal "viar" cell~>cellName))
+              (setq tmp (min (xCoord (car ep)) (xCoord (cadr ep)))
+                    + RINER.SCHEM_GRID_LEN/2.0)
+              (setq tmp (xCoord (cadr ep))))
+            (schCreateWire
+              scv
+              "route"
+              "direct"
+              (list (car ep)
+                    (list tmp (yCoord (car ep))))
+              0
+              0
+              (cadr (car listLayer))
+              (car (car listLayer)))
+            (schCreateWire
+              scv
+              "route"
+              "direct"
+              (list (list tmp (yCoord (car ep)))
+                    (cadr ep))
+              0
+              0
+              (cadr (cadr listLayer))
+              (car (cadr listLayer)))))
+        (printf "viewName:%L\n" cell~>master~>viewName)
+        (dbDeleteObject cell)
+        )))
+
+  (defun undoPTLCellAll ()
+    (mapcar translatePTLCell2PTLNet (setof x scv~>instances (isPTL x))))
+
+  (defun undoPTLCellSelected ()
+    (let (recTerms ptls ep listLayer tmp)
+      (define cells (geGetSelSet ))
+      (setq cells (setof x cells 
+                         (and 
+                           x~>purpose=="cell"
+                           (or
+                             (isPTL x)
+                             (isPTLDrvRec x)))))
+      (define drvTerms nil)
+      (foreach x cells
+               (setq drvTerms (append (mapcar 'backTrackPTLDrv (outputTerms x))
+                                      drvTerms)))
+      (setq drvTerms (setOfList drvTerms))
+      (setq drvTerms (setof x drvTerms 
+                            (or
+                              (isIpin x)
+                              (and
+                                (isPTLDrvRec x~>inst)
+                                (andList
+                                  (mapcar 'isPTL
+                                          (inputTermsConnected x)~>inst ))))))
+      (foreach
+        drvTerm drvTerms
+        (setq ptls (frontTrackPTLRec drvTerm))
+        (setq ptls (setof x ptls (and
+                                   (not (isPTLDrv x))
+                                   (not (isPspl x))
+                                   (not (isPTLRec x)))))
+        (foreach
+          x ptls 
+          (cond 
+            ((equal (ptlType x) "PTL1")
+             (setq listLayer
+                   (list
+                     (list RINER.PTL1_COLOR RINER.PTL1_PATH_WIDTH)
+                     (list RINER.PTL1_COLOR RINER.PTL1_PATH_WIDTH))))
+            ((equal (ptlType x) "PTL2")
+             (setq listLayer
+                   (list
+                     (list RINER.PTL2_COLOR RINER.PTL2_PATH_WIDTH)
+                     (list RINER.PTL2_COLOR RINER.PTL2_PATH_WIDTH))))
+            ((equal (ptlType x) "via")
+             (setq listLayer
+                   (list
+                     (list RINER.PTL2_COLOR RINER.PTL2_PATH_WIDTH)
+                     (list RINER.PTL1_COLOR RINER.PTL1_PATH_WIDTH))))
+            ((equal (ptlType x) "viar")
+             (setq listLayer
+                   (list
+                     (list RINER.PTL1_COLOR RINER.PTL1_PATH_WIDTH)
+                     (list RINER.PTL2_COLOR RINER.PTL2_PATH_WIDTH)))))
+          (setq ep (mapcar 'getInstTermCoord
+                           (list
+                             (car (inputTerms x))
+                             (car (outputTerms x))) ))
+          (if (or 
+                (equal (yCoord (car ep))
+                       (yCoord (lowerLeft (getCellbBoxADP x 0.375))))
+                (equal (yCoord (car ep))
+                       (yCoord (upperRight (getCellbBoxADP x 0.375)))))
+            then
+            (progn
+              (if (or (equal "via" x~>cellName)
+                      (equal "viar" x~>cellName))
+                (setq tmp (min (yCoord (car ep)) (yCoord (cadr ep)))
+                      + RINER.SCHEM_GRID_LEN/2.0)
+                (setq tmp (yCoord (cadr ep))))
+              (schCreateWire
+                scv
+                "route"
+                "direct"
+                (list (car ep)
+                      (list (xCoord (car ep)) tmp))
+                0
+                0
+                (cadr (car listLayer))
+                (car (car listLayer)))
+              (schCreateWire
+                scv
+                "route"
+                "direct"
+                (list (list (xCoord (car ep)) tmp)
+                      (cadr ep))
+                0
+                0
+                (cadr (cadr listLayer))
+                (car (cadr listLayer))))
+            else
+            (progn
+              (if (or (equal "via" x~>cellName)
+                      (equal "viar" x~>cellName))
+                (setq tmp (min (xCoord (car ep)) (xCoord (cadr ep)))
+                      + RINER.SCHEM_GRID_LEN/2.0)
+                (setq tmp (xCoord (cadr ep))))
+              (schCreateWire
+                scv
+                "route"
+                "direct"
+                (list (car ep)
+                      (list tmp (yCoord (car ep))))
+                0
+                0
+                (cadr (car listLayer))
+                (car (car listLayer)))
+              (schCreateWire
+                scv
+                "route"
+                "direct"
+                (list (list tmp (yCoord (car ep)))
+                      (cadr ep))
+                0
+                0
+                (cadr (cadr listLayer))
+                (car (cadr listLayer)))))
+          (dbDeleteObject x)))))
+
+  (defun rNet2ptl (flag)
+    (let (figs selectedNets)
+      (define scv (geGetWindowCellView ))
+      (if (geGetWindowCellView )~>lib~>techLibName
+        (setq NET2PTL_PTLLIB (geGetWindowCellView )~>lib~>techLibName)
+        (setq NET2PTL_PTLLIB "adp634s"))
+      (when (equal flag "selected")
+        (setq figs (setof x (geGetSelSet )
+                          (equal x~>objType "path")))
+        (setq selectedNets (setOfList figs~>net)))
+      (when (equal flag "all")
+        (setq selectedNets 
+              (setof x scv~>nets
+                     (andList
+                       (mapcar (lambda (y) (equal y~>objType "path"))
+                               x~>figs)))))
+      (setq selectedNets 
+            (setof x selectedNets 
+                   (and
+                     (equal (length x~>instTerms) 2)
+                     (or 
+                       (and (or (isPTLDrv (car x~>instTerms~>inst))
+                                (isPspl (car x~>instTerms~>inst)))
+                            (isPTLRec (cadr x~>instTerms~>inst)))
+                       (and (or (isPTLDrv (cadr x~>instTerms~>inst))
+                                (isPspl (cadr x~>instTerms~>inst)))
+                            (isPTLRec (car x~>instTerms~>inst)))))))
+      (setq selectedNets 
+            (setof x selectedNets 
+                   (andList
+                     (mapcar (lambda (fig)
+                               (or
+                                 (equal (xCoord (car fig~>points))
+                                        (xCoord (cadr fig~>points)))
+                                 (equal (yCoord (car fig~>points))
+                                        (yCoord (cadr fig~>points)))))
+                             x~>figs))))
+      (printf "number of PTL net is %d.\n" (length selectedNets))
+      (foreach 
+        n selectedNets
+        (if (equal n~>instTermCount 2)
+          (SetNetCells scv n t)
+          (printf "ERROR:number of instTerm connetcted to selected net is %L"
+                  n~>instTermCount) ))))
+
+  ;(defun isPTLWire (net)
+  ;  (forall 
+  ;    x net~>figs 
+  ;    (or (equal x~>width 0.075)
+  ;        (equal x~>width 0.0875))))
+
+  (defun backTrackPTLDrv (outputTerm)
+    (cond
+      ((isPTLFamily outputTerm~>inst)
+       (if (and (car (car (inputTerms outputTerm~>inst))~>net~>pins)
+                (isIpin (caar (car (inputTerms outputTerm~>inst))~>net~>pins~>figs)))
+         then
+         (caar (car (inputTerms outputTerm~>inst))~>net~>pins~>figs)
+         else
+         (backTrackPTLDrv 
+           (car (outputTermsConnected (car (inputTerms outputTerm~>inst)))))))
+      ((or
+         (isPTLDrv outputTerm~>inst)
+         (isPspl outputTerm~>inst))
+       outputTerm
+       )))
+
+  (defun frontTrackPTLRec (outputTerm)
+    (define inputTerm
+      (car (inputTermsConnected outputTerm)))
+    (cond
+      ((null inputTerm)
+       nil)
+      ((or (isPTL inputTerm~>inst)
+           (isPTLDrv inputTerm~>inst)
+           (isPspl inputTerm~>inst))
+       (cons inputTerm~>inst
+             (frontTrackPTLRec
+               (car (outputTerms inputTerm~>inst)))))
+      ((isPTLRec inputTerm~>inst)
+       (list inputTerm~>inst))))
+
+  ;(defun createOptionsFormMakePtlWire (scv)
+  ;  (define comps (append1 comps (hiCreateRadioField
+  ;                                 ?name 'ptlWireRadioField
+  ;                                 ?choices (list "1" "2")
+  ;                                 ?prompt "ptl1 or ptl2"
+  ;                                 ?value "2")))
+  ;  (hiCreateAppForm
+  ;    ?name 'MAKE_PTL_WIRE_OPTIONS_FORM
+  ;    ?fields comps
+  ;    ?help "Choose ptl1 or ptl2"))
+  ;
+  ;(defun getParamsFromOptionsFormMakePtlWire ()
+  ;  MAKE_PTL_WIRE_OPTIONS_FORM~>ptlWireRadioField~>value)
+
+  (defun makePtlWire ()
+    (define points nil)
+    (define scv (geGetWindowCellView ))
+    (define figs nil)
+    (define nets nil)
+    (define ptlType OPTION_PTL_TRANSLATER->ptlType->value)
+    (define allOrSelected OPTION_PTL_TRANSLATER->allOrSelected->value)
+    (cond 
+      ((equal allOrSelected "selected")
+       (setq figs (setof x (geGetSelSet ) 
+                         (or (equal x~>objType "line")
+                             (equal x~>objType "path")))))
+      ((equal allOrSelected "all")
+       (setq nets
+             (setof x scv~>nets x~>figs))
+       (setq figs (appendList nets~>figs)))
+      )
+    (foreach
+      x figs
+      (setq points x~>points)
+      (dbDeleteObject x)
+      (cond 
+        ((equal "ptl1" ptlType)
+         (schCreateWire
+           scv
+           "route"
+           "direct"
+           points
+           0
+           0
+           RINER.PTL1_PATH_WIDTH
+           RINER.PTL1_COLOR))
+        ((equal "ptl2" ptlType)
+         (schCreateWire
+           scv
+           "route"
+           "direct"
+           points
+           0
+           0
+           RINER.PTL2_PATH_WIDTH
+           RINER.PTL2_COLOR))
+        )))
+  )
+

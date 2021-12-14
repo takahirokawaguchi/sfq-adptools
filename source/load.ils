@@ -1,4 +1,10 @@
 ;(load "~/git/adptools/source/load.ils")
+(defun getPathADPToolsSource ()
+  (define pathToThisFile #.get_filename(piport))
+  (define path (parseString pathToThisFile "/"))
+  (remd (car (last path)) path)
+  (buildString path "/"))
+
 (let ()
   (defun loadIlsSFQADP (dirPath)
     (let (files)
@@ -11,16 +17,17 @@
   (define loadDirs
     (list
       "functions"
-      "timing"
+      "menu"
       "route"
+      "timing"
       "layout"
       ))
+
+  (define path (getPathADPToolsSource ))
+  (printf "[INFO] loading %sload.ils\n" path)
   (define pathAndDir nil)
-  (define path #.get_filename(piport))
-  (setq path (parseString path "/"))
-  (remd (car (last path)) path)
-  (setq path (buildString path "/")) 
   (foreach
     dir loadDirs
     (when (isReadable (setq pathAndDir (buildString (list path dir) "/" )))
+      (printf "[INFO] loading the directory: %s\n" pathAndDir)
       (loadIlsSFQADP pathAndDir))))

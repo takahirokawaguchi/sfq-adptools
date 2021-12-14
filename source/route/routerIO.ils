@@ -1,0 +1,151 @@
+(define rCreateWireAll nil)
+
+;(let ()
+rCreateWireAll =
+(lambda (scv fileName nets)
+  (define drouteList (riReadFile fileName))
+  (foreach
+    droute drouteList
+    (setq
+      droute
+      (cons
+        (car droute)
+        (append1
+          (cons
+            (append1 (getInstTermGridCoord 
+                       (car (nth (car droute) nets)~>instTerms))
+                     RINER.PTL2)
+            (cdr droute))
+          (append1 (getInstTermGridCoord 
+                     (cadr (nth (car droute) nets)~>instTerms))
+                   RINER.PTL2)
+          )))
+    (if (nequal (length droute) 1)
+      (progn
+        (riCreateWire
+          scv
+          (cdr droute)
+          (mapcar getInstTermCoord (nth (car droute) nets)~>instTerms)))
+      (progn 
+        (schCreateWire
+          scv
+          "route"
+          "flight"
+          (mapcar getInstTermCoord (nth (car droute) nets)~>instTerms)
+          0
+          0
+          0.)))))
+
+(defun riCreateWire (scv route endPoints)
+  (define tmp 
+    (mapcar (lambda (x)
+              (append1
+                (riCenterGrid (list (car x) (cadr x)))
+                (nth 2 x)))
+            route))
+  (setq tmp (cons (append1 (car endPoints) RINER.DEFAULT_PIN_LAYER) tmp))
+  (setq tmp (append1 tmp (append1 (cadr endPoints) RINER.DEFAULT_PIN_LAYER)))
+  (define subroutes (riDivideRoute tmp))
+  (setq subroutes (mapcar (lambda (x) (riCompressPoints x scv)) subroutes))
+  (define wires nil)
+  (define clr_wid nil)
+  (define nth2carsr nil)
+  (foreach 
+    sr subroutes
+    (setq nth2carsr (nth 2 (car sr)))
+    (setq clr_wid
+          (cond
+            ;(RINER.LGC (list "purple" RINER.LGC_PATH_WIDTH))
+            ((equal nth2carsr RINER.PTL2) (list RINER.PTL2_COLOR RINER.PTL2_PATH_WIDTH))
+            ((equal nth2carsr RINER.PTL1) (list RINER.PTL1_COLOR RINER.PTL1_PATH_WIDTH))))
+    (setq wires
+          (append (schCreateWire
+                    scv
+                    ;"draw"
+                    "route"
+                    ;"full"
+                    "direct"
+                    ;"flight"
+                    (mapcar (lambda (x) (list (car x) (cadr x))) sr)
+                    0
+                    0
+                    (cadr clr_wid)
+                    (car clr_wid))
+                  wires)))
+  wires)
+
+(defun roWriteFile (nets boundary blockage)
+  (define out (outfile "./out.riner"))
+  (fprintf out ";; ./out.riner\n")
+  (fprintf out (strcat ";; " (getCurrentTime) "\n"))
+  (foreach
+    net nets
+    (fprintf out (strcat "net: " (roListToString net) "\n")))
+  (fprintf out (strcat "boundary: " (roListToString boundary) "\n"))
+  (foreach 
+    b blockage
+    (fprintf out (strcat "blockage: " (roListToString b) "\n")))
+  (close out)
+  (setq out nil))
+
+(defun riReadRouterOut ()
+  (define tmp nil)
+  (define responce nil)
+  (define routerID (ipcBeginProcess RINER.ROUTER_COMMAND))
+  (ipcWaitForProcess routerID)
+  (while (setq tmp (ipcReadProcess routerID 10))
+         (setq responce (append1 responce tmp)))
+  responce)
+
+(defun riReadFile (fileName)
+  (define in (infile fileName))
+  (define line nil)
+  (define result nil)
+  (while (setq line (lineread in))
+         (setq result (cons (eval line) result)))
+  (close in)
+  (setof e result (listp e)))
+
+(defun roListToString (alist)
+  (define sbuffer "")
+  (foreach 
+    e (ruFlatten alist)
+    (setq sbuffer (strcat sbuffer (sprintf nil "%L " e))))
+  sbuffer)
+
+(defun ruFlatten (numberList)
+  (foreach
+    mapcan element numberList
+    (if (listp element)
+      (ruFlatten (copy element))
+      (ncons element))))
+
+(defun riCenterGrid (gcoord)
+  (mapcar plus
+          (mapcar (lambda (x)
+                    (cond
+                      ((mod x 2) == 1 RINER.SCHEM_GRID_OFFSET)
+                      (t (RINER.SCHEM_GRID_LEN - RINER.SCHEM_GRID_OFFSET))))
+                  gcoord)
+          (mapcar (lambda (x) (x * RINER.SCHEM_GRID_LEN))
+                  gcoord)))
+
+(defun riDivideRoute (route)
+  (let (subroute subroutes)
+    (define coordBefore (car route))
+    (setq route (cdr route))
+    (foreach
+      coord route
+      (setq subroute (list coord coordBefore))
+      (setq subroutes (cons subroute subroutes))
+      (setq coordBefore coord))
+    subroutes))
+
+(defun riCompressPoints (segp scv)
+  (define coords (mapcar (lambda (x) (reverse (cdr (reverse x)))) segp))
+  (define lnum (nth 2 (car segp)))
+  (setq coords (dbCompressPointArray coords nil scv~>DBUPerUU))
+  (mapcar (lambda (x) (append1 x lnum)) coords))
+
+
+;)

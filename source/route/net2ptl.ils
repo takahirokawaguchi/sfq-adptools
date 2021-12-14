@@ -31,1040 +31,1050 @@
 ;;  (defvar NET2PTL_PTLLIB "adp634s")
 ;;  )
 
-;;; 関数名：GetStartToGoal
-;;; 引数：
-;;;  NetSegmentDataList：ネットセグメントのオブジェクトIDのリスト
-;;;  NetSegmentLineList：ネットセグメントの始点と終点がまとまったリスト
-;;;  StartPoint：配線の始点座標
-;;; 機能：
-;;;  始点座標から終点座標に至るまでの通過座標のリストと，
-;;;  通過順に並び替えたネットセグメントオブジェクトのリストが結合されたリストを返す．
-;;;  通過座標のリストは，始点座標，配線の向きorレイヤが変わる座標，終点座標の順に格納されている．
-;;;  なお，前提としてNetSegmentDataListとNetSegmentLineListは順番が対応しているものとする．
-;;; 動作例：
-;;;  NetSegmentDataList：(db:0x01 db:0x02 db:0x03)
-;;;  NetSegmentLineList：(((1 3) (1 5)) ((0 3) (1 3)) ((1 5) (4 5)))
-;;;  StartPoint：(0 3)
-;;;  →返り値：(((0 3) (1 3) (1 5) (4 5)) (db:0x02 db:0x01 db:0x03))
-(defun GetStartToGoal (NetSegmentDataList NetSegmentLineList StartPoint )
-  (define NewNetLineList nil)
-  (define NetSegment nil)
-  (define RemoveSegment nil)
-  (define LineData nil)
-  (define SearchPoint StartPoint)
-  (define StartToGoalList (list SearchPoint))
-  (define flag 0)
-  (while
-    NetSegmentLineList
-    (for
-      i 0 (length NetSegmentLineList)
-      (if (equal flag 0)
-        then
-        (setq NetSegment (nth i NetSegmentLineList))
-        (if (member SearchPoint NetSegment)
+;Global functions
+(define SetNetCells nil)
+
+(let ()
+  (define scv nil)
+
+  ;;; 関数名：GetStartToGoal
+  ;;; 引数：
+  ;;;  NetSegmentDataList：ネットセグメントのオブジェクトIDのリスト
+  ;;;  NetSegmentLineList：ネットセグメントの始点と終点がまとまったリスト
+  ;;;  StartPoint：配線の始点座標
+  ;;; 機能：
+  ;;;  始点座標から終点座標に至るまでの通過座標のリストと，
+  ;;;  通過順に並び替えたネットセグメントオブジェクトのリストが結合されたリストを返す．
+  ;;;  通過座標のリストは，始点座標，配線の向きorレイヤが変わる座標，終点座標の順に格納されている．
+  ;;;  なお，前提としてNetSegmentDataListとNetSegmentLineListは順番が対応しているものとする．
+  ;;; 動作例：
+  ;;;  NetSegmentDataList：(db:0x01 db:0x02 db:0x03)
+  ;;;  NetSegmentLineList：(((1 3) (1 5)) ((0 3) (1 3)) ((1 5) (4 5)))
+  ;;;  StartPoint：(0 3)
+  ;;;  →返り値：(((0 3) (1 3) (1 5) (4 5)) (db:0x02 db:0x01 db:0x03))
+  (defun GetStartToGoal (NetSegmentDataList NetSegmentLineList StartPoint )
+    (define NewNetLineList nil)
+    (define NetSegment nil)
+    (define RemoveSegment nil)
+    (define LineData nil)
+    (define SearchPoint StartPoint)
+    (define StartToGoalList (list SearchPoint))
+    (define flag 0)
+    (while
+      NetSegmentLineList
+      (for
+        i 0 (length NetSegmentLineList)
+        (if (equal flag 0)
           then
-          (if (equal (nth 0 NetSegment) SearchPoint)
-            (setq SearchPoint (nth 1 NetSegment))
-            (setq SearchPoint (nth 0 NetSegment)))
-          (setq LineData (nth i NetSegmentDataList))
-          StartToGoalList = (append StartToGoalList list(SearchPoint))
-          NewNetLineList = (append NewNetLineList list(LineData))
-          RemoveSegment = NetSegment
-          flag = 1)))
-    NetSegmentLineList = (remd RemoveSegment NetSegmentLineList)
-    NetSegmentDataList = (remd LineData NetSegmentDataList)
-    flag = 0)
-  cons(StartToGoalList list(NewNetLineList)))
-
-
-;;; 関数名：GetCornerPointList
-;;; 引数：
-;;;  StartToGoalList：配線の始点から終点までの通過座標がまとまったリスト
-;;; 機能：
-;;;  StartToGoalListの中で，配線の向きorレイヤが変わる座標がまとまったリストを返す．
-;;;  要は，StartToGoalListから始点座標と終点座標を抜いたものを返せばよい．
-;;; 動作例：
-;;;  StartToGoalList：((0 3) (1 3) (1 5) (4 5))
-;;;  →返り値：((1 3) (1 5))
-(defun GetCornerPointList (StartToGoalList )
-  (define CornerPointList nil)
-  (for i 1 length(StartToGoalList)-2
-       CornerPointList = (append CornerPointList (list (nth i StartToGoalList))))
-  CornerPointList)
-
-
-;;; 関数名：GetPathTrace
-;;; 引数：
-;;;  StartToGoalList：配線の始点から終点までの通過座標がまとまったリスト
-;;; 機能：
-;;;  StartToGoalListから，ポイント間の配線の向きをまとめたリストを返す．
-;;;  出力で，0は右向き，1は上向き，2は左向き，3は下向きを指す．
-;;; 動作例：
-;;;  StartToGoalList：((0 3) (1 3) (1 5) (4 5))
-;;;  →返り値：(0 1 0)
-(defun GetPathTrace (StartToGoalList )
-  (define NetVectorList nil)
-  (define BeforePoint nil)
-  (define AfterPoint nil)
-  (define delta_x delta_y nil) 
-  (for i 0 length(StartToGoalList)-2
-       BeforePoint = nth(i StartToGoalList)
-       AfterPoint = nth(i+1 StartToGoalList)
-       delta_x = xCoord(AfterPoint) -  xCoord(BeforePoint)
-       delta_y = yCoord(AfterPoint) -  yCoord(BeforePoint)
-       (cond
-         (delta_x > 0 && delta_y == 0
-                  NetVectorList = append(NetVectorList list(0)))
-         (delta_x == 0 && delta_y > 0
-                  NetVectorList = append(NetVectorList list(1)))
-         (delta_x < 0 && delta_y == 0
-                  NetVectorList = append(NetVectorList list(2)))
-         (delta_x == 0 && delta_y < 0
-                  NetVectorList = append(NetVectorList list(3)))
-         ))
-  NetVectorList	)
-
-
-;;; 関数名：ConvertGridCoordTrace
-;;; 引数：
-;;;  StartToGoalList：配線の始点から終点までの通過座標がまとまったリスト
-;;; 機能：
-;;;  StartToGoalListから，配線が通過するグリッド座標をまとめたリストを返す．
-;;;  グリッドの単位あたりの長さは0.1875としている．
-;;; 動作例：
-;;;  StartToGoalList：((0 0.375) (0.1875 0.375) (0.1875 0.75))
-;;;  →返り値：((0 2) (1 2) (1 3) (1 4))
-(defun ConvertGridCoordTrace (StartToGoalList )
-  (define Point nil)
-  (define GridPoint nil)
-  (define TmpGridCoordList nil)
-  (define BeforePoint nil)
-  (define AfterPoint nil)
-  (define GridCoordList nil)
-  (for i 0 length(StartToGoalList)-1
-       Point = nth(i StartToGoalList)
-       GridPoint = list(floor(xCoord(Point)/0.1875) floor(yCoord(Point)/0.1875))
-       TmpGridCoordList = append(TmpGridCoordList list(GridPoint))
-       )
-  (for i 0 length(TmpGridCoordList)-2
-       BeforePoint = nth(i TmpGridCoordList)
-       AfterPoint = nth(i+1 TmpGridCoordList)
-       delta_x = xCoord(AfterPoint) -  xCoord(BeforePoint)
-       delta_y = yCoord(AfterPoint) -  yCoord(BeforePoint)
-       (cond
-         (delta_x > 0 && delta_y == 0
-                  x_Coord = xCoord(BeforePoint)
-                  (while x_Coord != xCoord(AfterPoint)
-                         GridPoint = list(x_Coord yCoord(BeforePoint))
-                         GridCoordList = append(GridCoordList list(GridPoint))
-                         x_Coord++))
-         (delta_x == 0 && delta_y > 0
-                  y_Coord = yCoord(BeforePoint)
-                  (while y_Coord != yCoord(AfterPoint)
-                         GridPoint = list(xCoord(BeforePoint) y_Coord )
-                         GridCoordList = append(GridCoordList list(GridPoint))
-                         y_Coord++))
-         (delta_x < 0 && delta_y == 0
-                  x_Coord = xCoord(BeforePoint)
-                  (while x_Coord != xCoord(AfterPoint)
-                         GridPoint = list(x_Coord yCoord(BeforePoint))
-                         GridCoordList = append(GridCoordList list(GridPoint))
-                         x_Coord--))
-         (delta_x == 0 && delta_y < 0
-                  y_Coord = yCoord(BeforePoint)
-                  while(y_Coord != yCoord(AfterPoint)
-                                GridPoint = list(xCoord(BeforePoint) y_Coord)
-                                GridCoordList = append(GridCoordList list(GridPoint))
-                                y_Coord--))))
-  GridCoordList = append(GridCoordList list(AfterPoint))
-  GridCoordList)
-
-;;; 関数名：ConvertGridCornerCoord
-;;; 引数：
-;;;  CornerPointList：配線の向きorレイヤが変わる座標がまとまったリスト
-;;; 機能：
-;;;  CornerPointListの座標を，グリッド座標に変換したリストを返す．
-;;;  グリッドの単位あたりの長さは0.1875としている．
-;;; 動作例：
-;;;  CornerPointList：((0.1875 0.375) (0.1875 0.75))
-;;;  →返り値：((1 2) (1 4))
-(defun ConvertGridCornerCoord (CornerPointList )
-  (define Point nil)
-  (define GridPoint nil)
-  (define GridCoordPointList nil)
-  (define GridCornerPointList nil)
-  (for i 0 length(CornerPointList)-1
-       Point = nth(i CornerPointList)
-       GridPoint = list(floor(xCoord(Point)/0.1875) floor(yCoord(Point)/0.1875))
-       GridCornerPointList = append(GridCornerPointList list(GridPoint)))
-  GridCornerPointList)
-
-
-;;; 関数名：PutCell
-;;; 引数：
-;;;  scv：SchematicCellViewのオブジェクト
-;;;  master：配置したいセルのオブジェクト
-;;;  Coord：配置したい座標
-;;;  Orient：セルの回転・反転の値
-;;; 機能：
-;;;  セルを配置する．
-;;;  座標や回転反転についてはCoordとOrientで指定．
-;;;  グリッドの単位あたりの長さは0.1875としている．
-;;; 補足：
-;;;  schCreateInstのみでは，回転や反転が生じたときに，
-;;;  セルの基準となる座標が変わってしまうことがある．
-;;;  その問題の対策のために本関数を作成した．
-(defun PutCell (scv master Coord Orient )
-  (define NewCoord nil)
-  (case Orient
-    ( "R0"
-      NewCoord = Coord
-      schCreateInst(scv master nil NewCoord Orient))
-    ( "R90"
-      NewCoord = xCoord(Coord)+0.1875:yCoord(Coord)
-      schCreateInst(scv master nil NewCoord Orient))
-    ( "R180"
-      NewCoord = xCoord(Coord)+0.1875:yCoord(Coord)+0.1875
-      schCreateInst(scv master nil NewCoord Orient))
-    ( "R270"
-      NewCoord = xCoord(Coord):yCoord(Coord)+0.1875
-      schCreateInst(scv master nil NewCoord Orient))
-    ( "MXR90"
-      NewCoord = Coord
-      schCreateInst(scv master nil NewCoord Orient))
-    ( "MY"
-      NewCoord = xCoord(Coord)+0.1875:yCoord(Coord)
-      schCreateInst(scv master nil NewCoord Orient))
-    ( "MYR90"
-      NewCoord = xCoord(Coord)+0.1875:yCoord(Coord)+0.1875
-      schCreateInst(scv master nil NewCoord Orient))
-    ( "MX"
-      NewCoord = xCoord(Coord):yCoord(Coord)+0.1875
-      schCreateInst(scv master nil NewCoord Orient))))
-
-
-;;; 関数名：SetStraightCell
-;;; 引数：
-;;;  Width：配線の太さ（レイヤを意味することに等しい）
-;;;    Vec：配線の向き
-;;;  Point：配置するセルのグリッド座標
-;;; 機能：
-;;;  入力の3情報から適切な直線配線セルを配置する．
-(defun SetStraightCell (Width Vec Point)
-  (define NewPoint (list xCoord(Point)*0.1875 yCoord(Point)*0.1875))
-  (case Width
-    ( 0.0875;PTL1_width
-      master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1" "symbol_p")
-      (case Vec
-        ( 0
-          (if mod(yCoord(Point) 2) == 0
-            PutCell(scv master NewPoint "MX")
-            PutCell(scv master NewPoint "R0")))
-        ( 1
-          (if mod(xCoord(Point) 2) == 0
-            PutCell(scv master NewPoint "R90")
-            PutCell(scv master NewPoint "MXR90")))
-        ( 2
-          (if mod(yCoord(Point) 2) == 0
-            PutCell(scv master NewPoint "R180")
-            PutCell(scv master NewPoint "MY")))
-        ( 3
-          (if mod(xCoord(Point) 2) == 0
+          (setq NetSegment (nth i NetSegmentLineList))
+          (if (member SearchPoint NetSegment)
             then
-            PutCell(scv master NewPoint "MYR90")
-            else
-            PutCell(scv master NewPoint "R270")))))
-    ( 0.075;PTL2_width
-      master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2" "symbol_p")
-      (case Vec
-        ( 0
-          (if mod(yCoord(Point) 2) == 0
-            PutCell(scv master NewPoint "MX")
-            PutCell(scv master NewPoint "R0")))
-        ( 1
-          (if mod(xCoord(Point) 2) == 0
-            PutCell(scv master NewPoint "R90")
-            PutCell(scv master NewPoint "MXR90")))
-        ( 2
-          (if mod(yCoord(Point) 2) == 0
-            PutCell(scv master NewPoint "R180")
-            PutCell(scv master NewPoint "MY")))
-        ( 3
-          (if mod(xCoord(Point) 2) == 0
-            PutCell(scv master NewPoint "MYR90")
-            PutCell(scv master NewPoint "R270")))))))
+            (if (equal (nth 0 NetSegment) SearchPoint)
+              (setq SearchPoint (nth 1 NetSegment))
+              (setq SearchPoint (nth 0 NetSegment)))
+            (setq LineData (nth i NetSegmentDataList))
+            StartToGoalList = (append StartToGoalList list(SearchPoint))
+            NewNetLineList = (append NewNetLineList list(LineData))
+            RemoveSegment = NetSegment
+            flag = 1)))
+      NetSegmentLineList = (remd RemoveSegment NetSegmentLineList)
+      NetSegmentDataList = (remd LineData NetSegmentDataList)
+      flag = 0)
+    cons(StartToGoalList list(NewNetLineList)))
 
 
-;;; 関数名：SetCornerCell
-;;; 引数：
-;;;  CWidth：現在の配線の太さ（レイヤを意味することに等しい）
-;;;  NWidth：次の配線の太さ（レイヤを意味することに等しい）
-;;;    CVec：現在の配線の向き
-;;;    NVec：次の配線の向き
-;;;   Point：配置するセルのグリッド座標
-;;; 機能：
-;;;  入力の5情報から適切な曲がる配線のセルを配置する．
-;;;  バグが潜んでいる可能性がかなりある．
-(defun SetCornerCell (CWidth NWidth CVec NVec Point)
-  (define NewPoint (list xCoord(Point)*0.1875 yCoord(Point)*0.1875))
-  (case CWidth
-    ( 0.0875
-      (case NWidth
-        ( 0.0875
-          (case CVec
-            ( 0
-              (case NVec
-                ( 1
-                  (cond
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1ic" "symbol_p")
-                                           PutCell(scv master NewPoint "MX"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1hc" "symbol_p")
-                                           PutCell(scv master NewPoint "MX"))
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1c" "symbol_p")
-                                           PutCell(scv master NewPoint "R0"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1icr" "symbol_p")
-                                           PutCell(scv master NewPoint "R270"))))
-                ( 3
-                  (cond
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1c" "symbol_p")
-                                           PutCell(scv master NewPoint "MX"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1icr" "symbol_p")
-                                           PutCell(scv master NewPoint "MXR90"))
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1ic" "symbol_p")
-                                           PutCell(scv master NewPoint "R0"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1hc" "symbol_p")
-                                           PutCell(scv master NewPoint "R0"))))))
-            ( 1
-              (case NVec
-                ( 0
-                  (cond
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1ic" "symbol_p")
-                                           PutCell(scv master NewPoint "R90"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1c" "symbol_p")
-                                           PutCell(scv master NewPoint "MXR90"))
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1hc" "symbol_p")
-                                           PutCell(scv master NewPoint "R90"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1icr" "symbol_p")
-                                           PutCell(scv master NewPoint "MY"))))
-                ( 2
-                  (cond
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1c" "symbol_p")
-                                           PutCell(scv master NewPoint "R90"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1ic" "symbol_p")
-                                           PutCell(scv master NewPoint "MXR90"))
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1icr" "symbol_p")
-                                           PutCell(scv master NewPoint "R0"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1hc" "symbol_p")
-                                           PutCell(scv master NewPoint "MXR90"))))))
-            ( 2
-              (case NVec
-                ( 1
-                  (cond
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1hc" "symbol_p")
-                                           PutCell(scv master NewPoint "R180"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1ic" "symbol_p")
-                                           PutCell(scv master NewPoint "R180"))
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1icr" "symbol_p")
-                                           PutCell(scv master NewPoint "MYR90"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1c" "symbol_p")
-                                           PutCell(scv master NewPoint "MY"))))
-                ( 3
-                  (cond
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1icr" "symbol_p")
-                                           PutCell(scv master NewPoint "R90"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1c" "symbol_p")
-                                           PutCell(scv master NewPoint "R180"))
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1hc" "symbol_p")
-                                           PutCell(scv master NewPoint "MY"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1ic" "symbol_p")
-                                           PutCell(scv master NewPoint "MY"))))))
-            ( 3
-              (case NVec
-                ( 0
-                  (cond
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1hc" "symbol_p")
-                                           PutCell(scv master NewPoint "MYR90"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1icr" "symbol_p")
-                                           PutCell(scv master NewPoint "R180"))
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1ic" "symbol_p")
-                                           PutCell(scv master NewPoint "MYR90"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1c" "symbol_p")
-                                           PutCell(scv master NewPoint "R270"))))
-                ( 2
-                  (cond
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1icr" "symbol_p")
-                                           PutCell(scv master NewPoint "MX"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1hc" "symbol_p")
-                                           PutCell(scv master NewPoint "R270"))
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1c" "symbol_p")
-                                           PutCell(scv master NewPoint "MYR90"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1ic" "symbol_p")
-                                           PutCell(scv master NewPoint "R270"))))))))
-        ( 0.075
-          (case CVec
-            ( 0
-              (case NVec
-                ( 0
-                  (cond
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaor" "symbol_p")
-                                           PutCell(scv master NewPoint "R180"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viar" "symbol_p")
-                                           PutCell(scv master NewPoint "R180"))
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaor" "symbol_p")
-                                           PutCell(scv master NewPoint "MY"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viar" "symbol_p")
-                                           PutCell(scv master NewPoint "MY"))))
-                ( 1
-                  (cond
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaiocr" "symbol_p")
-                                           PutCell(scv master NewPoint "R270"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viahcr" "symbol_p")
-                                           PutCell(scv master NewPoint "R270"))
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viacr" "symbol_p")
-                                           PutCell(scv master NewPoint "MYR90"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaicr" "symbol_p")
-                                           PutCell(scv master NewPoint "R270"))))
-                ( 3
-                  (cond
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viacr" "symbol_p")
-                                           PutCell(scv master NewPoint "R90"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaicr" "symbol_p")
-                                           PutCell(scv master NewPoint "MXR90"))
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaiocr" "symbol_p")
-                                           PutCell(scv master NewPoint "MXR90"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viahcr" "symbol_p")
-                                           PutCell(scv master NewPoint "MXR90"))))))
-            ( 1
-              (case NVec
-                ( 0
-                  (cond
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaiocr" "symbol_p")
-                                           PutCell(scv master NewPoint "MY"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viacr" "symbol_p")
-                                           PutCell(scv master NewPoint "R180"))
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viahcr" "symbol_p")
-                                           PutCell(scv master NewPoint "MY"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaicr" "symbol_p")
-                                           PutCell(scv master NewPoint "MY"))))
-                ( 1
-                  (cond
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaor" "symbol_p")
-                                           PutCell(scv master NewPoint "MYR90"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaor" "symbol_p")
-                                           PutCell(scv master NewPoint "R270"))
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viar" "symbol_p")
-                                           PutCell(scv master NewPoint "MYR90"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viar" "symbol_p")
-                                           PutCell(scv master NewPoint "R270"))))
-                ( 2
-                  (cond
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viacr" "symbol_p")
-                                           PutCell(scv master NewPoint "MX"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaiocr" "symbol_p")
-                                           PutCell(scv master NewPoint "R0"))
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaicr" "symbol_p")
-                                           PutCell(scv master NewPoint "R0"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viahcr" "symbol_p")
-                                           PutCell(scv master NewPoint "R0"))))))
-            ( 2
-              (case NVec
-                ( 1
-                  (cond
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viahcr" "symbol_p")
-                                           PutCell(scv master NewPoint "MYR90"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaiocr" "symbol_p")
-                                           PutCell(scv master NewPoint "MYR90"))
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaicr" "symbol_p")
-                                           PutCell(scv master NewPoint "MYR90"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viacr" "symbol_p")
-                                           PutCell(scv master NewPoint "R270"))))
-                ( 2
-                  (cond
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viar" "symbol_p")
-                                           PutCell(scv master NewPoint "MX"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaor" "symbol_p")
-                                           PutCell(scv master NewPoint "MX"))
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viar" "symbol_p")
-                                           PutCell(scv master NewPoint "R0"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaor" "symbol_p")
-                                           PutCell(scv master NewPoint "R0"))))
-                ( 3
-                  (cond
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaicr" "symbol_p")
-                                           PutCell(scv master NewPoint "R90"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viacr" "symbol_p")
-                                           PutCell(scv master NewPoint "MX90"))
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viahcr" "symbol_p")
-                                           PutCell(scv master NewPoint "R90"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaiocr" "symbol_p")
-                                           PutCell(scv master NewPoint "R90"))))))
-            ( 3
-              (case NVec
-                ( 0
-                  (cond
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viahcr" "symbol_p")
-                                           PutCell(scv master NewPoint "R180"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaicr" "symbol_p")
-                                           PutCell(scv master NewPoint "R180"))
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaiocr" "symbol_p")
-                                           PutCell(scv master NewPoint "R180"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viacr" "symbol_p")
-                                           PutCell(scv master NewPoint "MY"))))
-                ( 2
-                  (cond
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaicr" "symbol_p")
-                                           PutCell(scv master NewPoint "MX"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viahcr" "symbol_p")
-                                           PutCell(scv master NewPoint "MX"))
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viacr" "symbol_p")
-                                           PutCell(scv master NewPoint "R0"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaiocr" "symbol_p")
-                                           PutCell(scv master NewPoint "MX"))))
-                ( 3
-                  (cond
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viar" "symbol_p")
-                                           PutCell(scv master NewPoint "R90"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viar" "symbol_p")
-                                           PutCell(scv master NewPoint "MXR90"))
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaor" "symbol_p")
-                                           PutCell(scv master NewPoint "R90"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaor" "symbol_p")
-                                           PutCell(scv master NewPoint "MXR90"))))))))))
-    ( 0.075
-      (case NWidth
-        ( 0.0875
-          (case CVec
-            ( 0
-              (case NVec
-                ( 0
-                  (cond
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "via" "symbol_p")
-                                           PutCell(scv master NewPoint "MX"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viao" "symbol_p")
-                                           PutCell(scv master NewPoint "MX"))
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "via" "symbol_p")
-                                           PutCell(scv master NewPoint "R0"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viao" "symbol_p")
-                                           PutCell(scv master NewPoint "R0"))))
-                ( 1
-                  (cond
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaic" "symbol_p")
-                                           PutCell(scv master NewPoint "MX"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viahc" "symbol_p")
-                                           PutCell(scv master NewPoint "MX"))
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viac" "symbol_p")
-                                           PutCell(scv master NewPoint "R0"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaioc" "symbol_p")
-                                           PutCell(scv master NewPoint "MX"))))
-                ( 3
-                  (cond
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viac" "symbol_p")
-                                           PutCell(scv master NewPoint "MX"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaioc" "symbol_p")
-                                           PutCell(scv master NewPoint "R0"))
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaic" "symbol_p")
-                                           PutCell(scv master NewPoint "R0"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viahc" "symbol_p")
-                                           PutCell(scv master NewPoint "R0"))))))
-            ( 1
-              (case NVec
-                ( 0
-                  (cond
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaic" "symbol_p")
-                                           PutCell(scv master NewPoint "R90"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viac" "symbol_p")
-                                           PutCell(scv master NewPoint "MXR90"))
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viahc" "symbol_p")
-                                           PutCell(scv master NewPoint "R90"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaioc" "symbol_p")
-                                           PutCell(scv master NewPoint "R90"))))
-                ( 1
-                  (cond
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "via" "symbol_p")
-                                           PutCell(scv master NewPoint "R90"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "via" "symbol_p")
-                                           PutCell(scv master NewPoint "MXR90"))
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viao" "symbol_p")
-                                           PutCell(scv master NewPoint "R90"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viao" "symbol_p")
-                                           PutCell(scv master NewPoint "MXR90"))))
-                ( 2
-                  (cond
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viac" "symbol_p")
-                                           PutCell(scv master NewPoint "R90"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaic" "symbol_p")
-                                           PutCell(scv master NewPoint "MXR90"))
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaioc" "symbol_p")
-                                           PutCell(scv master NewPoint "MXR90"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viahc" "symbol_p")
-                                           PutCell(scv master NewPoint "MXR90"))))))
-            ( 2
-              (case NVec
-                ( 1
-                  (cond
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viahc" "symbol_p")
-                                           PutCell(scv master NewPoint "R180"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaic" "symbol_p")
-                                           PutCell(scv master NewPoint "R180"))
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaioc" "symbol_p")
-                                           PutCell(scv master NewPoint "R180"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viac" "symbol_p")
-                                           PutCell(scv master NewPoint "MY"))))
-                ( 2
-                  (cond
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viao" "symbol_p")
-                                           PutCell(scv master NewPoint "R180"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "via" "symbol_p")
-                                           PutCell(scv master NewPoint "R180"))
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viao" "symbol_p")
-                                           PutCell(scv master NewPoint "MY"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "via" "symbol_p")
-                                           PutCell(scv master NewPoint "MY"))))
-                ( 3
-                  (cond
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaioc" "symbol_p")
-                                           PutCell(scv master NewPoint "MY"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viac" "symbol_p")
-                                           PutCell(scv master NewPoint "R180"))
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viahc" "symbol_p")
-                                           PutCell(scv master NewPoint "MY"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaic" "symbol_p")
-                                           PutCell(scv master NewPoint "MY"))))))
-            ( 3
-              (case NVec
-                ( 0
-                  (cond
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viahc" "symbol_p")
-                                           PutCell(scv master NewPoint "MYR90"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaioc" "symbol_p")
-                                           PutCell(scv master NewPoint "MYR90"))
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaic" "symbol_p")
-                                           PutCell(scv master NewPoint "MYR90"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viac" "symbol_p")
-                                           PutCell(scv master NewPoint "R270"))))
-                ( 2
-                  (cond
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viahc" "symbol_p")
-                                           PutCell(scv master NewPoint "R180"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaic" "symbol_p")
-                                           PutCell(scv master NewPoint "R180"))
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaioc" "symbol_p")
-                                           PutCell(scv master NewPoint "R180"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viac" "symbol_p")
-                                           PutCell(scv master NewPoint "MY"))))
-                ( 3
-                  (cond
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viao" "symbol_p")
-                                           PutCell(scv master NewPoint "MYR90"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "viao" "symbol_p")
-                                           PutCell(scv master NewPoint "R270"))
-                    ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "via" "symbol_p")
-                                           PutCell(scv master NewPoint "MYR90"))
-                    ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
-                                           master = dbOpenCellViewByType(NET2PTL_PTLLIB "via" "symbol_p")
-                                           PutCell(scv master NewPoint "R270"))))))))
-        (0.075
-         (case CVec
-           ( 0
-             (case NVec
-               ( 1
-                 (cond
-                   ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
-                                          master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2ic" "symbol_p")
-                                          PutCell(scv master NewPoint "MX"))
-                   ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
-                                          master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2hc" "symbol_p")
-                                          PutCell(scv master NewPoint "MX"))
-                   ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
-                                          master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2c" "symbol_p")
-                                          PutCell(scv master NewPoint "R0"))
-                   ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
-                                          master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2icr" "symbol_p")
-                                          PutCell(scv master NewPoint "R270"))))
-               ( 3
-                 (cond
-                   ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
-                                          master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2c" "symbol_p")
-                                          PutCell(scv master NewPoint "MX"))
-                   ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
-                                          master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2icr" "symbol_p")
-                                          PutCell(scv master NewPoint "MXR90"))
-                   ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
-                                          master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2ic" "symbol_p")
-                                          PutCell(scv master NewPoint "R0"))
-                   ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
-                                          master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2hc" "symbol_p")
-                                          PutCell(scv master NewPoint "R0"))))))
-           ( 1
-             (case NVec
-               ( 0
-                 (cond
-                   ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
-                                          master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2ic" "symbol_p")
-                                          PutCell(scv master NewPoint "R90"))
-                   ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
-                                          master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2c" "symbol_p")
-                                          PutCell(scv master NewPoint "MXR90"))
-                   ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
-                                          master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2hc" "symbol_p")
-                                          PutCell(scv master NewPoint "R90"))
-                   ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
-                                          master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2icr" "symbol_p")
-                                          PutCell(scv master NewPoint "MY"))))
-               ( 2
-                 (cond
-                   ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
-                                          master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2c" "symbol_p")
-                                          PutCell(scv master NewPoint "R90"))
-                   ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
-                                          master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2ic" "symbol_p")
-                                          PutCell(scv master NewPoint "MXR90"))
-                   ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
-                                          master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2icr" "symbol_p")
-                                          PutCell(scv master NewPoint "R0"))
-                   ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
-                                          master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2hc" "symbol_p")
-                                          PutCell(scv master NewPoint "MXR90"))))))
-           ( 2
-             (case NVec
-               ( 1
-                 (cond
-                   ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
-                                          master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2hc" "symbol_p")
-                                          PutCell(scv master NewPoint "R180"))
-                   ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
-                                          master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2ic" "symbol_p")
-                                          PutCell(scv master NewPoint "R180"))
-                   ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
-                                          master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2icr" "symbol_p")
-                                          PutCell(scv master NewPoint "MYR90"))
-                   ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
-                                          master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2c" "symbol_p")
-                                          PutCell(scv master NewPoint "MY"))))
-               ( 3
-                 (cond
-                   ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
-                                          master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2icr" "symbol_p")
-                                          PutCell(scv master NewPoint "R90"))
-                   ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
-                                          master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2c" "symbol_p")
-                                          PutCell(scv master NewPoint "R180"))
-                   ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
-                                          master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2hc" "symbol_p")
-                                          PutCell(scv master NewPoint "MY"))
-                   ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
-                                          master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2ic" "symbol_p")
-                                          PutCell(scv master NewPoint "MY"))))))
-           ( 3
-             (case NVec
-               ( 0
-                 (cond
-                   ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
-                                          master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2hc" "symbol_p")
-                                          PutCell(scv master NewPoint "MYR90"))
-                   ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
-                                          master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2icr" "symbol_p")
-                                          PutCell(scv master NewPoint "R180"))
-                   ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
-                                          master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2ic" "symbol_p")
-                                          PutCell(scv master NewPoint "MYR90"))
-                   ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
-                                          master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2c" "symbol_p")
-                                          PutCell(scv master NewPoint "R270"))))
-               ( 2
-                 (cond
-                   ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
-                                          master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2icr" "symbol_p")
-                                          PutCell(scv master NewPoint "MX"))
-                   ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
-                                          master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2hc" "symbol_p")
-                                          PutCell(scv master NewPoint "R270"))
-                   ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
-                                          master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2c" "symbol_p")
-                                          PutCell(scv master NewPoint "MYR90"))
-                   ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
-                                          master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2ic" "symbol_p")
-                                          PutCell(scv master NewPoint "R270"))
-                   ))))))))))
+  ;;; 関数名：GetCornerPointList
+  ;;; 引数：
+  ;;;  StartToGoalList：配線の始点から終点までの通過座標がまとまったリスト
+  ;;; 機能：
+  ;;;  StartToGoalListの中で，配線の向きorレイヤが変わる座標がまとまったリストを返す．
+  ;;;  要は，StartToGoalListから始点座標と終点座標を抜いたものを返せばよい．
+  ;;; 動作例：
+  ;;;  StartToGoalList：((0 3) (1 3) (1 5) (4 5))
+  ;;;  →返り値：((1 3) (1 5))
+  (defun GetCornerPointList (StartToGoalList )
+    (define CornerPointList nil)
+    (for i 1 length(StartToGoalList)-2
+         CornerPointList = (append CornerPointList (list (nth i StartToGoalList))))
+    CornerPointList)
 
 
-;;; 関数名：SetNetCells
-;;; 引数：
-;;;         scv：現在の配線の太さ（レイヤを意味することに等しい）
-;;;      NetTmp：次の配線の太さ（レイヤを意味することに等しい）
-;;;  deleteflag：現在の配線の向き
-;;; 機能：
-;;;  レイアウト上に引かれたラインに沿って適切なセルを配置する．
-;;;  仮にdeleteflagがnilではないとき，配線セル配置と同時にラインを消去．
-(defun SetNetCells (scv NetTmp deleteflag)
-  (define GridTmp nil)
-  (define CurrentNetPart nil)
-  (define CurrentVec nil)
-  (define NextNetPart nil)
-  (define NextNetWidth nil)
-  (define NextVec nil)
-  ;;; 配線のセグメントのオブジェクトID群をリストにまとめる
-  (define NetSegmentDataList NetTmp~>figs)
-  ;;; 配線セグメントの始点終点の座標をまとめたリストを生成
-  (define NetSegmentLineList NetSegmentDataList~>points)
-  ;;; 配線の始点をピックアップ
-  (define outputPin (car (setof it NetTmp~>instTerms it~>direction=="output")))
-  (define StartPoint (getInstTermCoord outputPin))
-  ;;; 始点から終点に至る座標がまとまったリストと，
-  ;;; その順に応じて並び替えた配線セグメントオブジェクトを取得
-  ;;; GetStartToGoal関数から取得したリストの第一要素が前者で，第二要素が後者なので，上手く分割する．
-  (define TmpList GetStartToGoal( NetSegmentDataList NetSegmentLineList StartPoint ))
-  (define StartToGoalList nth(0 TmpList))
-  (define NetNewList nth(1 TmpList))
-  ;;; 配線セグメントオブジェクトから各セグメントの幅をまとめたリストを生成
-  (define NetNewWidthList foreach( mapcar x NetNewList x~>width))
-  ;;; 向きorレイヤが変わる座標をまとめたリストの生成
-  (define CornerPointList GetCornerPointList( StartToGoalList ))
-  ;;; 配線の向きをまとめたリストの生成
-  (define NetVectorList GetPathTrace( StartToGoalList ))
-  ;;; 配線が通過するグリッド座標をまとめたリストの取得
-  (define GridCoordList ConvertGridCoordTrace( StartToGoalList ))
-  ;;; 配線が曲がるorレイヤが変わるグリッド座標のリストを取得
-  (define CornerCoordList ConvertGridCornerCoord( CornerPointList ))
-  ;;; deleteflagの値に応じて，ラインの消去
-  (if deleteflag 
-    (for i 0 length(NetNewList)-1
-         dbDeleteObject(nth(i NetNewList))))
+  ;;; 関数名：GetPathTrace
+  ;;; 引数：
+  ;;;  StartToGoalList：配線の始点から終点までの通過座標がまとまったリスト
+  ;;; 機能：
+  ;;;  StartToGoalListから，ポイント間の配線の向きをまとめたリストを返す．
+  ;;;  出力で，0は右向き，1は上向き，2は左向き，3は下向きを指す．
+  ;;; 動作例：
+  ;;;  StartToGoalList：((0 3) (1 3) (1 5) (4 5))
+  ;;;  →返り値：(0 1 0)
+  (defun GetPathTrace (StartToGoalList )
+    (define NetVectorList nil)
+    (define BeforePoint nil)
+    (define AfterPoint nil)
+    (define delta_x nil)
+    (define delta_y nil) 
+    (for i 0 length(StartToGoalList)-2
+         BeforePoint = nth(i StartToGoalList)
+         AfterPoint = nth(i+1 StartToGoalList)
+         delta_x = xCoord(AfterPoint) -  xCoord(BeforePoint)
+         delta_y = yCoord(AfterPoint) -  yCoord(BeforePoint)
+         (cond
+           (delta_x > 0 && delta_y == 0
+                    NetVectorList = append(NetVectorList list(0)))
+           (delta_x == 0 && delta_y > 0
+                    NetVectorList = append(NetVectorList list(1)))
+           (delta_x < 0 && delta_y == 0
+                    NetVectorList = append(NetVectorList list(2)))
+           (delta_x == 0 && delta_y < 0
+                    NetVectorList = append(NetVectorList list(3)))
+           ))
+    NetVectorList	)
 
-  ;;; 最初のセルの配置．
-  ;;; 最初の配線の向きが右から左or上から下の場合，
-  ;;; 現在の仕様ではドライバ上にセルを配置してしまうため，それを回避するために，
-  ;;; 次のwhileに含めないことにした．
-  (if length(GridCoordList) > 1
-    then
-    ;;; 処理対象となるグリッド座標を読み取る
-    ;;; これは，通過するグリッド座標がまとまったリストの先頭を読めばよい
-    GridTmp = nth(0 GridCoordList)
-    ;;; 対象のセルが直線のものか曲線のものかの条件分岐
-    (if member(GridTmp CornerCoordList) == nil
+
+  ;;; 関数名：ConvertGridCoordTrace
+  ;;; 引数：
+  ;;;  StartToGoalList：配線の始点から終点までの通過座標がまとまったリスト
+  ;;; 機能：
+  ;;;  StartToGoalListから，配線が通過するグリッド座標をまとめたリストを返す．
+  ;;;  グリッドの単位あたりの長さは0.1875としている．
+  ;;; 動作例：
+  ;;;  StartToGoalList：((0 0.375) (0.1875 0.375) (0.1875 0.75))
+  ;;;  →返り値：((0 2) (1 2) (1 3) (1 4))
+  (defun ConvertGridCoordTrace (StartToGoalList )
+    (define Point nil)
+    (define GridPoint nil)
+    (define TmpGridCoordList nil)
+    (define BeforePoint nil)
+    (define AfterPoint nil)
+    (define GridCoordList nil)
+    (for i 0 length(StartToGoalList)-1
+         Point = nth(i StartToGoalList)
+         GridPoint = list(floor(xCoord(Point)/0.1875) floor(yCoord(Point)/0.1875))
+         TmpGridCoordList = append(TmpGridCoordList list(GridPoint))
+         )
+    (for i 0 length(TmpGridCoordList)-2
+         BeforePoint = nth(i TmpGridCoordList)
+         AfterPoint = nth(i+1 TmpGridCoordList)
+         delta_x = xCoord(AfterPoint) -  xCoord(BeforePoint)
+         delta_y = yCoord(AfterPoint) -  yCoord(BeforePoint)
+         (cond
+           (delta_x > 0 && delta_y == 0
+                    x_Coord = xCoord(BeforePoint)
+                    (while x_Coord != xCoord(AfterPoint)
+                           GridPoint = list(x_Coord yCoord(BeforePoint))
+                           GridCoordList = append(GridCoordList list(GridPoint))
+                           x_Coord++))
+           (delta_x == 0 && delta_y > 0
+                    y_Coord = yCoord(BeforePoint)
+                    (while y_Coord != yCoord(AfterPoint)
+                           GridPoint = list(xCoord(BeforePoint) y_Coord )
+                           GridCoordList = append(GridCoordList list(GridPoint))
+                           y_Coord++))
+           (delta_x < 0 && delta_y == 0
+                    x_Coord = xCoord(BeforePoint)
+                    (while x_Coord != xCoord(AfterPoint)
+                           GridPoint = list(x_Coord yCoord(BeforePoint))
+                           GridCoordList = append(GridCoordList list(GridPoint))
+                           x_Coord--))
+           (delta_x == 0 && delta_y < 0
+                    y_Coord = yCoord(BeforePoint)
+                    while(y_Coord != yCoord(AfterPoint)
+                                  GridPoint = list(xCoord(BeforePoint) y_Coord)
+                                  GridCoordList = append(GridCoordList list(GridPoint))
+                                  y_Coord--))))
+    GridCoordList = append(GridCoordList list(AfterPoint))
+    GridCoordList)
+
+  ;;; 関数名：ConvertGridCornerCoord
+  ;;; 引数：
+  ;;;  CornerPointList：配線の向きorレイヤが変わる座標がまとまったリスト
+  ;;; 機能：
+  ;;;  CornerPointListの座標を，グリッド座標に変換したリストを返す．
+  ;;;  グリッドの単位あたりの長さは0.1875としている．
+  ;;; 動作例：
+  ;;;  CornerPointList：((0.1875 0.375) (0.1875 0.75))
+  ;;;  →返り値：((1 2) (1 4))
+  (defun ConvertGridCornerCoord (CornerPointList )
+    (define Point nil)
+    (define GridPoint nil)
+    (define GridCoordPointList nil)
+    (define GridCornerPointList nil)
+    (for i 0 length(CornerPointList)-1
+         Point = nth(i CornerPointList)
+         GridPoint = list(floor(xCoord(Point)/0.1875) floor(yCoord(Point)/0.1875))
+         GridCornerPointList = append(GridCornerPointList list(GridPoint)))
+    GridCornerPointList)
+
+
+  ;;; 関数名：PutCell
+  ;;; 引数：
+  ;;;  scv：SchematicCellViewのオブジェクト
+  ;;;  master：配置したいセルのオブジェクト
+  ;;;  Coord：配置したい座標
+  ;;;  Orient：セルの回転・反転の値
+  ;;; 機能：
+  ;;;  セルを配置する．
+  ;;;  座標や回転反転についてはCoordとOrientで指定．
+  ;;;  グリッドの単位あたりの長さは0.1875としている．
+  ;;; 補足：
+  ;;;  schCreateInstのみでは，回転や反転が生じたときに，
+  ;;;  セルの基準となる座標が変わってしまうことがある．
+  ;;;  その問題の対策のために本関数を作成した．
+  (defun PutCell (scv master Coord Orient )
+    (define NewCoord nil)
+    (case Orient
+      ( "R0"
+        NewCoord = Coord
+        schCreateInst(scv master nil NewCoord Orient))
+      ( "R90"
+        NewCoord = xCoord(Coord)+0.1875:yCoord(Coord)
+        schCreateInst(scv master nil NewCoord Orient))
+      ( "R180"
+        NewCoord = xCoord(Coord)+0.1875:yCoord(Coord)+0.1875
+        schCreateInst(scv master nil NewCoord Orient))
+      ( "R270"
+        NewCoord = xCoord(Coord):yCoord(Coord)+0.1875
+        schCreateInst(scv master nil NewCoord Orient))
+      ( "MXR90"
+        NewCoord = Coord
+        schCreateInst(scv master nil NewCoord Orient))
+      ( "MY"
+        NewCoord = xCoord(Coord)+0.1875:yCoord(Coord)
+        schCreateInst(scv master nil NewCoord Orient))
+      ( "MYR90"
+        NewCoord = xCoord(Coord)+0.1875:yCoord(Coord)+0.1875
+        schCreateInst(scv master nil NewCoord Orient))
+      ( "MX"
+        NewCoord = xCoord(Coord):yCoord(Coord)+0.1875
+        schCreateInst(scv master nil NewCoord Orient))))
+
+
+  ;;; 関数名：SetStraightCell
+  ;;; 引数：
+  ;;;  Width：配線の太さ（レイヤを意味することに等しい）
+  ;;;    Vec：配線の向き
+  ;;;  Point：配置するセルのグリッド座標
+  ;;; 機能：
+  ;;;  入力の3情報から適切な直線配線セルを配置する．
+  (defun SetStraightCell (Width Vec Point)
+    (define NewPoint (list xCoord(Point)*0.1875 yCoord(Point)*0.1875))
+    (case Width
+      ( 0.0875;PTL1_width
+        master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1" "symbol_p")
+        (case Vec
+          ( 0
+            (if mod(yCoord(Point) 2) == 0
+              PutCell(scv master NewPoint "MX")
+              PutCell(scv master NewPoint "R0")))
+          ( 1
+            (if mod(xCoord(Point) 2) == 0
+              PutCell(scv master NewPoint "R90")
+              PutCell(scv master NewPoint "MXR90")))
+          ( 2
+            (if mod(yCoord(Point) 2) == 0
+              PutCell(scv master NewPoint "R180")
+              PutCell(scv master NewPoint "MY")))
+          ( 3
+            (if mod(xCoord(Point) 2) == 0
+              then
+              PutCell(scv master NewPoint "MYR90")
+              else
+              PutCell(scv master NewPoint "R270")))))
+      ( 0.075;PTL2_width
+        master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2" "symbol_p")
+        (case Vec
+          ( 0
+            (if mod(yCoord(Point) 2) == 0
+              PutCell(scv master NewPoint "MX")
+              PutCell(scv master NewPoint "R0")))
+          ( 1
+            (if mod(xCoord(Point) 2) == 0
+              PutCell(scv master NewPoint "R90")
+              PutCell(scv master NewPoint "MXR90")))
+          ( 2
+            (if mod(yCoord(Point) 2) == 0
+              PutCell(scv master NewPoint "R180")
+              PutCell(scv master NewPoint "MY")))
+          ( 3
+            (if mod(xCoord(Point) 2) == 0
+              PutCell(scv master NewPoint "MYR90")
+              PutCell(scv master NewPoint "R270")))))))
+
+
+  ;;; 関数名：SetCornerCell
+  ;;; 引数：
+  ;;;  CWidth：現在の配線の太さ（レイヤを意味することに等しい）
+  ;;;  NWidth：次の配線の太さ（レイヤを意味することに等しい）
+  ;;;    CVec：現在の配線の向き
+  ;;;    NVec：次の配線の向き
+  ;;;   Point：配置するセルのグリッド座標
+  ;;; 機能：
+  ;;;  入力の5情報から適切な曲がる配線のセルを配置する．
+  ;;;  バグが潜んでいる可能性がかなりある．
+  (defun SetCornerCell (CWidth NWidth CVec NVec Point)
+    (define NewPoint (list xCoord(Point)*0.1875 yCoord(Point)*0.1875))
+    (case CWidth
+      ( 0.0875
+        (case NWidth
+          ( 0.0875
+            (case CVec
+              ( 0
+                (case NVec
+                  ( 1
+                    (cond
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1ic" "symbol_p")
+                                             PutCell(scv master NewPoint "MX"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1hc" "symbol_p")
+                                             PutCell(scv master NewPoint "MX"))
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1c" "symbol_p")
+                                             PutCell(scv master NewPoint "R0"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1icr" "symbol_p")
+                                             PutCell(scv master NewPoint "R270"))))
+                  ( 3
+                    (cond
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1c" "symbol_p")
+                                             PutCell(scv master NewPoint "MX"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1icr" "symbol_p")
+                                             PutCell(scv master NewPoint "MXR90"))
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1ic" "symbol_p")
+                                             PutCell(scv master NewPoint "R0"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1hc" "symbol_p")
+                                             PutCell(scv master NewPoint "R0"))))))
+              ( 1
+                (case NVec
+                  ( 0
+                    (cond
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1ic" "symbol_p")
+                                             PutCell(scv master NewPoint "R90"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1c" "symbol_p")
+                                             PutCell(scv master NewPoint "MXR90"))
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1hc" "symbol_p")
+                                             PutCell(scv master NewPoint "R90"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1icr" "symbol_p")
+                                             PutCell(scv master NewPoint "MY"))))
+                  ( 2
+                    (cond
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1c" "symbol_p")
+                                             PutCell(scv master NewPoint "R90"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1ic" "symbol_p")
+                                             PutCell(scv master NewPoint "MXR90"))
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1icr" "symbol_p")
+                                             PutCell(scv master NewPoint "R0"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1hc" "symbol_p")
+                                             PutCell(scv master NewPoint "MXR90"))))))
+              ( 2
+                (case NVec
+                  ( 1
+                    (cond
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1hc" "symbol_p")
+                                             PutCell(scv master NewPoint "R180"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1ic" "symbol_p")
+                                             PutCell(scv master NewPoint "R180"))
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1icr" "symbol_p")
+                                             PutCell(scv master NewPoint "MYR90"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1c" "symbol_p")
+                                             PutCell(scv master NewPoint "MY"))))
+                  ( 3
+                    (cond
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1icr" "symbol_p")
+                                             PutCell(scv master NewPoint "R90"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1c" "symbol_p")
+                                             PutCell(scv master NewPoint "R180"))
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1hc" "symbol_p")
+                                             PutCell(scv master NewPoint "MY"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1ic" "symbol_p")
+                                             PutCell(scv master NewPoint "MY"))))))
+              ( 3
+                (case NVec
+                  ( 0
+                    (cond
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1hc" "symbol_p")
+                                             PutCell(scv master NewPoint "MYR90"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1icr" "symbol_p")
+                                             PutCell(scv master NewPoint "R180"))
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1ic" "symbol_p")
+                                             PutCell(scv master NewPoint "MYR90"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1c" "symbol_p")
+                                             PutCell(scv master NewPoint "R270"))))
+                  ( 2
+                    (cond
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1icr" "symbol_p")
+                                             PutCell(scv master NewPoint "MX"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1hc" "symbol_p")
+                                             PutCell(scv master NewPoint "R270"))
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1c" "symbol_p")
+                                             PutCell(scv master NewPoint "MYR90"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL1ic" "symbol_p")
+                                             PutCell(scv master NewPoint "R270"))))))))
+          ( 0.075
+            (case CVec
+              ( 0
+                (case NVec
+                  ( 0
+                    (cond
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaor" "symbol_p")
+                                             PutCell(scv master NewPoint "R180"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viar" "symbol_p")
+                                             PutCell(scv master NewPoint "R180"))
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaor" "symbol_p")
+                                             PutCell(scv master NewPoint "MY"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viar" "symbol_p")
+                                             PutCell(scv master NewPoint "MY"))))
+                  ( 1
+                    (cond
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaiocr" "symbol_p")
+                                             PutCell(scv master NewPoint "R270"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viahcr" "symbol_p")
+                                             PutCell(scv master NewPoint "R270"))
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viacr" "symbol_p")
+                                             PutCell(scv master NewPoint "MYR90"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaicr" "symbol_p")
+                                             PutCell(scv master NewPoint "R270"))))
+                  ( 3
+                    (cond
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viacr" "symbol_p")
+                                             PutCell(scv master NewPoint "R90"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaicr" "symbol_p")
+                                             PutCell(scv master NewPoint "MXR90"))
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaiocr" "symbol_p")
+                                             PutCell(scv master NewPoint "MXR90"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viahcr" "symbol_p")
+                                             PutCell(scv master NewPoint "MXR90"))))))
+              ( 1
+                (case NVec
+                  ( 0
+                    (cond
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaiocr" "symbol_p")
+                                             PutCell(scv master NewPoint "MY"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viacr" "symbol_p")
+                                             PutCell(scv master NewPoint "R180"))
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viahcr" "symbol_p")
+                                             PutCell(scv master NewPoint "MY"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaicr" "symbol_p")
+                                             PutCell(scv master NewPoint "MY"))))
+                  ( 1
+                    (cond
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaor" "symbol_p")
+                                             PutCell(scv master NewPoint "MYR90"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaor" "symbol_p")
+                                             PutCell(scv master NewPoint "R270"))
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viar" "symbol_p")
+                                             PutCell(scv master NewPoint "MYR90"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viar" "symbol_p")
+                                             PutCell(scv master NewPoint "R270"))))
+                  ( 2
+                    (cond
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viacr" "symbol_p")
+                                             PutCell(scv master NewPoint "MX"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaiocr" "symbol_p")
+                                             PutCell(scv master NewPoint "R0"))
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaicr" "symbol_p")
+                                             PutCell(scv master NewPoint "R0"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viahcr" "symbol_p")
+                                             PutCell(scv master NewPoint "R0"))))))
+              ( 2
+                (case NVec
+                  ( 1
+                    (cond
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viahcr" "symbol_p")
+                                             PutCell(scv master NewPoint "MYR90"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaiocr" "symbol_p")
+                                             PutCell(scv master NewPoint "MYR90"))
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaicr" "symbol_p")
+                                             PutCell(scv master NewPoint "MYR90"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viacr" "symbol_p")
+                                             PutCell(scv master NewPoint "R270"))))
+                  ( 2
+                    (cond
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viar" "symbol_p")
+                                             PutCell(scv master NewPoint "MX"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaor" "symbol_p")
+                                             PutCell(scv master NewPoint "MX"))
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viar" "symbol_p")
+                                             PutCell(scv master NewPoint "R0"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaor" "symbol_p")
+                                             PutCell(scv master NewPoint "R0"))))
+                  ( 3
+                    (cond
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaicr" "symbol_p")
+                                             PutCell(scv master NewPoint "R90"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viacr" "symbol_p")
+                                             PutCell(scv master NewPoint "MX90"))
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viahcr" "symbol_p")
+                                             PutCell(scv master NewPoint "R90"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaiocr" "symbol_p")
+                                             PutCell(scv master NewPoint "R90"))))))
+              ( 3
+                (case NVec
+                  ( 0
+                    (cond
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viahcr" "symbol_p")
+                                             PutCell(scv master NewPoint "R180"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaicr" "symbol_p")
+                                             PutCell(scv master NewPoint "R180"))
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaiocr" "symbol_p")
+                                             PutCell(scv master NewPoint "R180"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viacr" "symbol_p")
+                                             PutCell(scv master NewPoint "MY"))))
+                  ( 2
+                    (cond
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaicr" "symbol_p")
+                                             PutCell(scv master NewPoint "MX"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viahcr" "symbol_p")
+                                             PutCell(scv master NewPoint "MX"))
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viacr" "symbol_p")
+                                             PutCell(scv master NewPoint "R0"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaiocr" "symbol_p")
+                                             PutCell(scv master NewPoint "MX"))))
+                  ( 3
+                    (cond
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viar" "symbol_p")
+                                             PutCell(scv master NewPoint "R90"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viar" "symbol_p")
+                                             PutCell(scv master NewPoint "MXR90"))
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaor" "symbol_p")
+                                             PutCell(scv master NewPoint "R90"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaor" "symbol_p")
+                                             PutCell(scv master NewPoint "MXR90"))))))))))
+      ( 0.075
+        (case NWidth
+          ( 0.0875
+            (case CVec
+              ( 0
+                (case NVec
+                  ( 0
+                    (cond
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "via" "symbol_p")
+                                             PutCell(scv master NewPoint "MX"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viao" "symbol_p")
+                                             PutCell(scv master NewPoint "MX"))
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "via" "symbol_p")
+                                             PutCell(scv master NewPoint "R0"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viao" "symbol_p")
+                                             PutCell(scv master NewPoint "R0"))))
+                  ( 1
+                    (cond
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaic" "symbol_p")
+                                             PutCell(scv master NewPoint "MX"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viahc" "symbol_p")
+                                             PutCell(scv master NewPoint "MX"))
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viac" "symbol_p")
+                                             PutCell(scv master NewPoint "R0"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaioc" "symbol_p")
+                                             PutCell(scv master NewPoint "MX"))))
+                  ( 3
+                    (cond
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viac" "symbol_p")
+                                             PutCell(scv master NewPoint "MX"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaioc" "symbol_p")
+                                             PutCell(scv master NewPoint "R0"))
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaic" "symbol_p")
+                                             PutCell(scv master NewPoint "R0"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viahc" "symbol_p")
+                                             PutCell(scv master NewPoint "R0"))))))
+              ( 1
+                (case NVec
+                  ( 0
+                    (cond
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaic" "symbol_p")
+                                             PutCell(scv master NewPoint "R90"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viac" "symbol_p")
+                                             PutCell(scv master NewPoint "MXR90"))
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viahc" "symbol_p")
+                                             PutCell(scv master NewPoint "R90"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaioc" "symbol_p")
+                                             PutCell(scv master NewPoint "R90"))))
+                  ( 1
+                    (cond
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "via" "symbol_p")
+                                             PutCell(scv master NewPoint "R90"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "via" "symbol_p")
+                                             PutCell(scv master NewPoint "MXR90"))
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viao" "symbol_p")
+                                             PutCell(scv master NewPoint "R90"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viao" "symbol_p")
+                                             PutCell(scv master NewPoint "MXR90"))))
+                  ( 2
+                    (cond
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viac" "symbol_p")
+                                             PutCell(scv master NewPoint "R90"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaic" "symbol_p")
+                                             PutCell(scv master NewPoint "MXR90"))
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaioc" "symbol_p")
+                                             PutCell(scv master NewPoint "MXR90"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viahc" "symbol_p")
+                                             PutCell(scv master NewPoint "MXR90"))))))
+              ( 2
+                (case NVec
+                  ( 1
+                    (cond
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viahc" "symbol_p")
+                                             PutCell(scv master NewPoint "R180"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaic" "symbol_p")
+                                             PutCell(scv master NewPoint "R180"))
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaioc" "symbol_p")
+                                             PutCell(scv master NewPoint "R180"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viac" "symbol_p")
+                                             PutCell(scv master NewPoint "MY"))))
+                  ( 2
+                    (cond
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viao" "symbol_p")
+                                             PutCell(scv master NewPoint "R180"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "via" "symbol_p")
+                                             PutCell(scv master NewPoint "R180"))
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viao" "symbol_p")
+                                             PutCell(scv master NewPoint "MY"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "via" "symbol_p")
+                                             PutCell(scv master NewPoint "MY"))))
+                  ( 3
+                    (cond
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaioc" "symbol_p")
+                                             PutCell(scv master NewPoint "MY"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viac" "symbol_p")
+                                             PutCell(scv master NewPoint "R180"))
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viahc" "symbol_p")
+                                             PutCell(scv master NewPoint "MY"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaic" "symbol_p")
+                                             PutCell(scv master NewPoint "MY"))))))
+              ( 3
+                (case NVec
+                  ( 0
+                    (cond
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viahc" "symbol_p")
+                                             PutCell(scv master NewPoint "MYR90"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaioc" "symbol_p")
+                                             PutCell(scv master NewPoint "MYR90"))
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaic" "symbol_p")
+                                             PutCell(scv master NewPoint "MYR90"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viac" "symbol_p")
+                                             PutCell(scv master NewPoint "R270"))))
+                  ( 2
+                    (cond
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viahc" "symbol_p")
+                                             PutCell(scv master NewPoint "R180"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaic" "symbol_p")
+                                             PutCell(scv master NewPoint "R180"))
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viaioc" "symbol_p")
+                                             PutCell(scv master NewPoint "R180"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viac" "symbol_p")
+                                             PutCell(scv master NewPoint "MY"))))
+                  ( 3
+                    (cond
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viao" "symbol_p")
+                                             PutCell(scv master NewPoint "MYR90"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "viao" "symbol_p")
+                                             PutCell(scv master NewPoint "R270"))
+                      ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "via" "symbol_p")
+                                             PutCell(scv master NewPoint "MYR90"))
+                      ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
+                                             master = dbOpenCellViewByType(NET2PTL_PTLLIB "via" "symbol_p")
+                                             PutCell(scv master NewPoint "R270"))))))))
+          (0.075
+           (case CVec
+             ( 0
+               (case NVec
+                 ( 1
+                   (cond
+                     ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
+                                            master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2ic" "symbol_p")
+                                            PutCell(scv master NewPoint "MX"))
+                     ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
+                                            master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2hc" "symbol_p")
+                                            PutCell(scv master NewPoint "MX"))
+                     ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
+                                            master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2c" "symbol_p")
+                                            PutCell(scv master NewPoint "R0"))
+                     ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
+                                            master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2icr" "symbol_p")
+                                            PutCell(scv master NewPoint "R270"))))
+                 ( 3
+                   (cond
+                     ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
+                                            master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2c" "symbol_p")
+                                            PutCell(scv master NewPoint "MX"))
+                     ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
+                                            master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2icr" "symbol_p")
+                                            PutCell(scv master NewPoint "MXR90"))
+                     ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
+                                            master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2ic" "symbol_p")
+                                            PutCell(scv master NewPoint "R0"))
+                     ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
+                                            master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2hc" "symbol_p")
+                                            PutCell(scv master NewPoint "R0"))))))
+             ( 1
+               (case NVec
+                 ( 0
+                   (cond
+                     ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
+                                            master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2ic" "symbol_p")
+                                            PutCell(scv master NewPoint "R90"))
+                     ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
+                                            master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2c" "symbol_p")
+                                            PutCell(scv master NewPoint "MXR90"))
+                     ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
+                                            master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2hc" "symbol_p")
+                                            PutCell(scv master NewPoint "R90"))
+                     ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
+                                            master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2icr" "symbol_p")
+                                            PutCell(scv master NewPoint "MY"))))
+                 ( 2
+                   (cond
+                     ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
+                                            master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2c" "symbol_p")
+                                            PutCell(scv master NewPoint "R90"))
+                     ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
+                                            master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2ic" "symbol_p")
+                                            PutCell(scv master NewPoint "MXR90"))
+                     ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
+                                            master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2icr" "symbol_p")
+                                            PutCell(scv master NewPoint "R0"))
+                     ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
+                                            master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2hc" "symbol_p")
+                                            PutCell(scv master NewPoint "MXR90"))))))
+             ( 2
+               (case NVec
+                 ( 1
+                   (cond
+                     ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
+                                            master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2hc" "symbol_p")
+                                            PutCell(scv master NewPoint "R180"))
+                     ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
+                                            master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2ic" "symbol_p")
+                                            PutCell(scv master NewPoint "R180"))
+                     ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
+                                            master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2icr" "symbol_p")
+                                            PutCell(scv master NewPoint "MYR90"))
+                     ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
+                                            master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2c" "symbol_p")
+                                            PutCell(scv master NewPoint "MY"))))
+                 ( 3
+                   (cond
+                     ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
+                                            master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2icr" "symbol_p")
+                                            PutCell(scv master NewPoint "R90"))
+                     ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
+                                            master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2c" "symbol_p")
+                                            PutCell(scv master NewPoint "R180"))
+                     ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
+                                            master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2hc" "symbol_p")
+                                            PutCell(scv master NewPoint "MY"))
+                     ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
+                                            master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2ic" "symbol_p")
+                                            PutCell(scv master NewPoint "MY"))))))
+             ( 3
+               (case NVec
+                 ( 0
+                   (cond
+                     ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
+                                            master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2hc" "symbol_p")
+                                            PutCell(scv master NewPoint "MYR90"))
+                     ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
+                                            master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2icr" "symbol_p")
+                                            PutCell(scv master NewPoint "R180"))
+                     ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
+                                            master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2ic" "symbol_p")
+                                            PutCell(scv master NewPoint "MYR90"))
+                     ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
+                                            master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2c" "symbol_p")
+                                            PutCell(scv master NewPoint "R270"))))
+                 ( 2
+                   (cond
+                     ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) == 0
+                                            master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2icr" "symbol_p")
+                                            PutCell(scv master NewPoint "MX"))
+                     ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) == 0
+                                            master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2hc" "symbol_p")
+                                            PutCell(scv master NewPoint "R270"))
+                     ( mod(xCoord(Point) 2) == 0 && mod(yCoord(Point) 2) != 0
+                                            master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2c" "symbol_p")
+                                            PutCell(scv master NewPoint "MYR90"))
+                     ( mod(xCoord(Point) 2) != 0 && mod(yCoord(Point) 2) != 0
+                                            master = dbOpenCellViewByType(NET2PTL_PTLLIB "PTL2ic" "symbol_p")
+                                            PutCell(scv master NewPoint "R270"))
+                     ))))))))))
+
+
+  ;;; 関数名：SetNetCells
+  ;;; 引数：
+  ;;;         scv：現在の配線の太さ（レイヤを意味することに等しい）
+  ;;;      NetTmp：次の配線の太さ（レイヤを意味することに等しい）
+  ;;;  deleteflag：現在の配線の向き
+  ;;; 機能：
+  ;;;  レイアウト上に引かれたラインに沿って適切なセルを配置する．
+  ;;;  仮にdeleteflagがnilではないとき，配線セル配置と同時にラインを消去．
+  SetNetCells =
+  (lambda (argScv NetTmp deleteflag)
+    (setq scv argScv)
+    (define GridTmp nil)
+    (define CurrentNetPart nil)
+    (define CurrentVec nil)
+    (define NextNetPart nil)
+    (define NextNetWidth nil)
+    (define NextVec nil)
+    ;;; 配線のセグメントのオブジェクトID群をリストにまとめる
+    (define NetSegmentDataList NetTmp~>figs)
+    ;;; 配線セグメントの始点終点の座標をまとめたリストを生成
+    (define NetSegmentLineList NetSegmentDataList~>points)
+    ;;; 配線の始点をピックアップ
+    (define outputPin (car (setof it NetTmp~>instTerms it~>direction=="output")))
+    (define StartPoint (getInstTermCoord outputPin))
+    ;;; 始点から終点に至る座標がまとまったリストと，
+    ;;; その順に応じて並び替えた配線セグメントオブジェクトを取得
+    ;;; GetStartToGoal関数から取得したリストの第一要素が前者で，第二要素が後者なので，上手く分割する．
+    (define TmpList GetStartToGoal( NetSegmentDataList NetSegmentLineList StartPoint ))
+    (define StartToGoalList nth(0 TmpList))
+    (define NetNewList nth(1 TmpList))
+    ;;; 配線セグメントオブジェクトから各セグメントの幅をまとめたリストを生成
+    (define NetNewWidthList foreach( mapcar x NetNewList x~>width))
+    ;;; 向きorレイヤが変わる座標をまとめたリストの生成
+    (define CornerPointList GetCornerPointList( StartToGoalList ))
+    ;;; 配線の向きをまとめたリストの生成
+    (define NetVectorList GetPathTrace( StartToGoalList ))
+    ;;; 配線が通過するグリッド座標をまとめたリストの取得
+    (define GridCoordList ConvertGridCoordTrace( StartToGoalList ))
+    ;;; 配線が曲がるorレイヤが変わるグリッド座標のリストを取得
+    (define CornerCoordList ConvertGridCornerCoord( CornerPointList ))
+    ;;; deleteflagの値に応じて，ラインの消去
+    (if deleteflag 
+      (for i 0 length(NetNewList)-1
+           dbDeleteObject(nth(i NetNewList))))
+
+    ;;; 最初のセルの配置．
+    ;;; 最初の配線の向きが右から左or上から下の場合，
+    ;;; 現在の仕様ではドライバ上にセルを配置してしまうため，それを回避するために，
+    ;;; 次のwhileに含めないことにした．
+    (if length(GridCoordList) > 1
       then
-      ;;; 現在の配線の幅（レイヤ）の値を取得
-      CurrentNetWidth = nth(0 NetNewWidthList)
-      ;;; 現配線の向きをピックアップ
-      CurrentVec = nth(0 NetVectorList)
-      ;;; 直線のセルを配置　あとは先に宣言した関数に任せる
-      ;;; ただし，左向きor下向きの場合，ドライバ上にセルが配置されてしまうので，
-      ;;; 右向きor上向きの場合のみセルを配置する
-      (when CurrentVec < 2
-        SetStraightCell(CurrentNetWidth CurrentVec GridTmp))
-      else
-      ;;; 現在の配線の幅と向きを取得
-      CurrentNetWidth = nth(0 NetNewWidthList)
-      CurrentVec = nth(0 NetVectorList)
-      ;;; セグメントが変わるため，リストからこれまでのセグメントの部分を削除
-      NetNewWidthList = cdr(NetNewWidthList)
-      NetVectorList = cdr(NetVectorList)
-      ;;; 次の配線の幅と向きを取得
-      NextNetWidth = nth(0 NetNewWidthList)
-      NextVec = nth(0 NetVectorList)
-      ;;; 曲線のセルを配置　あとは先に宣言した関数に任せる
-      ;;; ただし，左向きor下向きの場合，ドライバ上にセルが配置されてしまうので，
-      ;;; 右向きor上向きの場合のみセルを配置する
-      (when CurrentVec < 2
-        SetCornerCell(CurrentNetWidth NextNetWidth CurrentVec NextVec GridTmp))
-      )
-    ;;; すでに処理を終えたグリッド座標を除去
-    GridCoordList = cdr(GridCoordList)
-    ); if
-  ;;; 最初と最後以外のセルの配置．
-  ;;; whileループ内で，まず直線のセルを配置するか，曲線のセルを配置するかの条件を判定する．
-  ;;; 次に，各条件に応じて，必要な情報を取得し，取得した情報からセルを配置する関数を呼び出す．
-  (while 
-    (length GridCoordList) > 1
-    ;;; 処理対象となるグリッド座標を読み取る
-    ;;; これは，通過するグリッド座標がまとまったリストの先頭を読めばよい
-    GridTmp = nth(0 GridCoordList)
-    ;;; 対象のセルが直線のものか曲線のものかの条件分岐
-    (if member(GridTmp CornerCoordList) == nil
-      then
-      ;;; 現在の配線の幅（レイヤ）の値を取得
-      CurrentNetWidth = nth(0 NetNewWidthList)
-      ;;; 現配線の向きをピックアップ
-      CurrentVec = nth(0 NetVectorList)
-      ;;; 直線のセルを配置　あとは先に宣言した関数に任せる
-      SetStraightCell(CurrentNetWidth CurrentVec GridTmp)
-      else
-      ;;; 現在の配線の幅と向きを取得
-      CurrentNetWidth = nth(0 NetNewWidthList)
-      CurrentVec = nth(0 NetVectorList)
-      ;;; セグメントが変わるため，リストからこれまでのセグメントの部分を削除
-      NetNewWidthList = cdr(NetNewWidthList)
-      NetVectorList = cdr(NetVectorList)
-      ;;; 次の配線の幅と向きを取得
-      NextNetWidth = nth(0 NetNewWidthList)
-      NextVec = nth(0 NetVectorList)
-      ;;; 曲線のセルを配置　あとは先に宣言した関数に任せる
-      SetCornerCell(CurrentNetWidth NextNetWidth CurrentVec NextVec GridTmp)
+      ;;; 処理対象となるグリッド座標を読み取る
+      ;;; これは，通過するグリッド座標がまとまったリストの先頭を読めばよい
+      GridTmp = nth(0 GridCoordList)
+      ;;; 対象のセルが直線のものか曲線のものかの条件分岐
+      (if member(GridTmp CornerCoordList) == nil
+        then
+        ;;; 現在の配線の幅（レイヤ）の値を取得
+        CurrentNetWidth = nth(0 NetNewWidthList)
+        ;;; 現配線の向きをピックアップ
+        CurrentVec = nth(0 NetVectorList)
+        ;;; 直線のセルを配置　あとは先に宣言した関数に任せる
+        ;;; ただし，左向きor下向きの場合，ドライバ上にセルが配置されてしまうので，
+        ;;; 右向きor上向きの場合のみセルを配置する
+        (when CurrentVec < 2
+          SetStraightCell(CurrentNetWidth CurrentVec GridTmp))
+        else
+        ;;; 現在の配線の幅と向きを取得
+        CurrentNetWidth = nth(0 NetNewWidthList)
+        CurrentVec = nth(0 NetVectorList)
+        ;;; セグメントが変わるため，リストからこれまでのセグメントの部分を削除
+        NetNewWidthList = cdr(NetNewWidthList)
+        NetVectorList = cdr(NetVectorList)
+        ;;; 次の配線の幅と向きを取得
+        NextNetWidth = nth(0 NetNewWidthList)
+        NextVec = nth(0 NetVectorList)
+        ;;; 曲線のセルを配置　あとは先に宣言した関数に任せる
+        ;;; ただし，左向きor下向きの場合，ドライバ上にセルが配置されてしまうので，
+        ;;; 右向きor上向きの場合のみセルを配置する
+        (when CurrentVec < 2
+          SetCornerCell(CurrentNetWidth NextNetWidth CurrentVec NextVec GridTmp))
+        )
+      ;;; すでに処理を終えたグリッド座標を除去
+      GridCoordList = cdr(GridCoordList)
       ); if
-    ;;; すでに処理を終えたグリッド座標を除去
-    GridCoordList = cdr(GridCoordList)
-    ); while
-  ;;; 最後のセルの配置用
-  (if (length GridCoordList) == 1
-    then
-    ;;; 処理対象となるグリッド座標を読み取る
-    ;;; これは，通過するグリッド座標がまとまったリストの先頭を読めばよい
-    GridTmp = nth(0 GridCoordList)
-    ;;; 対象のセルが直線のものか曲線のものかの条件分岐
-    (if member(GridTmp CornerCoordList) == nil
+    ;;; 最初と最後以外のセルの配置．
+    ;;; whileループ内で，まず直線のセルを配置するか，曲線のセルを配置するかの条件を判定する．
+    ;;; 次に，各条件に応じて，必要な情報を取得し，取得した情報からセルを配置する関数を呼び出す．
+    (while 
+      (length GridCoordList) > 1
+      ;;; 処理対象となるグリッド座標を読み取る
+      ;;; これは，通過するグリッド座標がまとまったリストの先頭を読めばよい
+      GridTmp = nth(0 GridCoordList)
+      ;;; 対象のセルが直線のものか曲線のものかの条件分岐
+      (if member(GridTmp CornerCoordList) == nil
+        then
+        ;;; 現在の配線の幅（レイヤ）の値を取得
+        CurrentNetWidth = nth(0 NetNewWidthList)
+        ;;; 現配線の向きをピックアップ
+        CurrentVec = nth(0 NetVectorList)
+        ;;; 直線のセルを配置　あとは先に宣言した関数に任せる
+        SetStraightCell(CurrentNetWidth CurrentVec GridTmp)
+        else
+        ;;; 現在の配線の幅と向きを取得
+        CurrentNetWidth = nth(0 NetNewWidthList)
+        CurrentVec = nth(0 NetVectorList)
+        ;;; セグメントが変わるため，リストからこれまでのセグメントの部分を削除
+        NetNewWidthList = cdr(NetNewWidthList)
+        NetVectorList = cdr(NetVectorList)
+        ;;; 次の配線の幅と向きを取得
+        NextNetWidth = nth(0 NetNewWidthList)
+        NextVec = nth(0 NetVectorList)
+        ;;; 曲線のセルを配置　あとは先に宣言した関数に任せる
+        SetCornerCell(CurrentNetWidth NextNetWidth CurrentVec NextVec GridTmp)
+        ); if
+      ;;; すでに処理を終えたグリッド座標を除去
+      GridCoordList = cdr(GridCoordList)
+      ); while
+    ;;; 最後のセルの配置用
+    (if (length GridCoordList) == 1
       then
-      ;;; 現在の配線の幅（レイヤ）の値を取得
-      CurrentNetWidth = nth(0 NetNewWidthList)
-      ;;; 現配線の向きをピックアップ
-      CurrentVec = nth(0 NetVectorList)
-      ;;; 直線のセルを配置　あとは先に宣言した関数に任せる
-      ;;; ただし，右向きor上向きの場合，レシーバ上にセルが配置されてしまうので，
-      ;;; 左向きor下向きの場合のみセルを配置する
-      (when CurrentVec > 1
-        SetStraightCell(CurrentNetWidth CurrentVec GridTmp))
-      else
-      ;;; 現在の配線の幅と向きを取得
-      CurrentNetWidth = nth(0 NetNewWidthList)
-      CurrentVec = nth(0 NetVectorList)
-      ;;; セグメントが変わるため，リストからこれまでのセグメントの部分を削除
-      NetNewWidthList = cdr(NetNewWidthList)
-      NetVectorList = cdr(NetVectorList)
-      ;;; 次の配線の幅と向きを取得
-      NextNetWidth = nth(0 NetNewWidthList)
-      NextVec = nth(0 NetVectorList)
-      ;;; 曲線のセルを配置　あとは先に宣言した関数に任せる
-      ;;; ただし，右向きor上向きの場合，レシーバ上にセルが配置されてしまうので，
-      ;;; 左向きor下向きの場合のみセルを配置する
-      (when NextVec > 1
-        SetCornerCell(CurrentNetWidth NextNetWidth CurrentVec NextVec GridTmp))
-      ); if
-    ;;; すでに処理を終えたグリッド座標を除去
-    GridCoordList = cdr(GridCoordList)
-    ))
+      ;;; 処理対象となるグリッド座標を読み取る
+      ;;; これは，通過するグリッド座標がまとまったリストの先頭を読めばよい
+      GridTmp = nth(0 GridCoordList)
+      ;;; 対象のセルが直線のものか曲線のものかの条件分岐
+      (if member(GridTmp CornerCoordList) == nil
+        then
+        ;;; 現在の配線の幅（レイヤ）の値を取得
+        CurrentNetWidth = nth(0 NetNewWidthList)
+        ;;; 現配線の向きをピックアップ
+        CurrentVec = nth(0 NetVectorList)
+        ;;; 直線のセルを配置　あとは先に宣言した関数に任せる
+        ;;; ただし，右向きor上向きの場合，レシーバ上にセルが配置されてしまうので，
+        ;;; 左向きor下向きの場合のみセルを配置する
+        (when CurrentVec > 1
+          SetStraightCell(CurrentNetWidth CurrentVec GridTmp))
+        else
+        ;;; 現在の配線の幅と向きを取得
+        CurrentNetWidth = nth(0 NetNewWidthList)
+        CurrentVec = nth(0 NetVectorList)
+        ;;; セグメントが変わるため，リストからこれまでのセグメントの部分を削除
+        NetNewWidthList = cdr(NetNewWidthList)
+        NetVectorList = cdr(NetVectorList)
+        ;;; 次の配線の幅と向きを取得
+        NextNetWidth = nth(0 NetNewWidthList)
+        NextVec = nth(0 NetVectorList)
+        ;;; 曲線のセルを配置　あとは先に宣言した関数に任せる
+        ;;; ただし，右向きor上向きの場合，レシーバ上にセルが配置されてしまうので，
+        ;;; 左向きor下向きの場合のみセルを配置する
+        (when NextVec > 1
+          SetCornerCell(CurrentNetWidth NextNetWidth CurrentVec NextVec GridTmp))
+        ); if
+      ;;; すでに処理を終えたグリッド座標を除去
+      GridCoordList = cdr(GridCoordList)
+      ))
+  )

@@ -1,6 +1,8 @@
 ;(load "~/git/adptools/source/debug/reload.ils")
-ADPSchematicMenu = 'unbound
-ADPLayoutMenu = 'unbound
+(inSkill
+  ADPSchematicMenu='unbound
+  ADPLayoutMenu='unbound
+  )
 (deUnRegUserTriggers "schematic")
 (deUnRegUserTriggers "maskLayout")
 (let ()

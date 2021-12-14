@@ -1,0 +1,37 @@
+  (defun roGetBoundary (points)
+    (mapcar
+      (lambda (x)
+        (mapcar
+          (lambda (x)
+            (cond (x < 0 0)
+                  (t x)
+                  ))
+          x))
+      (ruExpandBBox 
+        (ruApporopriateBBox points))))
+
+  (defun ruExpandBBox (rb)
+    (cond
+      ((greaterp RINER.SEARCH_REGION_EXPANSION 0)
+       (list
+         (list ((caar rb) - RINER.SEARCH_REGION_EXPANSION)
+               ((cadar rb) - RINER.SEARCH_REGION_EXPANSION))
+         (list ((caadr rb) + RINER.SEARCH_REGION_EXPANSION)
+               ((cadadr rb) + RINER.SEARCH_REGION_EXPANSION))))
+      (t rb)))
+
+  (defun ruApporopriateBBox (region)
+    (list
+      (list (min (caar region) (caadr region))
+            (min (cadar region) (cadadr region)))
+      (list (max (caar region) (caadr region))
+            (max (cadar region) (cadadr region)))))
+
+  (defun ruSBBtoGBB (sbb)
+    (list (ruSCtoGC (lowerLeft sbb)) (ruSCtoGC (upperRight sbb))))
+
+  (defun ruGCtosSBB (gcoord)
+    (list (mapcar (lambda (x) (x * RINER.SCHEM_GRID_LEN + 0.01)) gcoord)
+          (mapcar (lambda (x) ((x + 1) * RINER.SCHEM_GRID_LEN - 0.01)) gcoord)))
+
+

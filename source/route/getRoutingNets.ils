@@ -1,0 +1,28 @@
+(defun selRoutingNets (scv flagSelNet)
+  (cond
+    ((equal flagSelNet "all")
+     (setof
+       n
+       scv~>nets 
+       (and n~>figs
+            (equal (length n~>instTerms) 2)
+            (forall 
+              x 
+              n~>instTerms~>inst 
+              (isPTLDrvRec x)))))
+    ((equal flagSelNet "selected")
+     (let (figs)
+       (setq figs
+             (setof 
+               n 
+               (geGetSelSet )
+               (and (equal n~>objType "line")
+                    n~>net
+                    ;(andList n~>net~>instTerms~>inst)
+                    (forall 
+                      x 
+                      n~>net~>instTerms~>inst 
+                      (isPTLDrvRec x)))))
+       (setOfList figs~>net)))))
+
+

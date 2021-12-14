@@ -1,0 +1,86 @@
+(defun getBlockage (scv bb)
+  (let ( gcoord
+         gcoordAndPtlLayer
+         (result nil))
+    (foreach 
+      inst 
+      (setof x
+             scv~>instances 
+             (or (isPTLDrv x)
+                 (isPspl x)
+                 (isPTLRec x)
+                 (isPTL x)))
+      (setq gcoord (getGridCoordPTL inst))
+      (setq gcoordAndPtlLayers (getGridCoordBlockage gcoord inst))
+      (setq result (append gcoordAndPtlLayers result)))
+    result))
+
+(defun getGridCoordPTL (instance)
+  (define SFQLayoutSymbolUnitLength 0.375)
+  (mapcar (lambda (x) (ceiling (x/(RINER.SCHEM_GRID_LEN))))
+          (lowerLeft (getCellbBoxADP instance SFQLayoutSymbolUnitLength))))
+
+(defun getGridCoordBlockage (gcoordLL inst)
+  (let (coordPTLstrans coordLLPTLs result)
+    (define coordPTLs
+      (cond 
+        ((isPTLDrv inst)
+         (list (list 1 1)))
+        ((equal inst~>cellName "pspl2")
+         (list (list 1 1) (list 1 0)))
+        ((isPTLRec inst)
+         (list (list 0 1)))
+        ((isPTL inst)
+         (list (list 0 0)))))
+    (unless (isPTL inst)
+      (setq coordPTLstrans
+            (mapcar (lambda (x) (car (transformGridCoord x (list 1 1) (cadr inst~>transform))))
+                    coordPTLs))
+      (setq coordLLPTLs
+            (mapcar (lambda (x) 
+                      (plusCoord x gcoordLL))
+                    coordPTLstrans))
+      ;(x y) -> (x y ptl-layer)
+      (setq result (mapcar (lambda (x) (list x (list RINER.PTL2)))
+                           coordLLPTLs))
+      (setq result (append result
+                           (mapcar (lambda (x) (list x (list RINER.PTL1)))
+                                   coordLLPTLs))))
+    (when (isPTL inst)
+      (cond 
+        ((equal (ptlType inst) "PTL1")
+         (setq result 
+               (list (list gcoordLL
+                           (list RINER.PTL1)))))
+        ((equal (ptlType inst) "PTL2")
+         (setq result 
+               (list (list gcoordLL
+                           (list RINER.PTL2)))))
+        ((or
+           (equal (ptlType inst) "viar")
+           (equal (ptlType inst) "via"))
+         (setq result 
+               (list
+                 (list gcoordLL
+                       (list RINER.PTL1))
+                 (list gcoordLL
+                       (list RINER.PTL2)))))))
+    result))
+
+(defun roPlacedDRVsorRECs (scv gcoord)
+  (define cells 
+    (mapcar 
+      car 
+      (dbGetOverlaps 
+        scv
+        (ruGCtosSBB gcoord)
+        RINER.CELL_BNDRY_LPP
+        0:1)))
+  (setof 
+    x 
+    cells 
+    (or (rexMatchp "^drv" x~>cellName)
+        (rexMatchp "^rec" x~>cellName))))
+
+
+

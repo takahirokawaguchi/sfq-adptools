@@ -1,0 +1,155 @@
+(defun createOptionsFormPLA (scv)
+  (define comps nil)
+  (setq comps (append1 comps (hiCreateFloatField
+                               ?name 'ptlXFloatField
+                               ?prompt "relative ptl place of x axis"
+                               ?value 0.)))
+  (setq comps (append1 comps (hiCreateFloatField
+                               ?name 'ptlYFloatField
+                               ?prompt "relative ptl place of y axis"
+                               ?value 0.)))
+  (hiCreateAppForm
+    ?name 'ADJUST_INST_OPTIONS_FORM
+    ?fields comps
+    ?help "Select a method of placing cells on grids ."))
+
+(defun getParamsFromOptionsFormPLA ()
+  (define paramList nil)
+  (setq paramList 
+        (cons ADJUST_INST_OPTIONS_FORM~>strMovRadioField~>value
+              paramList))
+  (setq paramList
+        (cons ADJUST_INST_OPTIONS_FORM~>ptlXFloatField~>value
+              paramList))
+  (setq paramList
+        (cons ADJUST_INST_OPTIONS_FORM~>ptlYFloatField~>value
+              paramList))
+  (warn "[DEBUG] #getParamsFromOptionsFormPLA params:%L\n" paramList)
+  paramList)
+
+(define ADJUST_INST_OPTIONS_FORM nil)
+(defun roAdjustAllInsts (cv )
+  (let (diffLower diffLeft listPairInstTerms listPairPin)
+    ;(defvar ADJUST_INST_OPTIONS_FORM)
+    (setq ADJUST_INST_OPTIONS_FORM (createOptionsFormPLA cv))
+    (define ok
+      (hiDisplayForm ADJUST_INST_OPTIONS_FORM))
+    (define paramList (getParamsFromOptionsFormPLA ))
+    (when ok
+      (setq diffLeft 
+            (car (lowerLeft cv~>bBox)) - 3 * RINER.SCHEM_GRID_LEN)
+      (setq diffLower
+            (cadr (lowerLeft cv~>bBox)) - 3 * RINER.SCHEM_GRID_LEN)
+      ;cell pin nets to (0 0)
+      (foreach
+        inst cv~>instances
+        inst~>xy = (list
+                     (car inst~>xy) - diffLeft
+                     (cadr inst~>xy) - diffLower ))
+      (setq listPairPin nil)
+      (foreach 
+        pin (setof x cv~>instances x~>purpose=="pin")
+        (setq listPairPin
+              (cons (list pin (car pin~>net~>instTerms))
+                    listPairPin)))
+      (setq listPairInstTerms nil)
+      (foreach
+        net cv~>nets
+        (when net~>figs
+          (setq listPairInstTerms
+                (cons net~>instTerms listPairInstTerms))
+          (foreach fig net~>figs
+                   (dbDeleteObject fig))))
+      ;adjust
+      (foreach inst (setof x cv~>instances x~>purpose!="pin") 
+               (roAdjustInst inst 0.0 0.0 paramList))
+      (foreach pair listPairInstTerms
+               (if (equal (length pair) 2)
+                 then
+                 (schCreateWire
+                   cv
+                   "route"
+                   "flight"
+                   (list
+                     (getInstTermCoord (car pair))
+                     (getInstTermCoord (cadr pair))
+                     )
+                   0
+                   0
+                   0.0
+                   )
+                 else
+                 (let (inputTerms outputTerm)
+                   (printf "%L\n" pair~>name)
+                   (setq inputTerms (setof x pair (isInputTerm x)))
+                   (setq outputTerm (car (setof x pair (isOutputTerm x))))
+                   (foreach inputTerm inputTerms
+                            (schCreateWire
+                              cv
+                              "route"
+                              "flight"
+                              (list
+                                (getInstTermCoord inputTerm)
+                                (getInstTermCoord outputTerm)
+                                )
+                              0
+                              0
+                              0.0
+                              )))))
+      (foreach pair listPairPin
+               (let (pin)
+                 (setq pin (car pair))
+                 pin~>xy = 
+                 (list 
+                   (xCoord (getInstTermCoord (cadr pair)))
+                   (yCoord (getInstTermCoord (cadr pair)))))))))
+
+(defun roAdjustInst (inst diffLower diffLeft paramList)
+  (println "roAdjustInst")
+  (define coord nil)
+  (define SFQLayoutSymbolUnitLength 0.375)
+  (define xyDiff nil)
+  (define gridWidth
+    (if (isPTL inst)
+      RINER.SCHEM_GRID_LEN
+      RINER.SCHEM_GRID_LEN * 2.0))
+  (if inst~>purpose!="pin"
+    then
+    (setq xy (list
+               (xCoord (lowerLeft (getCellbBoxADP inst SFQLayoutSymbolUnitLength)))
+               (yCoord (lowerLeft (getCellbBoxADP inst SFQLayoutSymbolUnitLength)))))
+    (setq xyDiff (list 
+                   (difference
+                     (xCoord inst~>xy)
+                     (xCoord (lowerLeft (getCellbBoxADP inst SFQLayoutSymbolUnitLength))))
+                   (difference
+                     (yCoord inst~>xy)
+                     (yCoord (lowerLeft (getCellbBoxADP inst SFQLayoutSymbolUnitLength))))))
+    else
+    (setq xy inst~>xy)
+    (setq xyDiff (list 0.0 0.0)))
+  (if (or (isIpin inst) (isOpin inst))
+    (setq coord (getInstTermCoord (car inst~>net~>instTerms)))
+    (progn
+      (setq coord (mapcar (lambda (p) (round p/gridWidth)) xy))
+      (when (isPTL inst)
+        (setq coord (list (car coord) + (cadr paramList)
+                          (cadr coord) + (car paramList))))
+      (setq coord (mapcar (lambda (p) p * gridWidth ) coord))))
+  ;inst
+  (cond
+    ((equal (caddr paramList) "stretch")
+     (schStretch (list inst)
+                 (list
+                   (list
+                     (xCoord coord) + (xCoord xyDiff) - (xCoord inst~>xy)
+                     (yCoord coord) + (yCoord xyDiff) - (yCoord inst~>xy))
+                   "R0")))
+    ((equal (caddr paramList) "move")
+     (when (andList coord)
+       inst~>xy =
+       (list
+         (xCoord coord) + (xCoord xyDiff)
+         (yCoord coord) + (yCoord xyDiff))))))
+
+

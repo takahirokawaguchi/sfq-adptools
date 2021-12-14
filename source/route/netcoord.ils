@@ -1,0 +1,6 @@
+(defun getAllNetCoords (nets)
+  (println nets)
+  (mapcar (lambda (itpair) 
+            (mapcar getInstTermGridCoord itpair)) 
+          nets~>instTerms))
+

@@ -1,6 +1,6 @@
 ;(load "~/git/adptools/source/functions/menu.ils")
 (define createADPSchematicMenu nil)
-(let ()
+;(let ()
   (defun gensymADPSchematicMenuItem ()
     (gensym 'ADPSchematicMenuItem))
 
@@ -10,45 +10,30 @@
       ?itemText itemText
       ?callback callback))
 
-  (defun makeSlider1 ()
-    (hiCreateSliderMenuItem
-      ?name (gensymADPSchematicMenuItem )
-      ?itemText "router"
-      ?subMenu	
-      (hiCreatePulldownMenu
-        (gensymADPSchematicMenuItem )
-        ""
-        (list
-          (simpleCreateMenuItem
-            "placeOnGrid"
-            "(roAdjustAllInsts (geGetWindowCellView ))")
-          (simpleCreateMenuItem
-            "routeAll"
-            "(rRoute (geGetWindowCellView ) \"all\")")
-          (simpleCreateMenuItem
-            "routeSelected"
-            "(rRoute (geGetWindowCellView ) \"selected\")")
-          (simpleCreateMenuItem
-            "selected nets -> ptl nets"
-            "(makePtlWire )")
-          (simpleCreateMenuItem
-            "all ptl nets -> nets"
-            "(undoPTLWire (geGetWindowCellView ))")
-          (simpleCreateMenuItem
-            "all ptl cells -> ptl nets"
-            "(undoPTLCellAll ) ")
-          (simpleCreateMenuItem
-            "selected ptl cells -> ptl nets"
-            "(undoPTLCellSelected ) ")
-          (simpleCreateMenuItem
-            "all ptl nets -> ptl cells"
-            "(rNet2ptl \"all\") ")
-          (simpleCreateMenuItem
-            "selected ptl nets -> ptl cells"
-            "(rNet2ptl \"selected\" )"))
-        )))
+;  (defun makeSlider1 ()
+;    (hiCreateSliderMenuItem
+;      ?name (gensymADPSchematicMenuItem )
+;      ?itemText "router"
+;      ?subMenu	
+;      (hiCreatePulldownMenu
+;        (gensymADPSchematicMenuItem )
+;        ""
+;        (list
+;          (simpleCreateMenuItem
+;            "placeOnGrid"
+;            "(roAdjustAllInsts (geGetWindowCellView ))")
+;          (simpleCreateMenuItem
+;            "route all nets"
+;            "(rRoute \"all\")")
+;          (simpleCreateMenuItem
+;            "route selected nets"
+;            "(rRoute \"selected\")")
+;          (simpleCreateMenuItem
+;            "translate ptl"
+;            "(guiPTLTranslater )")
+;          ))))
 
-  (defun makeSlider2 ()
+  (defun makeSlider ()
     (hiCreateSliderMenuItem
       ?name (gensymADPSchematicMenuItem )
       ?itemText "debug"
@@ -64,24 +49,38 @@
             "(setq scv (geGetWindowCellView ))"
             "(setq scv (geGetWindowCellView ))")
           (simpleCreateMenuItem
-            "scvCellNames"
-            "(scvCellNames (geGetWindowCellView ))")
-          (simpleCreateMenuItem
             "(setq sel (geGetSelSet ))"
             "(setq sel (geGetSelSet ))")
+          (simpleCreateMenuItem
+            "scvCellNames"
+            "(scvCellNames (geGetWindowCellView ))")
           (simpleCreateMenuItem
             "deleteNormalLabel"
             "(deleteNormalLabel )"))
         )))
 
-  (defun letCreateADPSchematicMenu (args)
+  createADPSchematicMenu =
+  (lambda (args)
     ;main menu
+    (println "debug")
     (unless (boundp 'ADPSchematicMenu)
+    (println "unless boundp ADPSchematicMenu")
       (hiCreatePulldownMenu
         'ADPSchematicMenu
         "SFQ-ADP"
         (list
-          (makeSlider1 )
+          (simpleCreateMenuItem
+            "placeOnGrid"
+            "(roAdjustAllInsts (geGetWindowCellView ))")
+          (simpleCreateMenuItem
+            "route all nets"
+            "(rRoute \"all\")")
+          (simpleCreateMenuItem
+            "route selected nets"
+            "(rRoute \"selected\")")
+          (simpleCreateMenuItem
+            "translate ptl"
+            "(guiPTLTranslater )")
           (hiCreateSeparatorMenuItem ?name (gensymADPSchematicMenuItem ))
           (simpleCreateMenuItem
             "fillMoatADP"
@@ -96,11 +95,10 @@
             "cell(s) translater"
             "(guiTranslateCell )")
           (hiCreateSeparatorMenuItem ?name (gensymADPSchematicMenuItem ))
-          (makeSlider2 )
+          (makeSlider )
           )))
     (list 'ADPSchematicMenu))
-  createADPSchematicMenu = letCreateADPSchematicMenu
-  );let
+;  );let
 
 (deRegUserTriggers 
   "schematic" 

@@ -1,0 +1,47 @@
+(defun getInstTermGridCoord (instTerm)
+  (define refSchPoint nil)
+  (define instTermBBox nil)
+  (when instTerm
+    (setq 
+      instTermBBox 
+      (getInstTermBBox instTerm))
+    (when
+      (dbProduceOverlap 
+        instTerm~>cellView 
+        (list (car instTermBBox)
+              (car instTermBBox)) 
+        1 
+        "PTL2")
+      (setq refSchPoint (cadr instTermBBox)))
+    (when 
+      (dbProduceOverlap
+        instTerm~>cellView
+        (list (cadr instTermBBox) 
+              (cadr instTermBBox))
+        1
+        "PTL2")
+      (setq refSchPoint (car instTermBBox)))
+    (when refSchPoint
+      (setq 
+        refSchPoint 
+        (mapcar (lambda (x) 
+                  (floor (x / RINER.SCHEM_GRID_LEN))) 
+                refSchPoint)))
+    refSchPoint))
+
+(defun getInstTermBBox (instTerm)
+  (let (masterTerm masterTermBB)
+    (cond
+      (instTerm~>objType != "instTerm"
+                         warn("calcInstTermCoord: object \"%L\" not instTerm."
+                              instTerm ))
+      (null((masterTerm = car(exists(x instTerm~>inst~>master~>terminals
+                                       x~>name == instTerm~>name)))
+            && (masterTermBB = car(masterTerm~>pins)~>fig~>bBox))
+        warn("calcInstTermCoord: cannot get pin \"%s\" coordinate."
+             instTerm~>name))
+      (t
+        dbTransformBBox(masterTermBB
+                         list(instTerm~>inst~>xy instTerm~>inst~>orient))))))
+
+

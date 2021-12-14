@@ -1,0 +1,93 @@
+(define rRoute nil)
+(let ()
+  ;(define scv nil)
+  rRoute = 
+  (lambda (flagSelNet)
+    (define scv (geGetWindowCellView ))
+    ;routingnet.ils
+    (define nets (selRoutingNets scv flagSelNet))
+    (printf "number of routing net is %d.\n" (length nets))
+    ;(printDebug "nets" 'nets nets)
+    (define boundary (roGetBoundary (ruSBBtoGBB scv~>bBox)))
+    ;(printDebug "boundary" 'boundary boundary)
+    ;netCoord.ils
+    (define netCoords (getAllNetCoords nets))
+    ;(printDebug "netCoords" 'netCoords netCoords)
+    ;blockage.ils
+    (define blockages (getBlockage scv boundary))
+    ;(printDebug "blockages" 'blockages blockages)
+    (roWriteFile netCoords boundary blockages)
+    ;(println "roWriteFile")
+    (define res (riReadRouterOut ))
+    ;(printDebug "riReadRouterOut" 'res res)
+    (deleteNetFigs nets)
+    ;(println "deleteNetFigs")
+    ;(deleteNetConnectedPin scv)
+    (rCreateWireAll scv "./in.riner" nets)
+    ;(println "rCreateWireAll")
+    )
+
+  ;util
+  ;(defun deleteNetConnectedPin (scv)
+  ;  (foreach 
+  ;    netCpin (setof x scv~>nets (andList x~>pins))
+  ;    (foreach
+  ;      fig netCpin~>figs
+  ;      (dbDeleteObject fig))))
+
+  (defun deleteNetFigs (nets)
+    (foreach
+      net nets
+      (foreach
+        fig net~>figs
+        (dbDeleteObject fig))))
+
+  (defun rhGetPointsOfConnection ()
+    (enterSegment
+      ?prompts '( "Point at starting point for the router."
+                  "Point at ending point for the router.")))
+
+  (defun ruGCtoSC (gcoord)
+    (mapcar 
+      (lambda (x) 
+        (plus
+          (quotient RINER.SCHEM_GRID_LEN 2)
+          (times x RINER.SCHEM_GRID_LEN)))
+      gcoord))
+
+  (defun ruSCtoGC (scoord)
+    (mapcar 
+      (lambda (x) 
+        (floor (quotient x RINER.SCHEM_GRID_LEN)))
+      scoord))
+
+  (defun printDebug (str symb var)
+    (println str)
+    (println symbolToString(symb))
+    (println (length var))
+    (println var)
+    )
+
+  )
+
+(defun ruType (obj)
+  (cond
+    (!(obj~>objType == "inst" || obj~>objType == "path") nil)
+    ((equal obj~>objType "path")
+     (cond
+       (eq obj~>width RINER.PTL2_PATH_WIDTH RINER.PTL2)
+       (eq obj~>width RINER.PTL1_PATH_WIDTH RINER.PTL1)
+       (t nil)))
+    ((equal obj~>objType "inst")
+     (cond
+       ((rexMatchp "^[P][T][L][2].*"  obj~>cellName) RINER.PTL2)
+       ((rexMatchp "^[P][T][L][1].*"  obj~>cellName) RINER.PTL1)
+       ((rexMatchp "^[v][i][a].*"  obj~>cellName) RINER.VIA)
+       (t RINER.LGC)))
+    (t nil)))
+
+(defun deleteNormalLabel ()
+  (define scv (geGetWindowCellView ))
+  (foreach x (setof y scv~>shapes (equal y~>labelType "normalLabel"))
+           (dbDeleteObject x)))
+

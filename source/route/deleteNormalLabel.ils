@@ -1,0 +1,10 @@
+(defun deleteNormalLabel ()
+  (define scv (geGetWindowCellView ))
+  (foreach 
+    x 
+    (setof 
+      y 
+      scv~>shapes 
+      (equal y~>labelType "normalLabel"))
+    (dbDeleteObject x)))
+

@@ -34,4 +34,18 @@
     (list (mapcar (lambda (x) (x * RINER.SCHEM_GRID_LEN + 0.01)) gcoord)
           (mapcar (lambda (x) ((x + 1) * RINER.SCHEM_GRID_LEN - 0.01)) gcoord)))
 
+  (defun ruGCtoSC (gcoord)
+    (mapcar 
+      (lambda (x) 
+        (plus
+          (quotient RINER.SCHEM_GRID_LEN 2)
+          (times x RINER.SCHEM_GRID_LEN)))
+      gcoord))
+
+  (defun ruSCtoGC (scoord)
+    (mapcar 
+      (lambda (x) 
+        (floor (quotient x RINER.SCHEM_GRID_LEN)))
+      scoord))
+
 

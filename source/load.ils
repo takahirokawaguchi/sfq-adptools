@@ -3,7 +3,9 @@
   (define pathToThisFile #.get_filename(piport))
   (define path (parseString pathToThisFile "/"))
   (remd (car (last path)) path)
-  (buildString path "/"))
+  (strcat 
+    "/"
+  (buildString path "/")))
 
 (let ()
   (defun loadIlsSFQADP (dirPath)
@@ -29,7 +31,7 @@
   (foreach
     dir loadDirs
     (setq pathAndDir (buildString (list path dir) "/" ))
-    (printf "[DEBUG %s\n" pathAndDir)
+    (printf "[DEBUG] %s\n" pathAndDir)
     (when (isReadable pathAndDir)
       (printf "[DIR] loading %s\n" pathAndDir)
       (loadIlsSFQADP pathAndDir))))

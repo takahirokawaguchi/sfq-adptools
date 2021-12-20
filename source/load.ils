@@ -1,4 +1,4 @@
-;(load "~/git/adptools/source/load.ils")
+;(load "~/git/sfq-adptools/source/load.ils")
 (defun getPathADPToolsSource ()
   (define pathToThisFile #.get_filename(piport))
   (define path (parseString pathToThisFile "/"))
@@ -24,7 +24,7 @@
       ))
 
   (define path (getPathADPToolsSource ))
-  (printf "[INFO] loading %sload.ils\n" path)
+  (printf "[INFO] loading %s/load.ils\n" path)
   (define pathAndDir nil)
   (foreach
     dir loadDirs

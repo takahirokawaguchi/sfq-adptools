@@ -2,7 +2,7 @@
 ;declaration
 (define datGui nil)
 (define removeAllLabels nil)
-(let ()
+;(let ()
   ;local variables (future)
   (define LABEL_LAYER (list "y4" "drawing"))
 
@@ -103,4 +103,4 @@
     (list ((caar bBox) + (caadr bBox)) / 2
           (cadadr bBox)))
 
-  );let
+;  );let

@@ -83,6 +83,10 @@
             "(guiPTLTranslater )")
           (hiCreateSeparatorMenuItem ?name (gensymADPSchematicMenuItem ))
           (simpleCreateMenuItem
+            "replace drvPTL2 recPTL2 and pspl2 with those without ground contacts"
+            "(replaceDrvRec )")
+          (hiCreateSeparatorMenuItem ?name (gensymADPSchematicMenuItem ))
+          (simpleCreateMenuItem
             "fillMoatADP"
             "(fillMoatADP (geGetWindowCellView ) nil)")
           (simpleCreateMenuItem

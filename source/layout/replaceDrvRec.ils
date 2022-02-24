@@ -6,16 +6,16 @@
     (setq drvs (setof x insts (isPTLDrv x)))
     (setq recs (setof x insts (isPTLRec x)))
     (setq pspls (setof x insts (isPspl x)))
-    (setq lib "ptlLayout")
+    (setq lib "ptl_layout")
     (foreach 
       drv drvs
-      (translateDrvRec drv "drvPTL2_mvpin" lib))
+      (translateDrvRec drv "drvPTL2woGC" lib))
     (foreach 
       rec recs
-      (translateDrvRec rec "recPTL2_mvpin" lib))
+      (translateDrvRec rec "recPTL2woGC" lib))
     (foreach 
       pspl pspls
-      (translateDrvRec pspl "pspl2_mvpin" lib))
+      (translateDrvRec pspl "pspl2woGC" lib))
     ))
 
 ;(defun translateDrvRec (instance cellName libName)

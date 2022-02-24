@@ -1,0 +1,9 @@
+(defun gensymMenuItem ()
+  (gensym 'menuItem))
+
+(defun simpleCreateMenuItem (itemText callback)
+  (hiCreateMenuItem
+    ?name (gensymMenuItem )
+    ?itemText itemText
+    ?callback callback))
+

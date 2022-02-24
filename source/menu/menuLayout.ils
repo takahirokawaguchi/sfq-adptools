@@ -9,7 +9,8 @@
       ?itemText itemText
       ?callback callback))
 
-  (defun letCreateADPLayoutMenu (arg)
+  createADPLayoutMenu =
+  (lambda  (arg)
     (unless (boundp 'ADPLayoutMenu)
       (hiCreatePulldownMenu
         'ADPLayoutMenu
@@ -41,13 +42,12 @@
             "(routeFromSToL )")
           )))
     (list 'ADPLayoutMenu))
-  createADPLayoutMenu = letCreateADPLayoutMenu
   )
 
-(deRegUserTriggers 
-  "maskLayout" 
-  nil 
-  'createADPLayoutMenu)
+;(deRegUserTriggers 
+;  "maskLayout" 
+;  nil 
+;  'createADPLayoutMenu)
 
 (deRegUserTriggers 
   "maskLayoutXL" 

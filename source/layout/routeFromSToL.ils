@@ -26,6 +26,7 @@
   (defun createOption ()
     (setq option
           (hiCreateAppForm
+            ?name (gensym 'option)
             ?fields 
             (list 
               (hiCreateStringField

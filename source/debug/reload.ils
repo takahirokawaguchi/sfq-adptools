@@ -3,8 +3,11 @@
   ADPSchematicMenu='unbound
   ADPLayoutMenu='unbound
   )
+
 (deUnRegUserTriggers "schematic")
-(deUnRegUserTriggers "maskLayout")
+;(deUnRegUserTriggers "maskLayout")
+(deUnRegUserTriggers "maskLayoutXL")
+
 (let ()
   (define pathAndFile nil)
   (define path #.get_filename(piport))

@@ -1,4 +1,4 @@
-;(load "~/git/adptools/source/debug/reload.ils")
+;(load "~/git/sfq-adptools/source/debug/reload.ils")
 (inSkill
   ADPSchematicMenu='unbound
   ADPLayoutMenu='unbound

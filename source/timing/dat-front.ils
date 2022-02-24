@@ -4,7 +4,8 @@
   (unless (boundp 'OPTION_TIMING_ANALYSIS)
     (createOptionTimingAnalysis scv))
   (define 
-    ok (hiDisplayForm OPTION_TIMING_ANALYSIS))
+    ok (hiDisplayForm 'OPTION_TIMING_ANALYSIS))
+  (printf "%L" (getOptionTimingAnalysis )->removeLabels->value)
   (when ok
     (setq time cputime);cputime is a system function
     (displayArrivalTime scv)
@@ -17,12 +18,12 @@
 (defun displayArrivalTime (scv)
   ;(define paramList (getParamsFromOptionsForm ))
   (removeAllLabels scv)
-  (unless (nequal OPTION_TIMING_ANALYSIS~>removeLabels~>value
+  (unless (nequal (getOptionTimingAnalysis )->removeLabels->value
                   "off")
     (mainTimingPropagation scv)
     (glueLabelsToInst_inout scv)
     )
-  (when (nequal OPTION_TIMING_ANALYSIS~>staField~>value
+  (when (nequal (getOptionTimingAnalysis )->staField->value
                 "off")
     (calculateSlacks scv)))
 
@@ -64,12 +65,12 @@
 ;      (setq result (list imap))
 ;      ))
 ;  (if
-;    (member OPTION_TIMING_ANALYSIS~>netDelay~>value
+;    (member (getOptionTimingAnalysis )->netDelay->value
 ;            '("PTLdelay" "PTLdelay_only" "PTLdelay_only_ideal" "PTLdelay_ideal"))
-;    (setq result (append1 result OPTION_TIMING_ANALYSIS~>netDelay~>value))
-;    (setq result (append1 result (evalstring OPTION_TIMING_ANALYSIS~>netDelay~>value))))
+;    (setq result (append1 result (getOptionTimingAnalysis )->netDelay~>value))
+;    (setq result (append1 result (evalstring (getOptionTimingAnalysis )->netDelay~>value))))
 ;  (let (vb)
-;    (setq vb (case OPTION_TIMING_ANALYSIS~>biasVoltage~>value
+;    (setq vb (case (getOptionTimingAnalysis )->biasVoltage~>value
 ;               ("-30%" 1)
 ;               ("-25%" 2)
 ;               ("-20%" 3)
@@ -84,13 +85,13 @@
 ;               ("+25%" 12)
 ;               ("+30%" 13)))
 ;    (setq result (append1 result vb)))
-;  (setq result (append1 result OPTION_TIMING_ANALYSIS~>staField~>value))
+;  (setq result (append1 result (getOptionTimingAnalysis )->staField~>value))
 ;  (setq result (append1 result
-;                        OPTION_TIMING_ANALYSIS~>staTypeField~>value
+;                        (getOptionTimingAnalysis )->staTypeField~>value
 ;                        ))
 ;  (setq result (append1 result
-;                        OPTION_TIMING_ANALYSIS~>staFilteringField~>value))
-;  (if (equal OPTION_TIMING_ANALYSIS~>isRemoveField~>value "off")
+;                        (getOptionTimingAnalysis )->staFilteringField~>value))
+;  (if (equal (getOptionTimingAnalysis )->isRemoveField~>value "off")
 ;    (setq result (append1 result nil))
 ;    (setq result (append1 result t)))
 ;  result)

@@ -43,8 +43,8 @@
         ""
         (list
           (simpleCreateMenuItem
-            "(load \"~/git/adptools/source/debug/reload.ils\")"
-            "(load \"~/git/adptools/source/debug/reload.ils\")")
+            "(load \"~/git/sfq-adptools/source/debug/reload.ils\")"
+            "(load \"~/git/sfq-adptools/source/debug/reload.ils\")")
           (simpleCreateMenuItem
             "(setq scv (geGetWindowCellView ))"
             "(setq scv (geGetWindowCellView ))")
@@ -70,7 +70,7 @@
         "SFQ-ADP"
         (list
           (simpleCreateMenuItem
-            "placeOnGrid"
+            "adjust placement to route"
             "(roAdjustAllInsts (geGetWindowCellView ))")
           (simpleCreateMenuItem
             "route all nets"

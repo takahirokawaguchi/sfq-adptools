@@ -90,4 +90,5 @@
         ?prompt "remove all labels")
       )))
 
-
+(defun getOptionTimingAnalysis ()
+  (inSkill OPTION_TIMING_ANALYSIS))

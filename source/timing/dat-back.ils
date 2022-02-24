@@ -24,8 +24,8 @@
 (defun getBiasVoltage (maxOrMin)
   (case 
     (if (equal maxOrMin "max")
-      OPTION_TIMING_ANALYSIS~>maxBiasVoltage~>value
-      OPTION_TIMING_ANALYSIS~>minBiasVoltage~>value)
+      (getOptionTimingAnalysis )->maxBiasVoltage->value
+      (getOptionTimingAnalysis )->minBiasVoltage->value)
     ("-30%" 1)
     ("-25%" 2)
     ("-20%" 3)
@@ -82,7 +82,7 @@
     ;; initialization
     (setq cv argueCv)
     (when (boundp 'OPTION_TIMING_ANALYSIS)
-      (setq netDelay OPTION_TIMING_ANALYSIS~>netDelay~>value)
+      (setq netDelay (getOptionTimingAnalysis )->netDelay->value)
       (setq vbMax (getBiasVoltage "max"))
       (setq vbMin (getBiasVoltage "min"))
       )

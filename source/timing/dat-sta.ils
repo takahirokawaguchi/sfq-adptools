@@ -33,16 +33,18 @@
 
   (defun letCalculateSlacks (argueCv) 
     (setq scv argueCv)
-    (when (boundp 'OPTION_TIMING_ANALYSIS)
-      (setq filteringValue OPTION_TIMING_ANALYSIS~>filteringValue~>value)
-      (setq clockPeriod OPTION_TIMING_ANALYSIS~>clockPeriod~>value)
+    ;(when (boundp 'OPTION_TIMING_ANALYSIS)
+      (setq filteringValue (getOptionTimingAnalysis )->filteringValue->value)
+      (setq clockPeriod (getOptionTimingAnalysis )->clockPeriod->value)
       (setq vbMax (getBiasVoltage "max"))
-      (setq vbMin (getBiasVoltage "min")))
+      (setq vbMin (getBiasVoltage "min"))
+      ;)
     (setq time cputime)
     (deleteCommonPoints scv)
     findAllCommonPoints
     makeSlackFile)
   calculateSlacks = letCalculateSlacks
+(getBiasVoltage "max"))
 
   (defun findAllCommonPoints ()
     ;initialize
@@ -333,7 +335,7 @@
     (when 
       (or
         (null (isFile fileName))
-        (equal OPTION_TIMING_ANALYSIS~>designIntent~>value
+        (equal (getOptionTimingAnalysis )->designIntent->value
                "recreate"))
       (let ()
         (define ofp (outfile fileName "w"))

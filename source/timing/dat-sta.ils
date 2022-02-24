@@ -44,7 +44,6 @@
     findAllCommonPoints
     makeSlackFile)
   calculateSlacks = letCalculateSlacks
-(getBiasVoltage "max"))
 
   (defun findAllCommonPoints ()
     ;initialize

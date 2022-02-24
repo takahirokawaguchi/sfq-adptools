@@ -45,7 +45,11 @@
   )
 
 (deRegUserTriggers 
-  "layout" 
+  "maskLayout" 
   nil 
   'createADPLayoutMenu)
 
+(deRegUserTriggers 
+  "maskLayoutXL" 
+  nil 
+  'createADPLayoutMenu)

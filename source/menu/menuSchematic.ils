@@ -62,7 +62,6 @@
   createADPSchematicMenu =
   (lambda (args)
     ;main menu
-    (println "debug")
     (unless (boundp 'ADPSchematicMenu)
     (println "unless boundp ADPSchematicMenu")
       (hiCreatePulldownMenu

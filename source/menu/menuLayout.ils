@@ -45,7 +45,7 @@
   )
 
 (deRegUserTriggers 
-  "maskLayout" 
+  "layout" 
   nil 
   'createADPLayoutMenu)
 

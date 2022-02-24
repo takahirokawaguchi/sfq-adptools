@@ -1,0 +1,178 @@
+(defun create_track_patterns_2tracks (cellName libName layout_viewName)
+	let((nx ny l)
+        l = dbOpenCellViewByType(libName cellName layout_viewName nil "r" nil)
+		l = geGetWindowCellView(geGetCellViewWindow(l))
+		foreach(pattern l~>trackPatterns
+			dbDeleteObject(pattern)
+		)
+        nx = int((abs(0.0 - (car (car (cdr l~>bBox)))) / 30.0)) * 2 + 10
+        ny = int((abs(0.0 - (car (cdr (car (cdr l~>bBox))))) / 30.0)) * 2 + 10
+        ;;PTL1
+        dbCreateTrackPattern(l nil 8.5 int(ny/2) 30.0 "PTL1")
+        dbCreateTrackPattern(l nil 21.5 int(ny/2) 30.0 "PTL1")
+        dbCreateTrackPattern(l t 8.5 int(nx/2) 30.0 "PTL1")
+        dbCreateTrackPattern(l t 21.5 int(nx/2) 30.0 "PTL1")
+        ;;PTL2
+        dbCreateTrackPattern(l nil 8.5 int(ny/2) 30.0 "PTL2")
+        dbCreateTrackPattern(l nil 21.5 int(ny/2) 30.0 "PTL2")
+        dbCreateTrackPattern(l t 8.5 int(nx/2) 30.0 "PTL2")
+        dbCreateTrackPattern(l t 21.5 int(nx/2) 30.0 "PTL2")
+	)
+)
+
+(defun create_track_patterns_4tracks (cellName libName layout_viewName)
+	let((nx ny l)
+		l = dbOpenCellViewByType(libName cellName layout_viewName nil "r" nil)
+		l = geGetWindowCellView(geGetCellViewWindow(l))
+		foreach(pattern l~>trackPatterns
+			dbDeleteObject(pattern)
+		)
+        nx = int((abs(0.0 - (car (car (cdr l~>bBox)))) / 30.0)) * 4 + 10
+        ny = int((abs(0.0 - (car (cdr (car (cdr l~>bBox))))) / 30.0)) * 4 + 10
+		;;PTL1
+		dbCreateTrackPattern(l nil 8.5 int(ny/4) 30.0 "PTL1")
+		dbCreateTrackPattern(l nil 21.5 int(ny/4) 30.0 "PTL1")
+		dbCreateTrackPattern(l t 8.5 int(nx/4) 30.0 "PTL1")
+		dbCreateTrackPattern(l t 21.5 int(nx/4) 30.0 "PTL1")
+		dbCreateTrackPattern(l nil 12.5 int(ny/4) 30.0 "PTL1")
+		dbCreateTrackPattern(l nil 17.5 int(ny/4) 30.0 "PTL1")
+		dbCreateTrackPattern(l t 12.5 int(nx/4) 30.0 "PTL1")
+		dbCreateTrackPattern(l t 17.5 int(nx/4) 30.0 "PTL1")
+		;;PTL2
+		dbCreateTrackPattern(l nil 8.5 int(ny/4) 30.0 "PTL2")
+		dbCreateTrackPattern(l nil 21.5 int(ny/4) 30.0 "PTL2")
+		dbCreateTrackPattern(l t 8.5 int(nx/4) 30.0 "PTL2")
+		dbCreateTrackPattern(l t 21.5 int(nx/4) 30.0 "PTL2")
+		dbCreateTrackPattern(l nil 12.5 int(ny/4) 30.0 "PTL2")
+		dbCreateTrackPattern(l nil 17.5 int(ny/4) 30.0 "PTL2")
+		dbCreateTrackPattern(l t 12.5 int(nx/4) 30.0 "PTL2")
+		dbCreateTrackPattern(l t 17.5 int(nx/4) 30.0 "PTL2")
+	)
+)
+
+(defun ripup_specified_detailed_routes (l nets)
+	let((l_net)
+		foreach(net nets
+			when(equal(net~>objType "net")
+				l_net = dbFindNetByName(l net~>name)
+				foreach(fig l_net~>figs
+					when(equal(fig~>objType "pathSeg")||equal(fig~>objType "stdVia")
+						dbDeleteObject(fig)
+					)
+				)
+			)
+		)
+	)
+)
+(defun get_unrouted_nets (l)
+	let((select selected_nets)
+		foreach(n l~>nets
+			select = t
+			foreach(fig n~>figs
+				when(equal(fig~>objType "pathSeg")
+					select = nil
+				)
+			)
+			when(select
+				selected_nets = cons(
+					n
+					selected_nets
+				)
+			)
+		)
+		selected_nets
+	)
+)
+(defun route_global (l dN edge_capacity_coefficient @key (specified_nets nil) (specified_grid_graph nil) (using_specified_grid_graph_as_congestion_map nil))
+	;;-----------------------------------------------------------------------------
+	;;Global Edge Constraint
+	;;all global_edge~>demand < global_edge~>capacity*edge_capacity_coefficient
+	;;0<coefficient<=1
+	;;-----------------------------------------------------------------------------
+	let((grid_graph nets sch_nets Routes Overflow_edges l_net cong)
+		if(
+			specified_grid_graph!=nil
+		then
+			grid_graph = specified_grid_graph
+		else
+			grid_graph = construct_grid_graph(l, dN, dN)
+		)
+		when(using_specified_grid_graph_as_congestion_map
+			foreach(gedge listN(grid_graph 1)
+				cong = gedge~>demand / gedge~>capacity
+				if(
+					cong < edge_capacity_coefficient
+				then
+					gedge~>weight = 1.0
+				else
+					gedge~>weight = 1.0 + cong/10.0
+				)
+			)
+		)
+		if(
+			specified_nets!=nil
+		then
+			nets = specified_nets
+		else
+			sch_nets = geGetSelectedSet()~>net
+			nets = nil
+			foreach(sch_net sch_nets
+				when(sch_net!=nil&&strcmp(sch_net~>objType "net")==0
+					l_net = dbFindNetByName(l sch_net~>name)
+					when(l_net!=nil&&!member(l_net nets)
+						nets = cons(l_net nets)
+					)
+				)
+			)
+		)
+		Routes = path_search(nets, grid_graph, ?dont_touch_weight using_specified_grid_graph_as_congestion_map)
+		Overflow_edges = overflow_edge_identification(grid_graph Routes edge_capacity_coefficient)
+		list(grid_graph Routes Overflow_edges)
+	)
+)
+(defun get_local_nets (l nets dN)
+	let((answer grid_graph)
+		grid_graph = construct_grid_graph(l, dN, dN)
+		answer = nil
+		foreach(net nets
+			when(is_local_net(net grid_graph)
+				answer = cons(net answer)
+			)
+		)
+		grid_graph = nil
+		answer
+	)
+)
+
+
+(defun route_ptl (lengthmatching_enable logic_level cellName libName layout_viewName sta_viewName)
+	let((l s nets drv_cellNames rec_cellNames drvrec_cellNames unrouted_nets edge_capacity_coefficient
+		dN global_routes)
+		;;------------------------------------------
+		drv_cellNames = list("drvPTL2")
+		rec_cellNames = list("recPTL2")
+		drvrec_cellNames = append(drv_cellNames rec_cellNames)
+		edge_capacity_coefficient = 0.6
+		dN = 30
+		;;------------------------------------------
+		l = dbOpenCellViewByType(libName cellName layout_viewName nil "r" nil)
+		l = geGetWindowCellView(geGetCellViewWindow(l))
+		s = dbOpenCellViewByType(libName cellName sta_viewName nil "r" nil)
+		s = geGetWindowCellView(geGetCellViewWindow(s))
+		
+		foreach(net l~>nets
+			when(length(net~>instTerms)==2 && member((car net~>instTerms)~>inst~>cellName drvrec_cellNames) && member((car (cdr net~>instTerms))~>inst~>cellName drvrec_cellNames)
+				nets = cons(net nets)
+			)
+		)
+		foreach(net get_unrouted_nets(l)
+			when(length(net~>instTerms)==2 && member((car net~>instTerms)~>inst~>cellName drvrec_cellNames) && member((car (cdr net~>instTerms))~>inst~>cellName drvrec_cellNames)
+				unrouted_nets = cons(net unrouted_nets)
+			)
+		)
+		
+		global_routes = route_global(l, dN, edge_capacity_coefficient ?specified_nets unrouted_nets)
+		local_nets = get_local_nets(l nets dN)
+		;;timing_analysis_on_schematic(l s logic_level local_nets global_routes)
+	)
+)

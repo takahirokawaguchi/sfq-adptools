@@ -140,7 +140,8 @@
                      (sprintf str "%s" (car temp))
                      (cdr temp)))
              (setq imap (cons temp imap)))
-      ;else
+    (close ifp)
+      else
       (setq ofp (outfile fileName "w"))
       (setq imap nil)
       (foreach x (setof y cv~>instances (or (isOpin y) (isIpin y) (isIopin y)))
@@ -149,7 +150,6 @@
                )
       (close ofp)
       )
-    (close ifp)
     imap)
 
   (defun setSources ()

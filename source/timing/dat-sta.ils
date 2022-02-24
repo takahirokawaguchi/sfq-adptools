@@ -34,15 +34,23 @@
   (defun letCalculateSlacks (argueCv) 
     (setq scv argueCv)
     ;(when (boundp 'OPTION_TIMING_ANALYSIS)
+    (if (equal (getOptionTimingAnalysis )->offOnFiltering->value
+               "on")
+      (setq filteringValue 10000.0)
       (setq filteringValue (getOptionTimingAnalysis )->filteringValue->value)
+      )
       (setq clockPeriod (getOptionTimingAnalysis )->clockPeriod->value)
       (setq vbMax (getBiasVoltage "max"))
       (setq vbMin (getBiasVoltage "min"))
       ;)
-    (setq time cputime)
+    (setq time (cputime ))
+    (printf "debug\n")
     (deleteCommonPoints scv)
-    findAllCommonPoints
-    makeSlackFile)
+    (printf "debug\n")
+    (findAllCommonPoints )
+    (printf "debug\n")
+    (makeSlackFile )
+    )
   calculateSlacks = letCalculateSlacks
 
   (defun findAllCommonPoints ()
@@ -106,7 +114,7 @@
                "credit"
                "\n"))
     (define timingConstraints 
-      readDesignIntent)
+      (readDesignIntent ))
     (define worstSlacks 
       (list
         (list "initial" 1000.0)
@@ -159,7 +167,7 @@
     (fprintf ofp "#constraint-pair of max is %d\n"
              (plusList (mapcar (lambda (x) (length (cadr (cadr x)))) timingConstraints)))
     (fprintf ofp "runtime of finding common path and calculating slacks is %.3f seconds\n"
-             (quotient (difference cputime time) 60.0))
+             (quotient (difference (cputime ) time) 60.0))
     (fprintf ofp "#branching-nodes is %d\n"
              (length (setof x nodes (geqp (length x~>namesSuccedingNodes) 2))))
     (fprintf ofp "#converging-nodes is %d\n"

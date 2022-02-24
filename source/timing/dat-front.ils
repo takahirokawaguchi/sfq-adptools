@@ -15,12 +15,18 @@
     (define 
       ok (hiDisplayForm 'OPTION_TIMING_ANALYSIS))
     (when ok
-      (setq time cputime);cputime is a system function
+      (setq time (cputime ));cputime is a system function
       (displayArrivalTime scv)
       (printf "runtime is %.3f seconds\n" 
               (quotient
-                (difference cputime time)
-                60.0))))
+                (difference (cputime ) time)
+                60.0)))
+    (when 
+      (nequal (getOptionTimingAnalysis )->offOnFiltering->value
+              "off")
+             (calculateSlacks scv)
+             )
+    )
 
   removeAllLabels = 
   (lambda (scv)

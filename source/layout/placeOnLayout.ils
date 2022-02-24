@@ -1,0 +1,60 @@
+(defun place_inst_as_if_schematic (cellName libName layout_viewName schematic_viewName)
+	let((s_inst x y ratio l s)
+		l = dbOpenCellViewByType(libName cellName layout_viewName nil "r" nil)
+		l = geGetWindowCellView(geGetCellViewWindow(l))
+		s = dbOpenCellViewByType(libName cellName schematic_viewName nil "r" nil)
+		s = geGetWindowCellView(geGetCellViewWindow(s))
+
+		ratio = 30.0 / 0.375
+		foreach(l_inst l~>instances
+			s_inst = dbGetInstByName(s (car parseString(l_inst~>name "|")))
+			x = (car s_inst~>xy) * ratio
+			y = (car (cdr s_inst~>xy)) * ratio
+			print(s_inst~>name)
+			print(list(s_inst~>xy))
+			print(" => ")
+			println(list(x y))
+			move_fig_to(list(x y) l_inst ?orient "R0")
+			t
+		)
+		foreach(term l~>terminals
+			foreach(s_term s~>terminals
+				when(equal(term~>name s_term~>name)
+					x = (car (car (car s_term~>pins)~>figs)~>xy) * ratio
+					y = (car (cdr (car (car s_term~>pins)~>figs)~>xy)) * ratio
+					print(s_term~>name)
+					print(" => ")
+					println(list(x y))
+					move_fig_to(list(x y) (car (car term~>pins)~>figs) ?orient "R0")
+				)
+			)
+		)
+	)
+)
+
+(defun move_fig_to (xy fig @key (orient nil))
+	let((x0 y0 dx dy)
+		if(
+			fig~>xy!=nil
+		then
+			x0 = (car fig~>xy)
+			y0 = (car (cdr fig~>xy))
+		else
+			x0 = ((car (car fig~>bBox)) + (car (car (cdr fig~>bBox))))/2.0
+			y0 = ((car (cdr (car fig~>bBox))) + (car (cdr (car (cdr fig~>bBox)))))/2.0
+		)
+		dx = (car xy) - x0
+		dy = (car (cdr xy)) - y0
+		when(orient==nil
+			orient = fig~>orient
+			if(
+				orient==nil
+			then
+				orient = "R0"
+			else
+				t
+			)
+		)
+		dbMoveFig(fig fig~>cellView list(list(dx dy) orient 1.0))
+	)
+)

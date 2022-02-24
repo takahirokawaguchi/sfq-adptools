@@ -22,8 +22,10 @@
 
 (let ()
   (define option nil)
+  (define ok nil)
 
   (defun createOption ()
+    (unless option
     (setq option
           (hiCreateAppForm
             ?name (gensym 'option)
@@ -47,7 +49,10 @@
                 "via name in the technology file"
                 ?defValue
                 "PTL1_PTL2")
-              ))))
+              )))
+    (setq  
+      ok (hiDisplayForm option))
+    ))
 
   routeFromSToL =
   (lambda ()
@@ -59,63 +64,68 @@
     (define cv (geGetWindowCellView ))
     (define lib cv~>libName)
     (define cell cv~>cellName)
+    (define cvL nil)
+    (define cvS nil)
+    (define via nil)
     (createOption )
-    (define cvL (dbOpenCellViewByType lib cell option->cvL->value))
-    (define cvS (dbOpenCellViewByType lib cell option->cvS->value)) 
-    (define via (techFindViaDefByName (techGetTechFile cvL) option->via->value))
-    (foreach
-      net cvS~>nets
-      (setq widthPreviousPTL 4.8)
-      (setq pointsPrevious nil)
-      (setq netL (car (setof x cvL~>nets (equal x~>name net~>name))))
-      (foreach 
-        fig (sortFigs net)
-        (setq widthPTL 0)
-        (when (equal fig~>width RINER.PTL1_PATH_WIDTH)
-          (setq widthPTL 5.5))
-        (when (equal fig~>width RINER.PTL2_PATH_WIDTH)
-          (setq widthPTL 4.8))
-        (when (nequal widthPTL widthPreviousPTL)
-          (setq pointVia nil)
-          (foreach 
-            p1 fig~>points
+    (println option->cvL->value)
+    (when ok
+      (setq cvL (dbOpenCellViewByType lib cell option->cvL->value))
+      (setq cvS (dbOpenCellViewByType lib cell option->cvS->value)) 
+      (setq via (techFindViaDefByName (techGetTechFile cvL) option->via->value))
+      (foreach
+        net cvS~>nets
+        (setq widthPreviousPTL 4.8)
+        (setq pointsPrevious nil)
+        (setq netL (car (setof x cvL~>nets (equal x~>name net~>name))))
+        (foreach 
+          fig (sortFigs net)
+          (setq widthPTL 0)
+          (when (equal fig~>width RINER.PTL1_PATH_WIDTH)
+            (setq widthPTL 5.5))
+          (when (equal fig~>width RINER.PTL2_PATH_WIDTH)
+            (setq widthPTL 4.8))
+          (when (nequal widthPTL widthPreviousPTL)
+            (setq pointVia nil)
             (foreach 
-              p2 pointsPrevious
-              (when (equal p1 p2)
-                (setq pointVia p1))))
-          (when pointVia
-            ;(dbAddFigToNet
-            (dbCreateVia
-              cvL
-              via
-              (ptlPointSchToLayout pointVia)
-              "R0")
-            ;netL)
+              p1 fig~>points
+              (foreach 
+                p2 pointsPrevious
+                (when (equal p1 p2)
+                  (setq pointVia p1))))
+            (when pointVia
+              ;(dbAddFigToNet
+              (dbCreateVia
+                cvL
+                via
+                (ptlPointSchToLayout pointVia)
+                "R0")
+              ;netL)
+              ))
+          (if (equal widthPTL widthPreviousPTL)
+            then
+            (let (pMember pUnmembers)
+              (setq pUnmembers nil)
+              (foreach 
+                p fig~>points
+                (if (member p pointsPrevious)
+                  (progn (setq pMember p) 
+                         (setq pointsPrevious (remove p pointsPrevious))
+                         (setq pointsPrevious (append1 pointsPrevious p)))
+                  (setq pUnmembers (append1 pUnmembers p))))
+              (setq pointsPrevious (append pointsPrevious pUnmembers))
+              )
+            else
+            (when (nequal widthPTL 0)
+              (createTrlPtl cvL netL pointsPrevious widthPreviousPTL)
+              )
+            (setq pointsPrevious fig~>points)
+            (setq widthPreviousPTL widthPTL)
             ))
-        (if (equal widthPTL widthPreviousPTL)
-          then
-          (let (pMember pUnmembers)
-            (setq pUnmembers nil)
-            (foreach 
-              p fig~>points
-              (if (member p pointsPrevious)
-                (progn (setq pMember p) 
-                       (setq pointsPrevious (remove p pointsPrevious))
-                       (setq pointsPrevious (append1 pointsPrevious p)))
-                (setq pUnmembers (append1 pUnmembers p))))
-            (setq pointsPrevious (append pointsPrevious pUnmembers))
-            )
-          else
-          (when (nequal widthPTL 0)
-            (createTrlPtl cvL netL pointsPrevious widthPreviousPTL)
-            )
-          (setq pointsPrevious fig~>points)
-          (setq widthPreviousPTL widthPTL)
-          ))
-      ;end foreach fig
-      (when (nequal widthPTL 0)
-        (createTrlPtl cvL netL pointsPrevious widthPreviousPTL))
-      ))
+        ;end foreach fig
+        (when (nequal widthPTL 0)
+          (createTrlPtl cvL netL pointsPrevious widthPreviousPTL))
+        )))
   ;)
 
   (defun sortFigs (net)

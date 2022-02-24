@@ -22,9 +22,9 @@
 
 (let ()
   (define option nil)
-  (define ok nil)
 
   (defun createOption ()
+    (define cv (geGetWindowCellView ))
     (unless option
     (setq option
           (hiCreateAppForm
@@ -36,22 +36,21 @@
                 ?prompt 
                 "schematic cell view"
                 ?defValue
-                "schematic")
+                cv~>lxInternal~>source~>view)
               (hiCreateStringField
                 ?name 'cvL
                 ?prompt 
                 "layout cell view"
                 ?defValue
-                "layout")
+                cv~>viewName)
               (hiCreateStringField
                 ?name 'via
                 ?prompt 
                 "via name in the technology file"
                 ?defValue
                 "PTL1_PTL2")
-              )))
-    (setq  
-      ok (hiDisplayForm option))
+              ))))
+      (hiDisplayForm option)
     ))
 
   routeFromSToL =
@@ -67,9 +66,7 @@
     (define cvL nil)
     (define cvS nil)
     (define via nil)
-    (createOption )
-    (println option->cvL->value)
-    (when ok
+    (when (createOption )
       (setq cvL (dbOpenCellViewByType lib cell option->cvL->value))
       (setq cvS (dbOpenCellViewByType lib cell option->cvS->value)) 
       (setq via (techFindViaDefByName (techGetTechFile cvL) option->via->value))

@@ -168,7 +168,7 @@
             (if (equal width 5.5) 
               "PTL1"
               "PTL2")
-            (mapcar 'ptlPointSchToLayout points)
+            (mapcar ptlPointSchToLayout points)
             width
             "radial"
             1.0

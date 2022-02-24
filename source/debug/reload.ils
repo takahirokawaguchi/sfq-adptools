@@ -5,17 +5,13 @@
   )
 
 (deUnRegUserTriggers "schematic")
-;(deUnRegUserTriggers "maskLayout")
+(deUnRegUserTriggers "maskLayout")
 (deUnRegUserTriggers "maskLayoutXL")
 
 (let ()
-  (define pathAndFile nil)
-  (define path #.get_filename(piport))
-  (setq path (parseString path "/"))
-  (remd (car (last path)) path)
-  (remd (car (last path)) path)
-  (setq path (buildString path "/")) 
-  (define file "load.ils")
-  (when (isReadable (setq pathAndFile (buildString (list path file) "/" )))
-    (load pathAndFile)))
+  (define file (getPathADPToolsSource ))
+  (setq file (sprintf nil "%s/load.ils" file))
+  (when (isReadable file)
+    (load file))
+  )
 

@@ -31,10 +31,10 @@
         )))
   (list 'ADPLayoutMenu))
 
-;(deRegUserTriggers 
-;  "maskLayout" 
-;  nil 
-;  'createADPLayoutMenu)
+(deRegUserTriggers 
+  "maskLayout" 
+  nil 
+  'createADPLayoutMenu)
 
 (deRegUserTriggers 
   "maskLayoutXL" 

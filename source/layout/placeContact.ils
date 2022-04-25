@@ -1,0 +1,70 @@
+(define placeAllContacts nil)
+(let ()
+  (define cv nil)
+  (define lib nil)
+  placeAllContacts =
+  (lambda ()
+    (setq cv (geGetWindowCellView ))
+    (setq lib "ptlLayout")
+    (define layer nil)
+    (foreach
+      net cv~>nets
+      (foreach
+        fig (setof x net~>figs (equal x~>objType "line"))
+        (placeContact fig (mapcar 'getInstTermCoord net~>instTerms)))
+      ))
+
+  (defun placeContact (fig psInstTerm)
+    (define points nil)
+    (setq 
+      pairsPoints 
+      (list
+        (list
+          (car fig~>points)
+          (cadr fig~>points))
+        (list
+          (car (last fig~>points))
+          (nth (plus -2 (length fig~>points)) fig~>points)
+          )))
+    (foreach
+      pairP pairsPoints
+      (dbCreateInst
+        cv 
+        (cond
+          ((member (car pairP) psInstTerm)
+           (dbOpenCellViewByType
+             lib
+             "contactPTL2DRVREC"
+             "layout"))
+          ((equal fig~>layerName "PTL2")
+           (dbOpenCellViewByType
+             lib
+             "contactViaPTL2"
+             "layout"))
+          ((equal fig~>layerName "PTL1")
+           (dbOpenCellViewByType
+             lib
+             "contactViaPTL1"
+             "layout")))
+        nil
+        (car pairP)
+        (calculateOrientContact pairP)
+        )))
+
+  (defun calculateOrientContact (ps)
+    (cond ((equal (xCoord (car ps))
+                  (xCoord (cadr ps)))
+           (if (lessp (yCoord (car ps))
+                      (yCoord (cadr ps)))
+             "R90"
+             "R270"
+             ))
+          ((equal (yCoord (car ps))
+                  (yCoord (cadr ps)))
+           (if (lessp (xCoord (car ps))
+                      (xCoord (cadr ps)))
+             "R0"
+             "R180"
+             ))
+          (t nil)))
+  )

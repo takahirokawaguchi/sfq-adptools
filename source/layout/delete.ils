@@ -1,0 +1,78 @@
+(defun deleteLayoutComponent nil)
+
+(let ()
+  (define cv nil)
+  (define option nil)
+
+  (defun createOption ()
+    (define cv (geGetWindowCellView ))
+    (unless option
+      (setq option
+            (hiCreateAppForm
+              ?name (gensym 'option)
+              ?fields 
+              (list 
+                (hiCreateCyclicField
+                  ?name 'component
+                  ?prompt 
+                  "delete components"
+                  ?choices
+                  (list "all pathSegs"
+                        "all Trls"
+                        "all contacts"
+                        "all vias"
+                        "figs in the selected net"
+                        ))))))
+    (hiDisplayForm option))
+
+  deleteLayoutComponent =
+  (lambda ()
+    (setq cv (geGetWindowCellView))
+    (define ocv nil)
+    (when (createOption )
+      (setq ocv option->component->value)
+      (cond
+        ((equal ocv "all pathSegs")
+         (deleteAllPathSegs ))
+        ((equal ocv "all Trls")
+         (deleteAllTrls ))
+        ((equal ocv "all contacts")
+         (deleteAllContacts ))
+        ((equal ocv "all vias")
+         (deleteAllVias ))
+        ((equal ocv "figs in the selected net")
+         (deleteFigsSelectedNet ))
+      )))
+
+  (defun deleteAllContacts ()
+    (foreach 
+      contact (setof x cv~>instances 
+                    (or
+                      (equal x~>cellName "contactViaPTL1")
+                      (equal x~>cellName "contactViaPTL2")
+                      (equal x~>cellName "contactPTL2DRVREC")
+                      ))
+      (dbDeleteObject contact)))
+
+  (defun deleteAllPathSegs ()
+    (foreach 
+      shape (setof x cv~>shapes (equal x~>objType "pathSeg"))
+      (dbDeleteObject shape)))
+
+  (defun deleteAllTrls ()
+    (foreach 
+      shape (setof x cv~>shapes (equal x~>objType "line"))
+      (dbDeleteObject shape)))
+
+  (defun deleteAllVias ()
+    (foreach 
+      via cv~>vias
+      (dbDeleteObject via)))
+
+  (defun deleteFigsSelectedNet ()
+    (foreach 
+      sel (geGetSelSet )
+      (foreach 
+        fig sel~>net~>figs
+      (dbDeleteObject fig)))
+  )

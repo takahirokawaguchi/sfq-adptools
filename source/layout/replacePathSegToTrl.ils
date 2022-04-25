@@ -1,35 +1,11 @@
-;(load "replacePathSegToTrl.ils")
-(defun replacePathSegToTrl ()
-  (letrec 
-    ( ;local variables
-      (cv nil)
-      (ptl nil)
-      (points nil)
-      ;local functions
-      (createTrl ;local function
-        (lambda (net points ptl)
-          (define 
-            trl
-            (geCreateTrl
-              cv
-              ptl
-              points
-              (if (equal ptl "PTL1")
-                5.5;width PTL1
-                4.8;width PTL2
-                )
-              "radial"
-              1.0
-              1.0
-              0.6
-              20
-              ))
-          (dbAddFigToNet trl net)
-          trl~>net = net
-          ))
-      );letrec()
-    ;body
+(define replacePathSegToTrl nil)
+(let ()
+  (define cv nil)
+  replacePathSegToTrl =
+  (lambda ()
     (setq cv (geGetWindowCellView ))
+    (define ptl nil)
+    (define points nil)
     (foreach
       net cv~>nets
       (setq ptl "PTL2")
@@ -53,6 +29,25 @@
           fig (setof x route~>objects (equal x~>objType "pathSeg"))
           (dbDeleteObject fig))
         (dbDeleteObject route)
-        ));foreach route, foreach net
-    ));letrec, defun
+        )))
 
+  (defun createTrl (net points ptl)
+    (define 
+      trl
+      (geCreateTrl
+        cv
+        ptl
+        points
+        (if (equal ptl "PTL1")
+          5.5;width PTL1
+          4.8;width PTL2
+          )
+        "radial"
+        1.0
+        1.0
+        0.6
+        20
+        ))
+    (dbAddFigToNet trl net)
+    trl~>net = net)
+  )

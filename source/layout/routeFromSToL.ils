@@ -1,57 +1,36 @@
 (define routeFromSToL nil)
-(defun deleteAllPathSegs ()
-  (let (cv)
-    (setq cv (geGetWindowCellView))
-    (foreach 
-      shape (setof x cv~>shapes (equal x~>objType "pathSeg"))
-      (dbDeleteObject shape))))
-
-(defun deleteAllTrls ()
-  (let (cv)
-    (setq cv (geGetWindowCellView))
-    (foreach 
-      shape (setof x cv~>shapes (equal x~>objType "line"))
-      (dbDeleteObject shape))))
-
-(defun deleteAllVias ()
-  (let (cv)
-    (setq cv (geGetWindowCellView))
-    (foreach 
-      via cv~>vias
-      (dbDeleteObject via))))
 
 (let ()
   (define option nil)
-
   (defun createOption ()
     (define cv (geGetWindowCellView ))
     (unless option
-    (setq option
-          (hiCreateAppForm
-            ?name (gensym 'option)
-            ?fields 
-            (list 
-              (hiCreateStringField
-                ?name 'cvS
-                ?prompt 
-                "schematic cell view"
-                ?defValue
-                cv~>lxInternal~>source~>view)
-              (hiCreateStringField
-                ?name 'cvL
-                ?prompt 
-                "layout cell view"
-                ?defValue
-                cv~>viewName)
-              (hiCreateStringField
-                ?name 'via
-                ?prompt 
-                "via name in the technology file"
-                ?defValue
-                "PTL1_PTL2")
-              ))))
-      (hiDisplayForm option)
-    ))
+      (setq option
+            (hiCreateAppForm
+              ?name (gensym 'option)
+              ?fields 
+              (list 
+                (hiCreateStringField
+                  ?name 'cvS
+                  ?prompt 
+                  "schematic cell view"
+                  ?defValue
+                  cv~>lxInternal~>source~>view)
+                (hiCreateStringField
+                  ?name 'cvL
+                  ?prompt 
+                  "layout cell view"
+                  ?defValue
+                  cv~>viewName)
+                (hiCreateStringField
+                  ?name 'via
+                  ?prompt 
+                  "via name in the technology file"
+                  ?defValue
+                  "PTL1_PTL2")
+                ))))
+    (hiDisplayForm option)
+    )
 
   routeFromSToL =
   (lambda ()

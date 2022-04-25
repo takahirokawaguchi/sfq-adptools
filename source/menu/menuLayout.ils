@@ -15,7 +15,7 @@
         ;  "(deleteAllVias )")
         (simpleCreateMenuItem
           "place cells according to schematic"
-          "(routeFromSToL )")
+          "(placeCellsFromSToL )")
         (simpleCreateMenuItem
           "copy nets according to schematic"
           "(routeFromSToL )")

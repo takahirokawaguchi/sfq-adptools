@@ -266,8 +266,12 @@
                + (abs (difference (caar x~>points) (caadr x~>points)))
                + (abs (difference (cadar x~>points) (cadadr x~>points)))))
        (setq ret
-             (times netDelayCoeff ret))
-       ))
+             (times netDelayCoeff ret)))
+      ((equal netDelay "net_length_layout")
+         (setq ret .0))
+      (t
+         (setq ret .0))
+      )
     ret)
 
   (defun calcArvTimeDiffMax (arvTime inputTerm outputTerm)

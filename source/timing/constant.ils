@@ -25,7 +25,8 @@
         (list
           "zero"
           "manhattan"
-          "net_length")
+          "net_length"
+          "net_length_layout")
         ?value "zero")
       (hiCreateCyclicField 
         ?name 'maxBiasVoltage

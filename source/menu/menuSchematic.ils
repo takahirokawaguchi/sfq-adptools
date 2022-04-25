@@ -40,7 +40,7 @@
           "route selected nets"
           "(rRoute \"selected\")")
         (simpleCreateMenuItem
-          "translate ptl"
+          "convert ptl"
           "(guiPTLTranslater )")
         (hiCreateSeparatorMenuItem ?name (gensymMenuItem ))
         (simpleCreateMenuItem

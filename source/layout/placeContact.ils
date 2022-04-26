@@ -43,6 +43,8 @@
     (setq cv (geGetWindowCellView ))
     (when (createOption )
     (setq lib option->libName->value))
+    (printf "%L\n" lib)
+    (printf "%L\n" option->GCPTL1->name)
     (define layer nil)
     (foreach
       net cv~>nets

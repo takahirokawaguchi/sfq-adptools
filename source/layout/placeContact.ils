@@ -1,11 +1,32 @@
 (define placeAllContacts nil)
 (let ()
+  (define option nil)
+  (defun createOption ()
+    (unless option
+      (setq option
+            (hiCreateAppForm
+              ?name (gensym 'option)
+              ?fields 
+              (list 
+                (hiCreateStringField
+                  ?name 'libName
+                  ?prompt 
+                  "library name"
+                  ?defValue
+                  "ptl_layout")
+                ))))
+    (hiDisplayForm option)
+    )
+
   (define cv nil)
   (define lib nil)
   placeAllContacts =
   (lambda ()
     (setq cv (geGetWindowCellView ))
-    (setq lib "ptlLayout")
+    (if (createOption )
+    (setq lib option->libName->value)
+    (setq lib "ptl_layout")
+    )
     (define layer nil)
     (foreach
       net cv~>nets

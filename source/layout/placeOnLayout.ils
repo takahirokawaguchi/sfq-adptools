@@ -33,9 +33,9 @@
   (defun place_inst_as_if_schematic (cellName libName layout_viewName schematic_viewName)
     let((s_inst x y ratio l s)
         l = dbOpenCellViewByType(libName cellName layout_viewName nil "r" nil)
-        l = geGetWindowCellView(geGetCellViewWindow(l))
+        ;l = geGetWindowCellView(geGetCellViewWindow(l))
         s = dbOpenCellViewByType(libName cellName schematic_viewName nil "r" nil)
-        s = geGetWindowCellView(geGetCellViewWindow(s))
+        ;s = geGetWindowCellView(geGetCellViewWindow(s))
 
         ratio = 30.0 / 0.375
         foreach(l_inst l~>instances

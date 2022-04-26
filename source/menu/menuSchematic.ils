@@ -44,7 +44,7 @@
           "(guiPTLTranslater )")
         (hiCreateSeparatorMenuItem ?name (gensymMenuItem ))
         (simpleCreateMenuItem
-          "replace drvPTL2 recPTL2 and pspl2 with those without ground contacts"
+          "replace drvPTL2 recPTL2 and pspl2"
           "(replaceDrvRec )")
         (hiCreateSeparatorMenuItem ?name (gensymMenuItem ))
         (simpleCreateMenuItem

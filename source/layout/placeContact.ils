@@ -14,6 +14,24 @@
                   "library name"
                   ?defValue
                   "ptl_layout")
+                (hiCreateStringField
+                  ?name 'GCPTL1
+                  ?prompt 
+                  "name of ground contact for PTL1"
+                  ?defValue
+                  "GCPTL1")
+                (hiCreateStringField
+                  ?name 'GCPTL2
+                  ?prompt 
+                  "name of ground contact for PTL2"
+                  ?defValue
+                  "GCPTL2")
+                (hiCreateStringField
+                  ?name 'libName
+                  ?prompt 
+                  "name of ground contact for PTL DRV/REC"
+                  ?defValue
+                  "GCPTL2DRVREC")
                 ))))
     (hiDisplayForm option)
     )
@@ -23,10 +41,8 @@
   placeAllContacts =
   (lambda ()
     (setq cv (geGetWindowCellView ))
-    (if (createOption )
-    (setq lib option->libName->value)
-    (setq lib "ptl_layout")
-    )
+    (when (createOption )
+    (setq lib option->libName->value))
     (define layer nil)
     (foreach
       net cv~>nets
@@ -55,17 +71,17 @@
           ((member (car pairP) psInstTerm)
            (dbOpenCellViewByType
              lib
-             "contactPTL2DRVREC"
+             option->GCPTL2DRVREC->value
              "layout"))
           ((equal fig~>layerName "PTL2")
            (dbOpenCellViewByType
              lib
-             "contactViaPTL2"
+             option->GCPTL2->value
              "layout"))
           ((equal fig~>layerName "PTL1")
            (dbOpenCellViewByType
              lib
-             "contactViaPTL1"
+             option->GCPTL1->value
              "layout")))
         nil
         (car pairP)

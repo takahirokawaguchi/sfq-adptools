@@ -27,7 +27,7 @@
                   ?defValue
                   "GCPTL2")
                 (hiCreateStringField
-                  ?name 'libName
+                  ?name 'GCPTL2DRVREC
                   ?prompt 
                   "name of ground contact for PTL DRV/REC"
                   ?defValue

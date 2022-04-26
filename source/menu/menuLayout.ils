@@ -20,6 +20,9 @@
           "copy nets according to schematic"
           "(routeFromSToL )")
         (simpleCreateMenuItem
+          "convert pathSeg to Trl"
+          "(replacePathSegToTrl )")
+        (simpleCreateMenuItem
           "place contacts"
           "(placeAllContacts )")
         (hiCreateSeparatorMenuItem ?name (gensymMenuItem ))

@@ -31,4 +31,4 @@
         (deUnRegUserTriggers "schematic")
         (deUnRegUserTriggers "maskLayout")
         (deUnRegUserTriggers "maskLayoutXL")
-        (load file))))
+        (load option->path->value))))

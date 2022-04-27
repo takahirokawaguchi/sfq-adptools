@@ -23,21 +23,21 @@
            (hiCreateSeparatorMenuItem ?name (gensymMenuItem))
            (simpleCreateMenuItem
             "(reloadADPTOOLS )"
-            "(reloadADPTOOLS )"
-            (simpleCreateMenuItem
-             "(setq sel (geGetSelSet ))"
-             "(setq sel (geGetSelSet ))")
-            (simpleCreateMenuItem
-             "(setq cv (geGetWindowCellView ))"
-             "(setq cv (geGetWindowCellView ))"))))
-         (list 'ADPLayoutMenu))
+            "(reloadADPTOOLS )")
+           (simpleCreateMenuItem
+            "(setq sel (geGetSelSet ))"
+            "(setq sel (geGetSelSet ))")
+           (simpleCreateMenuItem
+            "(setq cv (geGetWindowCellView ))"
+            "(setq cv (geGetWindowCellView ))"))))
+ (list 'ADPLayoutMenu))
 
- (deRegUserTriggers
-  "maskLayout"
-  nil
-  'createADPLayoutMenu)
+(deRegUserTriggers
+ "maskLayout"
+ nil
+ 'createADPLayoutMenu)
 
- (deRegUserTriggers
-  "maskLayoutXL"
-  nil
-  'createADPLayoutMenu)
+(deRegUserTriggers
+ "maskLayoutXL"
+ nil
+ 'createADPLayoutMenu)

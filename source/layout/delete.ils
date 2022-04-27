@@ -72,5 +72,4 @@
    sel (geGetSelSet)
    (foreach
     fig sel~>net~>figs
-    (dbDeleteObject fig))))
- 
+    (dbDeleteObject fig)))))

@@ -1,17 +1,36 @@
 ;(load "~/git/sfq-adptools/source/debug/reload.ils")
 (inSkill
-  ADPSchematicMenu='unbound
-  ADPLayoutMenu='unbound
-  )
+ ADPSchematicMenu = 'unbound
+ ADPLayoutMenu = 'unbound)
 
 (deUnRegUserTriggers "schematic")
 (deUnRegUserTriggers "maskLayout")
 (deUnRegUserTriggers "maskLayoutXL")
 
+(define reload nil)
 (let ()
-  (define file (getPathADPToolsSource ))
+ (define option nil)
+ (defun createOption ()
+  (define file (getPathADPToolsSource))
   (setq file (sprintf nil "%s/load.ils" file))
-  (when (isReadable file)
-    (load file))
-  )
+  (unless option
+          (setq option
+                (hiCreateAppForm
+                 ?name
+                 (gensym 'option)
+                 ?fields
+                 (list
+                  (hiCreateStringField
+                   ?name
+                   'path
+                   ?prompt
+                   "path to reload.ils"
+                   ?defValue
+                   file)))))
+  (hiDisplayForm option))
 
+ reload
+ =
+ (lambda ()
+  (when (createOption)
+        (load file))))

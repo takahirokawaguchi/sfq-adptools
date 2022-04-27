@@ -17,6 +17,7 @@
 
   (define loadDirs
     (list
+      "debug"
       "functions"
       "menu"
       "route"

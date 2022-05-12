@@ -37,6 +37,7 @@ rCreateWireAll =
           0.)))))
 
 (defun riCreateWire (scv route endPoints)
+  (printf "[debug] route = %L\n" route)
   (define tmp 
     (mapcar (lambda (x)
               (append1
@@ -125,8 +126,7 @@ rCreateWireAll =
   (mapcar plus
           (mapcar (lambda (x)
                     (cond
-                      ;((mod x 2) == 1 RINER.SCHEM_GRID_OFFSET)
-                      ((mod (floor x) 2) == 1 RINER.SCHEM_GRID_OFFSET)
+                      ((mod x 2) == 1 RINER.SCHEM_GRID_OFFSET)
                       (t (RINER.SCHEM_GRID_LEN - RINER.SCHEM_GRID_OFFSET))))
                   gcoord)
           (mapcar (lambda (x) (x * RINER.SCHEM_GRID_LEN))

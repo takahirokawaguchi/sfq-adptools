@@ -6,6 +6,7 @@ rCreateWireAll =
   (define drouteList (riReadFile fileName))
   (foreach
     droute drouteList
+    (print "[debug] droute = %L\n" droute)
     (setq
       droute
       (cons
@@ -20,6 +21,7 @@ rCreateWireAll =
                      (cadr (nth (car droute) nets)~>instTerms))
                    RINER.PTL2)
           )))
+    (print "[debug] droute = %L\n" droute)
     (if (nequal (length droute) 1)
       (progn
         (riCreateWire

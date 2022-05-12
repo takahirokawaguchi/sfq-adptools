@@ -22,7 +22,7 @@
     ;(printDebug "riReadRouterOut" 'res res)
     (deleteNetFigs nets)
     ;(println "deleteNetFigs")
-    (deleteNetConnectedPin scv)
+    ;(deleteNetConnectedPin scv)
     (rCreateWireAll scv "./in.riner" nets)
     (println "rCreateWireAll")
     )

@@ -22,6 +22,8 @@ rCreateWireAll =
                    RINER.PTL2)
           )))
     (printf "[debug] droute = %L\n" droute)
+    (printf "[debug] car droute = %L\n" (car droute))
+    (printf "[debug] nth car droute nets = %L\n" (nth (car droute) nets))
     (if (nequal (length droute) 1)
       (progn
         (riCreateWire

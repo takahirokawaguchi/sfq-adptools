@@ -19,9 +19,9 @@
     (roWriteFile netCoords boundary blockages)
     ;(println "roWriteFile")
     (define res (riReadRouterOut ))
-    (printDebug "riReadRouterOut" 'res res)
+    ;(printDebug "riReadRouterOut" 'res res)
     (deleteNetFigs nets)
-    (println "deleteNetFigs")
+    ;(println "deleteNetFigs")
     (deleteNetConnectedPin scv)
     (rCreateWireAll scv "./in.riner" nets)
     (println "rCreateWireAll")
@@ -33,6 +33,12 @@
       (foreach
         fig net~>figs
         (dbDeleteObject fig))))
+
+  (defun deleteNetConnectedPin (scv)
+   (foreach netCpin (setof x scv~>nets (andList x~>pins))
+             (foreach fig netCpin~>figs
+                      (dbDeleteObject fig))))
+
 
   (defun printDebug (str symb var)
     (println str)

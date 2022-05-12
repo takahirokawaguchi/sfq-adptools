@@ -110,6 +110,3 @@
     cells 
     (or (rexMatchp "^drv" x~>cellName)
         (rexMatchp "^rec" x~>cellName))))
-
-
-

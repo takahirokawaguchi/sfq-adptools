@@ -31,13 +31,13 @@ rCreateWireAll =
         (riCreateWire
           scv
           (cddr droute)
-          (mapcar getInstTermCoord (nth (car droute) nets)~>instTerms)))
+          (mapcar getInstTermCoord (nth (car droute)-1 nets)~>instTerms)))
       (progn 
         (schCreateWire
           scv
           "route"
           "flight"
-          (mapcar getInstTermCoord (nth (car droute) nets)~>instTerms)
+          (mapcar getInstTermCoord (nth (car droute)-1 nets)~>instTerms)
           0
           0
           0.)))))

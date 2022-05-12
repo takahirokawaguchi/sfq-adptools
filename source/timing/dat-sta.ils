@@ -1,29 +1,25 @@
 (defun isLogicCell (inst)
   (and
-    (geqp (length (inputTerms inst)) 2)
-    (null (member (logicCellType inst)
-                  '(;"cb"
-                    "spljtlx" "spl3jtlx"
-                    ;"source"
-                    ;"cbjtlx"
-                    "jtlsink" "jtlx" "jtlxx")))))
+   (geqp (length (inputTerms inst)) 2)
+   (null (member (logicCellType inst)
+                 '(
+                   "spljtlx" "spl3jtlx"
+                   "jtlsink" "jtlx" "jtlxx")))))
 
 (defun deleteCommonPoints (scv)
   (foreach
-    x scv~>instances
-    (foreach 
-      y x~>instTerms
-      (dbDeletePropByName y "P") 
-      (dbDeletePropByName y "Q")
-      (dbDeletePropByName y "namesCommonPoints") 
-      ))) 
+   x scv~>instances
+   (foreach
+    y x~>instTerms
+    (dbDeletePropByName y "P")
+    (dbDeletePropByName y "Q")
+    (dbDeletePropByName y "namesCommonPoints"))))
 
-;mainCalculateSlacks
 (define calculateSlacks nil)
 (let ()
   (define scv nil)
-  (define DT nil);DelayTable
-  (define TDT nil);DelayTable
+  (define DT nil)
+  (define TDT nil)
   (define filteringValue .0)
   (define vbMax 8)
   (define vbMin 6)
@@ -31,27 +27,24 @@
   (define nodes nil)
   (define time .0)
 
-  (defun letCalculateSlacks (argueCv) 
+  calculateSlacks
+  =
+  (lambda (argueCv)
     (setq scv argueCv)
-    ;(when (boundp 'OPTION_TIMING_ANALYSIS)
-    (if (equal (getOptionTimingAnalysis )->offOnFiltering->value
+    (if (equal (getOptionTimingAnalysis) ->offOnFiltering->value
                "on")
-      (setq filteringValue 10000.0)
-      (setq filteringValue (getOptionTimingAnalysis )->filteringValue->value)
-      )
-      (setq clockPeriod (getOptionTimingAnalysis )->clockPeriod->value)
-      (setq vbMax (getBiasVoltage "max"))
-      (setq vbMin (getBiasVoltage "min"))
-      ;)
-    (setq time (cputime ))
+        (setq filteringValue 10000.0)
+        (setq filteringValue (getOptionTimingAnalysis) ->filteringValue->value))
+    (setq clockPeriod (getOptionTimingAnalysis) ->clockPeriod->value)
+    (setq vbMax (getBiasVoltage "max"))
+    (setq vbMin (getBiasVoltage "min"))
+    (setq time (cputime))
     (printf "debug\n")
     (deleteCommonPoints scv)
     (printf "debug\n")
-    (findAllCommonPoints )
+    (findAllCommonPoints)
     (printf "debug\n")
-    (makeSlackFile )
-    )
-  calculateSlacks = letCalculateSlacks
+    (makeSlackFile))
 
   (defun findAllCommonPoints ()
     ;initialize
@@ -69,105 +62,105 @@
     (define P nil)
     (define succedingNodes nil)
     (foreach
-      v nodes
-      (setq PandQ nil)
-      (setq Q nil)
-      (setq P nil)
-      (setq succedingNodes (getSuccedingNodes v))
-      (when (isConstraintNode v)
-        (setq P (list (getNameInstAndInstTerm v)))
-        (foreach 
-          s succedingNodes
-          (if (isConvergingNode s)
-            Q = (append1 Q (list (getNameInstAndInstTerm s) 1))
-            (progn
-              (setq PandQ (countNodeAndMergeQ Q s~>Q v))
-              (setq Q (cadr PandQ))
-              (setq P (findPairAndMergeP P s~>P v))
-              (setq P (findPairAndMergeP P (car PandQ) v))
-              )))
-        (when P v~>P = P)
-        (when Q v~>Q = Q)
-        )))
+     v nodes
+     (setq PandQ nil)
+     (setq Q nil)
+     (setq P nil)
+     (setq succedingNodes (getSuccedingNodes v))
+     (when (isConstraintNode v)
+           (setq P (list (getNameInstAndInstTerm v)))
+           (foreach
+            s succedingNodes
+            (if (isConvergingNode s)
+                Q
+                =
+                (append1 Q (list (getNameInstAndInstTerm s) 1))
+                (progn
+                 (setq PandQ (countNodeAndMergeQ Q s~>Q v))
+                 (setq Q (cadr PandQ))
+                 (setq P (findPairAndMergeP P s~>P v))
+                 (setq P (findPairAndMergeP P (car PandQ) v)))))
+           (when P v~>P = P)
+           (when Q v~>Q = Q))))
 
   (defun makeSlackFile ()
     (define ofp
-      (outfile (sprintf nil
-                        "timingslack_%s_%s_%d_%d.csv"
-                        scv~>cellName 
-                        scv~>cellViewType
-                        vbMin
-                        vbMax)
-               "w"))
-    (fprintf ofp 
+            (outfile (sprintf nil
+                              "timingslack_%s_%s_%d_%d.csv"
+                              scv~>cellName
+                              scv~>cellViewType
+                              vbMin
+                              vbMax)
+                     "w"))
+    (fprintf ofp
              (strcat
-               "cellName,"
-               "nameInstPinPair,"
-               "slackMinAI,"
-               "slackMaxAI,"
-               "slackMinAICP,"
-               "difPTL,"
-               "slackMinAIwoCPPR,"
-               "slackMaxAIwoCPPR,"
-               "slackMinAICPwoCPPR,"
-               "commonPoint,"
-               "credit"
-               "\n"))
-    (define timingConstraints 
-      (readDesignIntent ))
-    (define worstSlacks 
-      (list
-        (list "initial" 1000.0)
-        (list "initial" 1000.0)
-        (list "initial" 1000.0)))
+              "cellName,"
+              "nameInstPinPair,"
+              "slackMinAI,"
+              "slackMaxAI,"
+              "slackMinAICP,"
+              "difPTL,"
+              "slackMinAIwoCPPR,"
+              "slackMaxAIwoCPPR,"
+              "slackMinAICPwoCPPR,"
+              "commonPoint,"
+              "credit"
+              "\n"))
+    (define timingConstraints
+            (readDesignIntent))
+    (define worstSlacks
+            (list
+             (list "initial" 1000.0)
+             (list "initial" 1000.0)
+             (list "initial" 1000.0)))
     (define instName nil)
     (define pairs nil)
     (define calcSlackResult nil)
     (define temp nil)
     (foreach
-      x timingConstraints
-      (setq instName (car x))
-      (setq pairs nil)
-      (setq calcSlackResult nil)
-      (setq temp nil)
-      (when (setq pairs (car (cadr x)));slackMin
-        (foreach
-          p pairs
-          (setq temp (calcSlackMinPair instName p ofp))
-          (when (leqp (nth 1 temp)
-                      (cadr (nth 0 worstSlacks)))
-            (replaceListNth worstSlacks 0 (list (nth 0 temp) (nth 1 temp))))
-          (when (leqp (nth 3 temp)
-                      (cadr (nth 2 worstSlacks)))
-            (replaceListNth worstSlacks 2 (list (nth 0 temp) (nth 3 temp))))
-          ))
-      (when (setq pairs (cadr (cadr x)));slackMax
-        (foreach
-          p pairs
-          (setq temp (calcSlackMaxPair instName p ofp))
-          (when (leqp (nth 2 temp)
-                      (cadr (nth 1 worstSlacks)))
-            (replaceListNth worstSlacks 1 (list (nth 0 temp) (nth 2 temp))))
-          (when (leqp (nth 3 temp)
-                      (cadr (nth 2 worstSlacks)))
-            (replaceListNth worstSlacks 2 (list (nth 0 temp) (nth 3 temp))))
-          )))
+     x timingConstraints
+     (setq instName (car x))
+     (setq pairs nil)
+     (setq calcSlackResult nil)
+     (setq temp nil)
+     (when (setq pairs (car (cadr x)))
+           ;slackMin
+           (foreach
+            p pairs
+            (setq temp (calcSlackMinPair instName p ofp))
+            (when (leqp (nth 1 temp)
+                        (cadr (nth 0 worstSlacks)))
+                  (replaceListNth worstSlacks 0 (list (nth 0 temp) (nth 1 temp))))
+            (when (leqp (nth 3 temp)
+                        (cadr (nth 2 worstSlacks)))
+                  (replaceListNth worstSlacks 2 (list (nth 0 temp) (nth 3 temp))))))
+     (when (setq pairs (cadr (cadr x)))
+           ;slackMax
+           (foreach
+            p pairs
+            (setq temp (calcSlackMaxPair instName p ofp))
+            (when (leqp (nth 2 temp)
+                        (cadr (nth 1 worstSlacks)))
+                  (replaceListNth worstSlacks 1 (list (nth 0 temp) (nth 2 temp))))
+            (when (leqp (nth 3 temp)
+                        (cadr (nth 2 worstSlacks)))
+                  (replaceListNth worstSlacks 2 (list (nth 0 temp) (nth 3 temp)))))))
     ;worst
     (fprintf ofp "Worst hold slack: %s %.1f\n"
-             (car (nth 0 worstSlacks)) (cadr (nth 0 worstSlacks) ))
+             (car (nth 0 worstSlacks)) (cadr (nth 0 worstSlacks)))
     (fprintf ofp "Worst timing slack based on maximum acceptable interval: %s %.1f\n"
-             (car (nth 1 worstSlacks)) (cadr (nth 1 worstSlacks) ))
+             (car (nth 1 worstSlacks)) (cadr (nth 1 worstSlacks)))
     (fprintf ofp "Worst setup slack: %s %.1f\n"
-             (car (nth 2 worstSlacks)) (cadr (nth 2 worstSlacks) ))
+             (car (nth 2 worstSlacks)) (cadr (nth 2 worstSlacks)))
     (fprintf ofp "Estimated minimum clock period: %s %.1f\n"
-             (car (nth 2 worstSlacks)) 
-             clockPeriod - (cadr (nth 2 worstSlacks) ))
+             (car (nth 2 worstSlacks))
+             clockPeriod - (cadr (nth 2 worstSlacks)))
     (fprintf ofp "#constraint-pair of min is %d\n"
              (plusList (mapcar (lambda (x) (length (car (cadr x)))) timingConstraints)))
     (fprintf ofp "#constraint-pair of max is %d\n"
              (plusList (mapcar (lambda (x) (length (cadr (cadr x)))) timingConstraints)))
     (fprintf ofp "runtime of finding common path and calculating slacks is %.3f seconds\n"
-             (quotient (difference (cputime ) time) 60.0))
+             (quotient (difference (cputime) time) 60.0))
     (fprintf ofp "#branching-nodes is %d\n"
              (length (setof x nodes (geqp (length x~>namesSuccedingNodes) 2))))
     (fprintf ofp "#converging-nodes is %d\n"
@@ -178,250 +171,249 @@
     (define inputTerm1 (findInstTermByName scv (list instName (car pairName))))
     (define inputTerm2 (findInstTermByName scv (list instName (cadr pairName))))
     (define commonPoint
-      (findInstTermByName scv (cadr (assoc inputTerm2~>name inputTerm1~>namesCommonPoints))))
+            (findInstTermByName scv (cadr (assoc inputTerm2~>name inputTerm1~>namesCommonPoints))))
     (define credit nil)
     (if commonPoint
-      (setq credit commonPoint~>arvTimeMax - commonPoint~>arvTimeMin)
-      (setq credit .0))
-    (define slacks;name,slackMinAI,slackMaxAI,slackMinAICP
-      (list
-        (sprintf nil "%s_%s_%s" inputTerm1~>inst~>name inputTerm1~>name inputTerm2~>name)
-        ;slackMinAI
-        inputTerm2~>arvTimeMax - inputTerm1~>arvTimeMin
-        + credit
-        - DT->getInterval(inputTerm1 inputTerm2 vbMin)
-        ;slackMaxAI
-        1000.0
-        ;slackMinAICP
-        clockPeriod +
-        inputTerm1~>arvTimeMin - inputTerm2~>arvTimeMax
-        + credit
-        - DT->getInterval(inputTerm2 inputTerm1 vbMin)
-        ))
+        (setq credit commonPoint~>arvTimeMax - commonPoint~>arvTimeMin)
+        (setq credit .0))
+    (define slacks
+            ;name,slackMinAI,slackMaxAI,slackMinAICP
+            (list
+             (sprintf nil "%s_%s_%s" inputTerm1~>inst~>name inputTerm1~>name inputTerm2~>name)
+             ;slackMinAI
+             inputTerm2~>arvTimeMax - inputTerm1~>arvTimeMin
+             + credit
+             - (DT->getInterval inputTerm1 inputTerm2 vbMin)
+             ;slackMaxAI
+             1000.0
+             ;slackMinAICP
+             clockPeriod +
+             inputTerm1~>arvTimeMin - inputTerm2~>arvTimeMax
+             + credit
+             - (DT->getInterval inputTerm2 inputTerm1 vbMin)))
     (when (exists x (cdr slacks) (leqp x filteringValue))
-      (fprintf ofp "%s,%s,";
-               inputTerm1~>inst~>cellName
-               (nth 0 slacks))
-      (fprintf ofp "%.1f,," (nth 1 slacks))
-      (fprintf ofp "%.1f," (nth 3 slacks))
-      (fprintf ofp "%d,";difPTL
-               (max
-                 inputTerm1~>numPtlCellMax - inputTerm2~>numPtlCellMin
-                 inputTerm2~>numPtlCellMax - inputTerm1~>numPtlCellMin))
-      (fprintf ofp "%.1f,,";
-               inputTerm2~>arvTimeMax - inputTerm1~>arvTimeMin
-               - DT->getInterval(inputTerm1 inputTerm2 vbMin))
-      (fprintf ofp "%.1f";
-               clockPeriod +
-               inputTerm1~>arvTimeMin - inputTerm2~>arvTimeMax
-               - DT->getInterval(inputTerm2 inputTerm1 vbMin))
-      (when commonPoint
-        (fprintf ofp ",%s_%s" commonPoint~>inst~>name commonPoint~>name)
-        (fprintf ofp ",%.1f" credit))
-      (fprintf ofp "\n")
-      )
+          (fprintf ofp "%s,%s,"
+                   inputTerm1~>inst~>cellName
+                   (nth 0 slacks))
+          (fprintf ofp "%.1f,," (nth 1 slacks))
+          (fprintf ofp "%.1f," (nth 3 slacks))
+          (fprintf ofp "%d,"
+                   (max
+                    inputTerm1~>numPtlCellMax - inputTerm2~>numPtlCellMin
+                    inputTerm2~>numPtlCellMax - inputTerm1~>numPtlCellMin))
+          (fprintf ofp "%.1f,,"
+                   inputTerm2~>arvTimeMax - inputTerm1~>arvTimeMin
+                   - (DT->getInterval inputTerm1 inputTerm2 vbMin))
+          (fprintf ofp "%.1f"
+                   clockPeriod +
+                   inputTerm1~>arvTimeMin - inputTerm2~>arvTimeMax
+                   - (DT->getInterval inputTerm2 inputTerm1 vbMin))
+          (when commonPoint
+                (fprintf ofp ",%s_%s" commonPoint~>inst~>name commonPoint~>name)
+                (fprintf ofp ",%.1f" credit))
+          (fprintf ofp "\n"))
     slacks)
 
   (defun calcSlackMaxPair (instName pairName ofp)
     (define inputTerm1 (findInstTermByName scv (list instName (car pairName))))
     (define inputTerm2 (findInstTermByName scv (list instName (cadr pairName))))
-    (define commonPoint 
-      (findInstTermByName scv (cadr (assoc inputTerm2~>name inputTerm1~>namesCommonPoints))))
+    (define commonPoint
+            (findInstTermByName scv (cadr (assoc inputTerm2~>name inputTerm1~>namesCommonPoints))))
     (define credit .0)
     (when commonPoint
-      (setq credit commonPoint~>arvTimeMax - commonPoint~>arvTimeMin))
+          (setq credit commonPoint~>arvTimeMax - commonPoint~>arvTimeMin))
     (define slacks
-      (list
-        (sprintf nil "%s_%s_%s" inputTerm1~>inst~>name inputTerm1~>name inputTerm2~>name)
-        ;slackMinAI
-        1000.0
-        ;slackMaxAI
-        inputTerm1~>arvTimeMin
-        + DT->getInterval(inputTerm1 inputTerm2 vbMin)
-        - inputTerm2~>arvTimeMax
-        + credit
-        ;slackMinAICP
-        clockPeriod +
-        inputTerm1~>arvTimeMin - inputTerm2~>arvTimeMax
-        + credit
-        - DT->getInterval(inputTerm2 inputTerm1 vbMin)))
+            (list
+             (sprintf nil "%s_%s_%s" inputTerm1~>inst~>name inputTerm1~>name inputTerm2~>name)
+             ;slackMinAI
+             1000.0
+             ;slackMaxAI
+             inputTerm1~>arvTimeMin
+             + (DT->getInterval inputTerm1 inputTerm2 vbMin)
+             - inputTerm2~>arvTimeMax
+             + credit
+             ;slackMinAICP
+             clockPeriod +
+             inputTerm1~>arvTimeMin - inputTerm2~>arvTimeMax
+             + credit
+             - (DT->getInterval inputTerm2 inputTerm1 vbMin)))
     (when (exists x (cdr slacks) (leqp x filteringValue))
-      (fprintf ofp "%s,%s,";
-               inputTerm1~>inst~>cellName
-               (nth 0 slacks))
-      (fprintf ofp ",%.1f," (nth 2 slacks))
-      (fprintf ofp "%.1f," (nth 3 slacks))
-      (fprintf ofp "%d,";difPTL
-               (max
-                 inputTerm1~>numPtlCellMax - inputTerm2~>numPtlCellMin
-                 inputTerm2~>numPtlCellMax - inputTerm1~>numPtlCellMin))
-      (fprintf ofp ",%.1f,";
-               inputTerm1~>arvTimeMin
-               + DT->getInterval(inputTerm1 inputTerm2 vbMin)
-               - inputTerm2~>arvTimeMax)
-      (fprintf ofp "%.1f";
-               clockPeriod +
-               inputTerm1~>arvTimeMin - inputTerm2~>arvTimeMax
-               - DT->getInterval(inputTerm2 inputTerm1 vbMin))
-      (when commonPoint
-        (fprintf ofp ",%s_%s" commonPoint~>inst~>name commonPoint~>name)
-        (fprintf ofp ",%.1f" credit))
-      (fprintf ofp "\n")
-      )
+          (fprintf ofp "%s,%s,"
+                   inputTerm1~>inst~>cellName
+                   (nth 0 slacks))
+          (fprintf ofp ",%.1f," (nth 2 slacks))
+          (fprintf ofp "%.1f," (nth 3 slacks))
+          (fprintf ofp "%d,"
+                   (max
+                    inputTerm1~>numPtlCellMax - inputTerm2~>numPtlCellMin
+                    inputTerm2~>numPtlCellMax - inputTerm1~>numPtlCellMin))
+          (fprintf ofp ",%.1f,"
+                   inputTerm1~>arvTimeMin
+                   + (DT->getInterval inputTerm1 inputTerm2 vbMin)
+                   - inputTerm2~>arvTimeMax)
+          (fprintf ofp "%.1f"
+                   clockPeriod +
+                   inputTerm1~>arvTimeMin - inputTerm2~>arvTimeMax
+                   - (DT->getInterval inputTerm2 inputTerm1 vbMin))
+          (when commonPoint
+                (fprintf ofp ",%s_%s" commonPoint~>inst~>name commonPoint~>name)
+                (fprintf ofp ",%.1f" credit))
+          (fprintf ofp "\n"))
     slacks)
 
   (defun getSuccedingNodes (v)
     (when v~>namesSuccedingNodes
-      (mapcar (lambda (x) (findInstTermByName scv x)) v~>namesSuccedingNodes)))
+          (mapcar (lambda (x) (findInstTermByName scv x)) v~>namesSuccedingNodes)))
 
   (defun getPrecedingNodes (v)
     (when v~>namesPrecedingNodes
-      (mapcar (lambda (x) (findInstTermByName scv x)) v~>namesPrecedingNodes)))
+          (mapcar (lambda (x) (findInstTermByName scv x)) v~>namesPrecedingNodes)))
 
   (defun findPairAndMergeP (P1 P2 v)
-    (foreach 
-      p1 P1
-      (foreach 
-        p2 P2
-        (when (equal (car p1) (car p2))
-          (let ()
-            (define nodep1 (findInstTermByName scv p1))
-            (define nodep2 (findInstTermByName scv p2))
-            (when (member nodep1 (TDT->inputTermsDependTiming nodep2))
-              nodep2~>namesCommonPoints 
-              = (append1 nodep2~>namesCommonPoints 
-                         (list nodep1~>name (getNameInstAndInstTerm v)))
-              (when (equal (length nodep2~>namesCommonPoints) 
-                           (length (TDT->inputTermsDependTiming nodep2)))
-                (setq P2 (remove p2 P2)))
-              nodep1~>namesCommonPoints
-              = (append1 nodep1~>namesCommonPoints 
-                         (list nodep2~>name (getNameInstAndInstTerm v)))
-              (when (equal (length nodep1~>namesCommonPoints) 
-                           (length (TDT->inputTermsDependTiming nodep1)))
-                (setq P1 (remove p1 P1))))
-            ))))
+    (foreach
+     p1 P1
+     (foreach
+      p2 P2
+      (when (equal (car p1) (car p2))
+            (let ()
+              (define nodep1 (findInstTermByName scv p1))
+              (define nodep2 (findInstTermByName scv p2))
+              (when (member nodep1 (TDT->inputTermsDependTiming nodep2))
+                    nodep2~>namesCommonPoints
+                    =
+                    (append1 nodep2~>namesCommonPoints
+                             (list nodep1~>name (getNameInstAndInstTerm v)))
+                    (when (equal (length nodep2~>namesCommonPoints)
+                                 (length (TDT->inputTermsDependTiming nodep2)))
+                          (setq P2 (remove p2 P2)))
+                    nodep1~>namesCommonPoints
+                    =
+                    (append1 nodep1~>namesCommonPoints
+                             (list nodep2~>name (getNameInstAndInstTerm v)))
+                    (when (equal (length nodep1~>namesCommonPoints)
+                                 (length (TDT->inputTermsDependTiming nodep1)))
+                          (setq P1 (remove p1 P1))))))))
     (append P1 P2))
 
   (defun countNodeAndMergeQ (Q1 Q2 v)
     (define P nil)
-    (foreach 
-      q2 Q2
-      (let ()
-        (define keyq2 (car q2))
-        (define valueq2 (cadr q2))
-        (define valueq1 (cadr (assoc keyq2 Q1)))
-        (if valueq1
-          then;keyq2 exists in Q1
-          (let ()
-            (define plustValuesq1q2 (plus valueq1 valueq2))
-            (define node (findInstTermByName scv keyq2))
-            (define PandQ nil)
-            (if (equal (length node~>namesPrecedingNodes) plustValuesq1q2)
-              then;plustValuesq1q2 is equal to the number of namesPrecedingNodes of cadrq2
-              (setq Q1 (remove (list keyq2 valueq1) Q1))
-              (setq PandQ (countNodeAndMergeQ Q1 node~>Q v))
-              (setq Q1 (cadr PandQ))
-              (setq P (findPairAndMergeP P node~>P v))
-              (setq P (findPairAndMergeP P (car PandQ) v))
-              else
-              (replaceAssoc Q1 keyq2 plustValuesq1q2)))
-          else;keyq2 does not exist in Q1
-          (setq Q1 (append1 Q1 q2)))))
+    (foreach
+     q2 Q2
+     (let ()
+       (define keyq2 (car q2))
+       (define valueq2 (cadr q2))
+       (define valueq1 (cadr (assoc keyq2 Q1)))
+       (if valueq1
+           then
+           ;keyq2 exists in Q1
+           (let ()
+             (define plustValuesq1q2 (plus valueq1 valueq2))
+             (define node (findInstTermByName scv keyq2))
+             (define PandQ nil)
+             (if (equal (length node~>namesPrecedingNodes) plustValuesq1q2)
+                 then
+                 ;plustValuesq1q2 is equal to the number of namesPrecedingNodes of cadrq2
+                 (setq Q1 (remove (list keyq2 valueq1) Q1))
+                 (setq PandQ (countNodeAndMergeQ Q1 node~>Q v))
+                 (setq Q1 (cadr PandQ))
+                 (setq P (findPairAndMergeP P node~>P v))
+                 (setq P (findPairAndMergeP P (car PandQ) v))
+                 else
+                 (replaceAssoc Q1 keyq2 plustValuesq1q2)))
+           else
+           ;keyq2 does not exist in Q1
+           (setq Q1 (append1 Q1 q2)))))
     (list P Q1))
 
   (defun isConstraintNode (node)
     (and
-      (isInputTerm node)
-      (TDT->inputTermsDependTiming node)))
+     (isInputTerm node)
+     (TDT->inputTermsDependTiming node)))
 
   (defun isConvergingNode (node)
     (geqp (length node~>namesPrecedingNodes) 2))
 
   (defun makeDesignIntent (fileName)
-    (when 
-      (or
-        (null (isFile fileName))
-        (equal (getOptionTimingAnalysis )->designIntent->value
-               "recreate"))
-      (let ()
-        (define ofp (outfile fileName "w"))
-        (fprintf ofp "cellName, minOrderedPair, maxOrderedPair\n")
-        (define lcs (setof x scv~>instances (isLogicCell x)))
-        (define lcsMin (setof x lcs (null (hasMaxTimingConstraint x))))
-        (define lcsMax (setof x lcs (hasMaxTimingConstraint x)))
-        (foreach 
-          lc lcsMin
-          (fprintf ofp "%s:%s, (" lc~>cellName lc~>name)
-          (foreach 
-            p (makePair (inputTerms lc))
-            (when (and (car p)~>arvTimeMin 
-                       (cadr p)~>arvTimeMin 
-                       (geqp (car p)~>arvTimeMin 
-                             (cadr p)~>arvTimeMin ))
-              (setq p (list (cadr p) (car p)) ))
-            (when (member (cadr p)
-                          (TDT->inputTermsDependTiming (car p)))
-              (fprintf ofp "(%s %s)" (car p)~>name (cadr p)~>name)))
-          (fprintf ofp "), \n"))
-        (foreach 
-          lc lcsMax
-          (fprintf ofp "%s:%s, , (" lc~>cellName lc~>name)
-          (foreach 
-            p (makePair (inputTerms lc))
-            (fprintf ofp "(%s %s) " (car p)~>name (cadr p)~>name)
-            (fprintf ofp "(%s %s) " (cadr p)~>name (car p)~>name))
-          (fprintf ofp ")\n"))
-        (close ofp))))
+    (when (or
+           (null (isFile fileName))
+           (equal (getOptionTimingAnalysis) ->designIntent->value
+                  "recreate"))
+          (let ()
+            (define ofp (outfile fileName "w"))
+            (fprintf ofp "cellName, minOrderedPair, maxOrderedPair\n")
+            (define lcs (setof x scv~>instances (isLogicCell x)))
+            (define lcsMin (setof x lcs (null (hasMaxTimingConstraint x))))
+            (define lcsMax (setof x lcs (hasMaxTimingConstraint x)))
+            (foreach
+             lc lcsMin
+             (fprintf ofp "%s:%s, (" lc~>cellName lc~>name)
+             (foreach
+              p (makePair (inputTerms lc))
+              (when (and (car p) ~>arvTimeMin
+                         (cadr p) ~>arvTimeMin
+                         (geqp (car p) ~>arvTimeMin
+                               (cadr p) ~>arvTimeMin))
+                    (setq p (list (cadr p) (car p))))
+              (when (member (cadr p)
+                            (TDT->inputTermsDependTiming (car p)))
+                    (fprintf ofp "(%s %s)" (car p) ~>name (cadr p) ~>name)))
+             (fprintf ofp "), \n"))
+            (foreach
+             lc lcsMax
+             (fprintf ofp "%s:%s, , (" lc~>cellName lc~>name)
+             (foreach
+              p (makePair (inputTerms lc))
+              (fprintf ofp "(%s %s) " (car p) ~>name (cadr p) ~>name)
+              (fprintf ofp "(%s %s) " (cadr p) ~>name (car p) ~>name))
+             (fprintf ofp ")\n"))
+            (close ofp))))
 
   (defun makePair (aList)
     (when aList
-      (append
-        (mapcar (lambda (x) (list (car aList) x)) (cdr aList))
-        (makePair (cdr aList)))))
+          (append
+           (mapcar (lambda (x) (list (car aList) x)) (cdr aList))
+           (makePair (cdr aList)))))
 
   (defun readDesignIntent ()
     (define ret nil)
-    (define fileName 
-      (sprintf nil
-               "design_intent_%s_%s.csv"
-               scv~>cellName 
-               scv~>cellViewType))
+    (define fileName
+            (sprintf nil
+                     "design_intent_%s_%s.csv"
+                     scv~>cellName
+                     scv~>cellViewType))
     (makeDesignIntent fileName)
-    (define ifp 
-      (infile fileName)) 
+    (define ifp
+            (infile fileName))
     (define temp nil)
     (define temp2 nil)
     (define name nil)
     (define minList nil)
     (define maxList nil)
     (when ifp
-      (while
-        (gets temp ifp)
-        (setq temp (parseString temp ":,"))
-        (when (equal 4 (length temp))
-          (setq name (nth 1 temp))
-          (setq temp2 (parseString (nth 2 temp) "() "))
-          (setq minList nil)
           (while
-            temp2
-            (setq minList 
-                  (append1 minList
-                           (list (car temp2)
-                                 (cadr temp2))))
-            (setq temp2 (cddr temp2)))
-          (setq temp2 (parseString (nth 3 temp) "() \n"))
-          (setq maxList nil)
-          (while
-            temp2
-            (setq maxList 
-                  (append1 maxList
-                           (list (car temp2)
-                                 (cadr temp2))))
-            (setq temp2 (cddr temp2)))
-          (setq ret (append1 ret (list name (list minList maxList))))
-          )))
+           (gets temp ifp)
+           (setq temp (parseString temp ":,"))
+           (when (equal 4 (length temp))
+                 (setq name (nth 1 temp))
+                 (setq temp2 (parseString (nth 2 temp) "() "))
+                 (setq minList nil)
+                 (while
+                  temp2
+                  (setq minList
+                        (append1 minList
+                                 (list (car temp2)
+                                       (cadr temp2))))
+                  (setq temp2 (cddr temp2)))
+                 (setq temp2 (parseString (nth 3 temp) "() \n"))
+                 (setq maxList nil)
+                 (while
+                  temp2
+                  (setq maxList
+                        (append1 maxList
+                                 (list (car temp2)
+                                       (cadr temp2))))
+                  (setq temp2 (cddr temp2)))
+                 (setq ret (append1 ret (list name (list minList maxList)))))))
     (close ifp)
-    ret)
-  );let for file scope
-
+    ret))
+;let for file scope

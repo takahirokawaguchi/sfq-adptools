@@ -121,6 +121,7 @@ rCreateWireAll =
       (ncons element))))
 
 (defun riCenterGrid (gcoord)
+(printf "[debug] gcoord = %L\n" gcoord)
   (mapcar plus
           (mapcar (lambda (x)
                     (cond

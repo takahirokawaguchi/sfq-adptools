@@ -43,7 +43,7 @@ rCreateWireAll =
       ;    0
       ;    0.)))))
 
-(defun riCreateWire (scv route endPoints)
+(defun riCreateWire (scv route); endPoints)
   (printf "[debug] route = %L\n" route)
   (define tmp 
     (mapcar (lambda (x)
@@ -51,8 +51,8 @@ rCreateWireAll =
                 (riCenterGrid (list (car x) (cadr x)))
                 (nth 2 x)))
             route))
-  (setq tmp (cons (append1 (car endPoints) RINER.DEFAULT_PIN_LAYER) tmp))
-  (setq tmp (append1 tmp (append1 (cadr endPoints) RINER.DEFAULT_PIN_LAYER)))
+  ;(setq tmp (cons (append1 (car endPoints) RINER.DEFAULT_PIN_LAYER) tmp))
+  ;(setq tmp (append1 tmp (append1 (cadr endPoints) RINER.DEFAULT_PIN_LAYER)))
   (define subroutes (riDivideRoute tmp))
   (setq subroutes (mapcar (lambda (x) (riCompressPoints x scv)) subroutes))
   (define wires nil)

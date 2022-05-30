@@ -1,0 +1,19 @@
+(defun getInstTermCoord (instTerm)
+  (define masterTerm nil)
+  (define masterTermXY nil)
+  (cond
+    ((nequal instTerm~>objType "instTerm")
+     (warn "calcInstTermCoord: object \"%L\" not instTerm." instTerm))
+    ((null 
+       (and 
+         (setq masterTerm 
+               (car (exists x instTerm~>inst~>master~>terminals
+                            (equal x~>name instTerm~>name))))
+         (setq masterTermXY (centerBox (car masterTerm~>pins)~>fig~>bBox))))
+     (warn "calcInstTermCoord: cannot get pin \"%s\" coordinate." instTerm~>name))
+    (t
+      (dbTransformPoint 
+        masterTermXY
+        (list instTerm~>inst~>xy
+              instTerm~>inst~>orient)))))
+

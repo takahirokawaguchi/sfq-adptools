@@ -1,5 +1,6 @@
 (defun getInstTermGridCoord (instTerm)
-  (ceiling (getInstTermCoord instTerm)/(RINER.SCHEM_GRID_LEN)))
+  (mapcar (lambda (x) (ceiling (x/(RINER.SCHEM_GRID_LEN))))
+  (getInstTermCoord instTerm))) 
   ;(define refSchPoint nil)
   ;(define instTermBBox nil)
   ;(when instTerm

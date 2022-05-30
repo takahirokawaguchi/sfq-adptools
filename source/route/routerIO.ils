@@ -26,21 +26,22 @@ rCreateWireAll =
     ;(printf "[debug] nets = %L\n" nets)
     ;(printf "[debug] length nets = %L\n" (length nets))
     ;(printf "[debug] nth car droute nets = %L\n" (nth (car droute) nets))
-    (if (nequal (length droute) 1)
+    ;(if (nequal (length droute) 1)
       (progn
         (riCreateWire
           scv
-          (cddr droute)
-          (mapcar getInstTermCoord (nth (car droute)-1 nets)~>instTerms)))
-      (progn 
-        (schCreateWire
-          scv
-          "route"
-          "flight"
-          (mapcar getInstTermCoord (nth (car droute)-1 nets)~>instTerms)
-          0
-          0
-          0.)))))
+          droute))
+          ;(cddr droute)
+          ;(mapcar getInstTermCoord (nth (car droute)-1 nets)~>instTerms)))
+      ;(progn 
+      ;  (schCreateWire
+      ;    scv
+      ;    "route"
+      ;    "flight"
+      ;    (mapcar getInstTermCoord (nth (car droute)-1 nets)~>instTerms)
+      ;    0
+      ;    0
+      ;    0.)))))
 
 (defun riCreateWire (scv route endPoints)
   (printf "[debug] route = %L\n" route)

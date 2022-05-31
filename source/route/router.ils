@@ -14,7 +14,8 @@
     (define netCoords (getAllNetCoords nets))
     ;(printDebug "netCoords" 'netCoords netCoords)
     ;blockage.ils
-    (define blockages (getBlockage scv boundary))
+    ;(define blockages (getBlockage scv boundary))
+    (define blockages nil)
     ;(printDebug "blockages" 'blockages blockages)
     (roWriteFile netCoords boundary blockages)
     ;(println "roWriteFile")

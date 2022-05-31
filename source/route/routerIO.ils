@@ -6,21 +6,21 @@ rCreateWireAll =
   (define drouteList (riReadFile fileName))
   (foreach
     droute drouteList
-    (printf "[debug] droute = %L\n" droute)
-    (setq
-      droute
-      (cons
-        (car droute)
-        (append1
-          (cons
-            (append1 (getInstTermGridCoord 
-                       (car (nth (car droute) nets)~>instTerms))
-                     RINER.PTL2)
-            (cdr droute))
-          (append1 (getInstTermGridCoord 
-                     (cadr (nth (car droute) nets)~>instTerms))
-                   RINER.PTL2)
-          )))
+    ;(printf "[debug] droute = %L\n" droute)
+    ;(setq
+    ;  droute
+    ;  (cons
+    ;    (car droute)
+    ;    (append1
+    ;      (cons
+    ;        (append1 (getInstTermGridCoord 
+    ;                   (car (nth (car droute) nets)~>instTerms))
+    ;                 RINER.PTL2)
+    ;        (cdr droute))
+    ;      (append1 (getInstTermGridCoord 
+    ;                 (cadr (nth (car droute) nets)~>instTerms))
+    ;               RINER.PTL2)
+    ;      )))
     ;(printf "[debug] droute = %L\n" droute)
     ;(printf "[debug] car droute = %L\n" (car droute))
     ;(printf "[debug] nets = %L\n" nets)

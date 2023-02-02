@@ -8,12 +8,14 @@
 
   datGui = 
   (lambda ()
+    (printf "debug:datGui")
     (define time nil)
     (define scv (geGetWindowCellView ))
     (unless (boundp 'OPTION_TIMING_ANALYSIS)
       (createOptionTimingAnalysis scv))
     (define 
       ok (hiDisplayForm 'OPTION_TIMING_ANALYSIS))
+    (printf "debug:displayArrivalTime")
     (when ok
       (setq time (cputime ));cputime is a system function
       (displayArrivalTime scv)
@@ -21,6 +23,7 @@
               (quotient
                 (difference (cputime ) time)
                 60.0)))
+    (printf "debug:timingslack")
     (when 
       (nequal (getOptionTimingAnalysis )->offOnFiltering->value
               "off")

@@ -78,20 +78,23 @@
   mainTimingPropagation =
   (lambda (argueCv)
     ;; initialization
-    (printf "debug:maintimingpropagation")
+    (printf "debug:maintimingpropagation\n")
     (setq cv argueCv)
     (when (boundp 'OPTION_TIMING_ANALYSIS)
       (setq netDelay (getOptionTimingAnalysis )->netDelay->value)
       (setq vbMax (getBiasVoltage "max"))
       (setq vbMin (getBiasVoltage "min"))
       )
+    (printf "debug:deleteAllArvTime\n")
     (deleteAllArvTime cv)
     (setq DT (makeDelayTable cv))
     (setq TDT (makeTimingDependencyTable cv))
     ;start temrs
     (define time cputime())
+    (printf "debug:define inputTermsCalcNext\n")
     (define inputTermsCalcNext (append (setIpins ) (setSources )))
     ;;procedure
+    (printf "debug:setArvTimeInputTermsCalcNext\n")
     (setArvTimeInputTermsCalcNext inputTermsCalcNext)
     (printf "runtime of timing propagation is %.3f seconds\n"
             (quotient (difference (cputime ) time)

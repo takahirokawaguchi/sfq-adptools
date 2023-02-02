@@ -67,7 +67,7 @@
       (hiCreateSeparatorField 
         ?name 'separator1)
       (hiCreateRadioField 
-        ?name 'offOnFiltering
+        ?name 'staField
         ?choices (list "off" "on" "filtering")
         ?prompt "static timing analysis"
         ?value "off")

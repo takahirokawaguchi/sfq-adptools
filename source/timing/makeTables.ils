@@ -46,12 +46,12 @@
           then
           (or
            ;when it has two or more succeding nodes
-           (geqp (length outputTermsDependTiming (inputOrOutputTerm)) 2)
+           (geqp (length (outputTermsDependTiming inputOrOutputTerm)) 2)
            ;when it is a constriant node
-           inputTermsDependTiming (inputOrOutputTerm))
+           (inputTermsDependTiming inputOrOutputTerm))
           else
           ;isOutputTerm
-          (geqp (length inputTermsDependTiming (inputOrOutputTerm)) 2)))
+          (geqp (length (inputTermsDependTiming inputOrOutputTerm)) 2)))
 
     (defun refTable (instTerm)
       timingDependencyTable[instTerm~>inst~>master][instTerm~>name])
@@ -149,9 +149,9 @@
          (warn "can't read delays of %s %s. @makeDelayTable\n" m~>cellName m~>libName)))
 
     (defun getDelay (inputTerm outputTerm vb)
-      (define hashkey (getHashkey inputTerm outputTerm vb))
       (when (isPTLFamily inputTerm~>inst)
             (setq vb 1))
+      (define hashkey (getHashkey inputTerm outputTerm vb))
       (if (equal
            delayTable[inputTerm~>inst~>master][hashkey]
            'unbound)

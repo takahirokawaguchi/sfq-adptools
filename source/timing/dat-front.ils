@@ -3,92 +3,88 @@
 (define datGui nil)
 (define removeAllLabels nil)
 ;(let ()
-  ;local variables (future)
-  (define LABEL_LAYER (list "y4" "drawing"))
+;local variables (future)
+(define LABEL_LAYER (list "y4" "drawing"))
 
-  datGui = 
-  (lambda ()
-    (define time nil)
-    (define scv (geGetWindowCellView ))
-    (unless (boundp 'OPTION_TIMING_ANALYSIS)
-      (createOptionTimingAnalysis scv))
-    (define 
-      ok (hiDisplayForm 'OPTION_TIMING_ANALYSIS))
-    (when ok
-      (setq time (cputime ));cputime is a system function
-      (displayArrivalTime scv)
-      (printf "runtime is %.3f seconds\n" 
-              (quotient
-                (difference (cputime ) time)
-                60.0)))
-    (printf "debug:timingslack")
-    (when 
-      (nequal (getOptionTimingAnalysis )->offOnFiltering->value
-              "off")
-             (calculateSlacks scv)
-             )
-    )
+datGui = 
+(lambda ()
+  (define time nil)
+  (define scv (geGetWindowCellView ))
+  (unless (boundp 'OPTION_TIMING_ANALYSIS)
+    (createOptionTimingAnalysis scv))
+  (define 
+    ok (hiDisplayForm 'OPTION_TIMING_ANALYSIS))
+  (when ok
+    (setq time (cputime ));cputime is a system function
+    (displayArrivalTime scv)
+    (printf "runtime is %.3f seconds\n" 
+            (quotient
+              (difference (cputime ) time)
+              60.0)))
+  (when 
+    (nequal 
+      (getOptionTimingAnalysis )->staField->value
+      "off")
+    (calculateSlacks scv))
+  )
 
-  removeAllLabels = 
-  (lambda (scv)
+removeAllLabels = 
+(lambda (scv)
+  (foreach 
+    instance scv~>instances
     (foreach 
-      instance scv~>instances
-      (foreach 
-        child instance~>children
-        (when 
-          (and
-            (equal child~>objType "label")
-            child~>instTermName)
-          (dbDeleteObject child))))
-    (deleteAllArvTime scv))
+      child instance~>children
+      (when 
+        (and
+          (equal child~>objType "label")
+          child~>instTermName)
+        (dbDeleteObject child))))
+  (deleteAllArvTime scv))
 
-  (defun displayArrivalTime (scv)
-    ;(define paramList (getParamsFromOptionsForm ))
-    (removeAllLabels scv)
-    (unless (nequal (getOptionTimingAnalysis )->removeLabels->value
-                    "off")
-      (mainTimingPropagation scv)
-      (glueLabelsToInst_inout scv)
-      )
-    (when (nequal (getOptionTimingAnalysis )->staField->value
+(defun displayArrivalTime (scv)
+  ;(define paramList (getParamsFromOptionsForm ))
+  (removeAllLabels scv)
+  (unless (nequal (getOptionTimingAnalysis )->removeLabels->value
                   "off")
-      (calculateSlacks scv)))
+    (mainTimingPropagation scv)
+    (glueLabelsToInst_inout scv)
+    ))
 
-  (defun glueLabelsToInst_inout (scv)
+(defun glueLabelsToInst_inout (scv)
+  (foreach 
+    inst scv~>instances
     (foreach 
-      inst scv~>instances
-      (foreach 
-        x (outputTerms inst)
-        (when (and x~>arvTimeMin
-                   (or 
-                     (null (isPTLFamily inst))
-                     (isPTLRec inst)))
-          (glueLabelsToInstTerm x (list x~>arvTimeMin x~>numPtlCellMin) "upperCenter")
-          (glueLabelsToInstTerm x (list x~>arvTimeMax x~>numPtlCellMax) "lowerCenter")))
-      (foreach x (inputTerms inst)
-               (when 
-                 (and x~>arvTimeMin
-                      (or (null (isPTLFamily inst)) (isPTLRec inst)))
-                 (glueLabelsToInstTerm x (list x~>arvTimeMin x~>numPtlCellMin) "upperCenter")
-                 (glueLabelsToInstTerm x (list x~>arvTimeMax x~>numPtlCellMax) "lowerCenter")))
-      ))					  
+      x (outputTerms inst)
+      (when (and x~>arvTimeMin
+                 (or 
+                   (null (isPTLFamily inst))
+                   (isPTLRec inst)))
+        (glueLabelsToInstTerm x (list x~>arvTimeMin x~>numPtlCellMin) "upperCenter")
+        (glueLabelsToInstTerm x (list x~>arvTimeMax x~>numPtlCellMax) "lowerCenter")))
+    (foreach x (inputTerms inst)
+             (when 
+               (and x~>arvTimeMin
+                    (or (null (isPTLFamily inst)) (isPTLRec inst)))
+               (glueLabelsToInstTerm x (list x~>arvTimeMin x~>numPtlCellMin) "upperCenter")
+               (glueLabelsToInstTerm x (list x~>arvTimeMax x~>numPtlCellMax) "lowerCenter")))
+    ))					  
 
-  (defun glueLabelsToInstTerm (instTerm arvTime position)
-    (define label 
-      (dbCreateLabel 
-        instTerm~>inst~>cellView 
-        LABEL_LAYER
-        (getInstTermCoord instTerm)
-        (sprintf nil "%.1f\n%d" (car arvTime) (cadr arvTime))
-        position
-        "R0"
-        "roman"
-        0.03125))
-    (schGlueLabel label instTerm~>inst)
-    label~>instTermName = instTerm~>name)
+(defun glueLabelsToInstTerm (instTerm arvTime position)
+  (define label 
+    (dbCreateLabel 
+      instTerm~>inst~>cellView 
+      LABEL_LAYER
+      (getInstTermCoord instTerm)
+      (sprintf nil "%.1f\n%d" (car arvTime) (cadr arvTime))
+      position
+      "R0"
+      "roman"
+      0.03125))
+  (schGlueLabel label instTerm~>inst)
+  label~>instTermName = instTerm~>name)
 
-  (defun upperCenter (bBox)
-    (list ((caar bBox) + (caadr bBox)) / 2
-          (cadadr bBox)))
+(defun upperCenter (bBox)
+  (list ((caar bBox) + (caadr bBox)) / 2
+        (cadadr bBox)))
 
 ;  );let

@@ -103,7 +103,9 @@
   ;local functions
   (defun setArvTimeInputTermsCalcNext (inputTermsCalcNext)
     (define inputTerm nil)
-    (while (setq inputTerm (car inputTermsCalcNext))
+    (while 
+    (setq inputTerm (car inputTermsCalcNext))
+      (printf "debug:%L\n" inputTerm~>inst~>name)
            (setq inputTermsCalcNext
                  (append
                    (cdr inputTermsCalcNext)

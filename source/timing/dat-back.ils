@@ -75,8 +75,10 @@
   (define vbMax 8)
   (define vbMin 6)
 
-  (defun letMainTimingPropagation (argueCv)
+  mainTimingPropagation =
+  (lambda (argueCv)
     ;; initialization
+    (printf "debug:maintimingpropagation")
     (setq cv argueCv)
     (when (boundp 'OPTION_TIMING_ANALYSIS)
       (setq netDelay (getOptionTimingAnalysis )->netDelay->value)
@@ -94,7 +96,6 @@
     (printf "runtime of timing propagation is %.3f seconds\n"
             (quotient (difference (cputime ) time)
                   60.0)))
-  mainTimingPropagation = letMainTimingPropagation
 
   ;local functions
   (defun setArvTimeInputTermsCalcNext (inputTermsCalcNext)
